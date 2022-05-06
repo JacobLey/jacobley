@@ -9,14 +9,16 @@ jobs:
     strategy:
       matrix:
         file:
-          - name: foo.txt
-          - name: bar.txt
+          - name: foo
+            ext: txt
+          - name: bar
+          - ext: json
     steps:
       - uses: actions/checkout@v3
 
       - run: |
-          echo "THIS HAS SOME DATA IN A FILE NAMED ${{ matrix.file.name }}" > ${{ matrix.file.name }}
-          tar -zcf ${{ matrix.file.name }}.tgz ${{ matrix.file.name }}
+          echo "THIS HAS SOME DATA IN A FILE NAMED ${{ matrix.file.name }}" > ${{ matrix.file.name }}.${{ matrix.file.ext }}
+          tar -zcf ${{ matrix.file.name }}.tgz ${{ matrix.file.name }}.${{ matrix.file.ext }}
 
       - uses: actions/upload-artifact@v3
         with:
