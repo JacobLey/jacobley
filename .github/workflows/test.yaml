@@ -12,7 +12,7 @@ jobs:
           - name: foo
             ext: txt
           - name: bar
-          - ext: json
+            ext: json
     steps:
       - uses: actions/checkout@v3
 
