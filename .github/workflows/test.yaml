@@ -1,0 +1,44 @@
+name: Test
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+jobs:
+  first:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: ['foo.txt', 'bar.txt']
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          echo "THIS HAS SOME DATA IN A FILE NAMED ${{ matrix.file }}" > ${{ matrix.file }}
+          tar -zcf ${{ matrix.file }}.tgz ${{ matrix.file }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: total
+          path: ${{ matrix.file }}.tgz
+          retention-days: 1
+
+  second:
+    needs: first
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: ['foo-2.txt', 'bar-2.txt']
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: total
+
+      - run: |
+          echo "THIS HAS SOME DATA IN A FILE NAMED ${{ matrix.file }}" > ${{ matrix.file }}
+          tar -zcf ${{ matrix.file }}.tgz ${{ matrix.file }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: total
+          path: ${{ matrix.file }}.tgz
+          retention-days: 1
