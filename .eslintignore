@@ -1,0 +1,7 @@
+!**/.*.cjs
+
+node_modules
+
+packages/*/coverage
+packages/*/dist
+packages/*/nyc
