@@ -1,0 +1,58 @@
+{
+  "name": "juniper",
+  "version": "1.0.2",
+  "description": "ESM JSON Schema builder for static Typescript inference.",
+  "engines": {
+    "node": ">=14",
+    "npm": ">=7"
+  },
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/jacobley/jacobley/packages/juniper#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "keywords": [
+    "JSON",
+    "schema",
+    "json-schema",
+    "typescript",
+    "builder",
+    "static-types",
+    "open-api",
+    "swagger"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc --build",
+    "build:ci": "tsc",
+    "coverage": "npm run instrument && nyc mocha ./nyc/tests/unit",
+    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
+    "lint": "npm run -w=../.. --include-workspace-root package-lint",
+    "lint:fix": "npm run -w=../.. --include-workspace-root package-lint:fix",
+    "test": "npm run coverage",
+    "unit-test": "mocha ./dist/tests/unit"
+  },
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": [
+        "./src/index.ts",
+        "./dist/index.d.ts"
+      ],
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "escape-string-regexp": "4 - 5"
+  },
+  "devDependencies": {
+    "ajv": "8.11.0",
+    "default-import": "file:../default-import",
+    "chai": "4.3.6",
+    "expect-type": "0.13.0",
+    "sinon": "14.0.0"
+  }
+}
