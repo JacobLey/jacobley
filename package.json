@@ -1,0 +1,55 @@
+{
+  "name": "jacobley",
+  "version": "0.0.0",
+  "description": "Monorepo root.",
+  "engines": {
+    "node": ">=14",
+    "npm": ">=7"
+  },
+  "private": true,
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/jacobley/jacobley#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "sideEffects": false,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "barrel": "barrelify --ignore './packages/barrelify/src/tests/data/wrong/*'",
+    "barrel:ci": "barrelify ci --ignore './packages/barrelify/src/tests/data/wrong/*'",
+    "lint": "eslint --cache --ext .cjs,.mjs . --report-unused-disable-directives",
+    "lint:fix": "eslint --cache --fix --ext .cjs,.mjs . --report-unused-disable-directives",
+    "package-lint": "eslint --cache --ext=.ts,.cts,.mts $INIT_CWD --report-unused-disable-directives",
+    "package-lint:fix": "eslint --cache --fix --ext=.ts,.cts,.mts $INIT_CWD --report-unused-disable-directives",
+    "rivendell": "rivendell compile",
+    "rivendell:ci": "rivendell ci"
+  },
+  "devDependencies": {
+    "@types/chai": "4.3.1",
+    "@types/dedent": "0.7.0",
+    "@types/minimatch": "3.0.5",
+    "@types/mocha": "9.1.1",
+    "@types/node": "17.0.33",
+    "@types/sinon": "10.0.11",
+    "@types/yargs": "17.0.10",
+    "@typescript-eslint/eslint-plugin": "5.24.0",
+    "@typescript-eslint/parser": "5.24.0",
+    "eslint": "8.15.0",
+    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-jsdoc": "39.2.9",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-sonarjs": "0.13.0",
+    "eslint-plugin-unicorn": "42.0.0",
+    "mocha": "10.0.0",
+    "nyc": "15.1.0",
+    "typescript": "4.7.1-rc"
+  },
+  "overrides": {
+    "typescript": "4.7.1-rc"
+  }
+}
