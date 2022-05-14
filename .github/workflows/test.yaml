@@ -28,7 +28,7 @@ jobs:
       - run: |
           echo "THIS HAS SOME DATA IN A FILE NAMED ${{ matrix.file.name }}" > a${{ matrix.file.name }}.b${{ matrix.file.ext }}
 
-          echo "Can I access data with depth? ${{ matrix.file.depth }}"
+          echo "Can I access data with depth? ${{ matrix.file.depth }} !! ${{ matrix.file.depth.yes }}"
 
       - id: my-step
         run: |
