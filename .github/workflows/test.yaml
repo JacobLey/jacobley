@@ -13,36 +13,30 @@ jobs:
             ext: txt
           - name: bar
             ext: json
+          - extra: true
+          - depth:
+              yes: 123
+          - arr:
+              - 1
+              - 2
+          - arr:
+              - a: 1
+              - b: 2
     steps:
       - uses: actions/checkout@v3
 
       - run: |
           echo "THIS HAS SOME DATA IN A FILE NAMED ${{ matrix.file.name }}" > ${{ matrix.file.name }}.${{ matrix.file.ext }}
-          tar -zcf ${{ matrix.file.name }}.tgz ${{ matrix.file.name }}.${{ matrix.file.ext }}
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: total
-          path: ${{ matrix.file.name }}.tgz
-          retention-days: 1
+          echo "Can I access data with depth? ${{ matrix.file.depth }}"
 
-  second:
-    needs: first
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        file: ['foo-2.txt', 'bar-2.txt']
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: total
+      - id: my-step
+        run: |
+          echo "::set-output name=action_fruit::strawberry"
 
-      - run: |
-          echo "THIS HAS SOME DATA IN A FILE NAMED ${{ matrix.file }}" > ${{ matrix.file }}
-          tar -zcf ${{ matrix.file }}.tgz ${{ matrix.file }}
+      - id: outputs-echo-file
+        run: $(./outputs.sh)
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: total
-          path: ${{ matrix.file }}.tgz
-          retention-days: 1
+      - id: outputs-raw-file
+        run: $(./other-outputs.sh)
+
