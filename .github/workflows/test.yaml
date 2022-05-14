@@ -37,8 +37,16 @@ jobs:
       - id: outputs-echo-file
         run: echo $(./outputs.sh)
 
+      - id: json
+        run: echo "::set-output name=multiline::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
+
       - run: |
           echo "multiline = ${{ steps.outputs-echo-file.outputs.multiline }}"
           echo "multiline-json = ${{ fromJSON(steps.outputs-echo-file.outputs.multiline) }}"
           echo "multiline-x = ${{ steps.outputs-echo-file.outputs.multiline.x }}"
           echo "multiline-json-x = ${{ fromJSON(steps.outputs-echo-file.outputs.multiline).x }}"
+
+          echo "json = ${{ steps.json.outputs.multiline }}"
+          echo "json-json = ${{ fromJSON(steps.json.outputs.multiline) }}"
+          echo "json-x = ${{ steps.json.outputs.multiline.include }}"
+          echo "json-json-x = ${{ fromJSON(steps.json.outputs.multiline).include }}"
