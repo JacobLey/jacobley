@@ -40,9 +40,15 @@ jobs:
       - id: outputs-raw-file
         run: echo $(./other-outputs.sh)
 
+      - id: outputs-combined-file
+        run: echo $(./combined-outputs.sh)
+
       - run: |
           echo "multiline = ${{ steps.outputs-echo-file.outputs.multiline }}"
           echo "with-json = ${{ steps.outputs-echo-file.outputs.with-json }}"
 
           echo "multiline-2 = ${{ steps.outputs-raw-file.outputs.multiline-2 }}"
           echo "with-json-2 = ${{ steps.outputs-raw-file.outputs.with-json-2 }}"
+
+          echo "multiline-3 = ${{ steps.outputs-combined-file.outputs.multiline-3 }}"
+          echo "with-json-3 = ${{ steps.outputs-combined-file.outputs.with-json-3 }}"
