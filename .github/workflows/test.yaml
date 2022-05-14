@@ -22,7 +22,7 @@ jobs:
 
           echo "Can I access data with depth? ${{ matrix.file.depth }} !! ${{ matrix.file.depth.yes }}"
 
-          echo "Can I access data with array? ${{ matrix.file.arr }} !! ${{ matrix.file.arr.0 }}" !! ${{ matrix.file.arr[0] }} !! ${{ matrix.file.arr.0.a }}" !! ${{ matrix.file.arr[0].a }}"
+          echo "Can I access data with array? ${{ matrix.file.arr }} !! ${{ matrix.file.arr[0] }} !! ${{ matrix.file.arr[0].a }}"
 
       - id: my-step
         run: |
