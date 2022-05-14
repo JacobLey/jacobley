@@ -37,9 +37,6 @@ jobs:
       - id: outputs-echo-file
         run: echo $(./outputs.sh)
 
-      - id: outputs-raw-file
-        run: $(./other-outputs.sh)
-
       - id: outputs-combined-file
         run: echo $(./combined-outputs.sh)
 
