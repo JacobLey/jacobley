@@ -35,8 +35,8 @@ jobs:
           echo "::set-output name=action_fruit::strawberry"
 
       - id: outputs-echo-file
-        run: $(./outputs.sh)
+        run: echo $(./outputs.sh)
 
       - id: outputs-raw-file
-        run: $(./other-outputs.sh)
+        run: echo $(./other-outputs.sh)
 
