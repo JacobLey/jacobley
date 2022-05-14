@@ -39,4 +39,6 @@ jobs:
 
       - run: |
           echo "multiline = ${{ steps.outputs-echo-file.outputs.multiline }}"
-          echo "multiline-x = ${{ fromJSON(steps.outputs-echo-file.outputs.multiline).x }}"
+          echo "multiline-json = ${{ fromJSON(steps.outputs-echo-file.outputs.multiline) }}"
+          echo "multiline-x = ${{ steps.outputs-echo-file.outputs.multiline.x }}"
+          echo "multiline-json-x = ${{ fromJSON(steps.outputs-echo-file.outputs.multiline).x }}"
