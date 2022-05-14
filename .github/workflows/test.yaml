@@ -45,6 +45,7 @@ jobs:
 
       - run: |
           echo "multiline = ${{ steps.outputs-echo-file.outputs.multiline }}"
+          echo "multiline-x = ${{ steps.outputs-echo-file.outputs.multiline.x }}"
           echo "with-json = ${{ steps.outputs-echo-file.outputs.with-json }}"
 
           echo "multiline-2 = ${{ steps.outputs-raw-file.outputs.multiline-2 }}"
