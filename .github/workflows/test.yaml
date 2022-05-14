@@ -11,14 +11,6 @@ jobs:
         file:
           - name: foo
             ext: txt
-          - name: bar
-            ext: json
-          - extra: true
-          - depth:
-              yes: 123
-          - arr:
-              - 1
-              - 2
           - arr:
               - a: 1
               - b: 2
@@ -29,6 +21,8 @@ jobs:
           echo "THIS HAS SOME DATA IN A FILE NAMED ${{ matrix.file.name }}" > a${{ matrix.file.name }}.b${{ matrix.file.ext }}
 
           echo "Can I access data with depth? ${{ matrix.file.depth }} !! ${{ matrix.file.depth.yes }}"
+
+          echo "Can I access data with array? ${{ matrix.file.arr }} !! ${{ matrix.file.arr.0 }}" !! ${{ matrix.file.arr[0] }} !! ${{ matrix.file.arr.0.a }}" !! ${{ matrix.file.arr[0].a }}"
 
       - id: my-step
         run: |
