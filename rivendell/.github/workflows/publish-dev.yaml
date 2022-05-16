@@ -1,0 +1,85 @@
+name: Publish Canary
+on:
+  push:
+    branches-ignore:
+      # Hopefully used for github pages deployments in future
+      - gh-pages
+      # Personal branch to create PRs from
+      - jley-*
+
+jobs:
+  # This workflow triggers on push, so there is no simple concept of "diff"
+  # So no need to pass base/head refs (will _always_ trigger internal lint/test)
+  build-and-test:
+    uses: ./.github/workflows/build-and-test.yaml
+
+  publish-canary:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ${{{ rivendell.all-packages }}}
+    steps:
+      # Artifact includes node_modules + all built packages
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Unpack only node_modules (rivendell executable) + specific build
+      - run: |
+          tar -xf ./tarballs/node_modules.tgz
+          tar -xf ./tarballs/${{ matrix.package.safe-name }}.tgz
+
+      # List all dependencies + hash for a package
+      # In "--only=prod" mode so test/dev only changes will not trigger a publish
+      - id: rivendell
+        run: |
+          echo "::set-output name=dependencies::$(npx rivendell dependencies ${{ matrix.package.name }} --only=prod)"
+          echo "::set-output name=hash::$(npx rivendell hash ${{ matrix.package.name }} --only=prod)"
+
+      # Authorize NPM + download jq (CLI for JSON parsing + manipulation)
+      - run: |
+          echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }} >> ~/.npmrc
+          sudo apt-get install jq
+
+      # Update `file://...` "versions" for local dependencies
+      - working-directory: ${{ matrix.package.path }}
+        run: |
+
+          VERSION=$(npm pkg --no-workspaces get version | sed -e "s|\"||g")
+          DEV_VERSION="${VERSION}-dev.${{ steps.rivendell.outputs.hash }}"
+
+          if [[ $(../../scripts/package-exists.mjs ${{ matrix.package.name }} $DEV_VERSION) == true ]]
+            then
+              exit 0
+          fi
+
+          npm version --git-tag-version=false $DEV_VERSION
+
+          DEPENDENCIES="${{ toJSON(steps.rivendell.outputs.dependencies) }}"
+          for PACKAGE_NAME in $(echo $DEPENDENCIES | jq 'keys | join(" ")' -r)
+            do
+              PACKAGE_VERSION=$(echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].version' -r)
+              PACKAGE_HASH=$(echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].hash' -r)
+              if [[ $(echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].dev' -r) == true ]]
+                then
+                  DEPENDENCY_KIND=dependencies
+                else
+                  DEPENDENCY_KIND=devDependencies
+              fi
+              npm pkg set "${DEPENDENCY_KIND}.${PACKAGE_NAME}"="${PACKAGE_VERSION}-dev.${PACKAGE_HASH}"
+            done;
+
+          cp ../../common/npm/LICENSE ./LICENSE
+          cp ../../common/npm/.npmignore ./.npmignore
+
+          if [[ ${{ github.ref_name }} == main ]]
+            then
+              npm publish --tag=dev
+            else
+              npm publish --tag=ignore
+              npm dist-tag rm ${{ matrix.package.name }} ignore
+          fi

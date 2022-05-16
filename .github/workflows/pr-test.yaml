@@ -1,0 +1,32 @@
+name: PR Test
+on:
+  pull_request:
+    type:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+
+  ref-depth:
+    runs-on: ubuntu-latest
+    outputs:
+      depth: ${{ steps.depth.outputs.depth }}
+    steps:
+      - uses: actions/checkout@v3
+
+      # Fetch history up to base
+      - run: git fetch --negotiation-tip=${{ github.event.pull_request.base.sha }}
+
+      # Determine required depth by comparing base to head, then adding 1
+      - id: depth
+        run: echo "::set-output name=depth::$(($(git rev-list ${{
+          github.event.pull_request.base.sha }}..HEAD --count) + 1))"
+
+  build-and-test:
+    needs: ref-depth
+    uses: ./.github/workflows/build-and-test.yaml
+    with:
+      depth: ${{ needs.ref-depth.outputs.depth }}
+      base-ref: ${{ github.event.pull_request.base.sha }}
+      head-ref: ${{ github.event.pull_request.head.sha }}
