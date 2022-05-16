@@ -6,41 +6,10 @@ on:
 jobs:
   first:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        file:
-          - name: foo
-            ext: txt
-          - arr:
-              - a: 1
-              - b: 2
     steps:
       - uses: actions/checkout@v3
 
       - run: |
-          echo "THIS HAS SOME DATA IN A FILE NAMED ${{ matrix.file.name }}" > a${{ matrix.file.name }}.b${{ matrix.file.ext }}
+          echo HEAD === $(git rev-parse HEAD)
 
-          echo "Can I access data with depth? ${{ matrix.file.depth }} !! ${{ matrix.file.depth.yes }}"
-
-          echo "Can I access data with array? ${{ matrix.file.arr }} !! ${{ matrix.file.arr[0] }} !! ${{ matrix.file.arr[0].a }}"
-
-      - id: my-step
-        run: |
-          echo "::set-output name=action_fruit::strawberry"
-
-      - id: outputs-echo-file
-        run: echo $(./outputs.sh)
-
-      - id: json
-        run: echo "::set-output name=multiline::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
-
-      - run: |
-          echo "multiline = ${{ steps.outputs-echo-file.outputs.multiline }}"
-          echo "multiline-json = ${{ fromJSON(steps.outputs-echo-file.outputs.multiline) }}"
-          echo "multiline-x = ${{ steps.outputs-echo-file.outputs.multiline.x }}"
-          echo "multiline-json-x = ${{ fromJSON(steps.outputs-echo-file.outputs.multiline).x }}"
-
-          echo "json = ${{ steps.json.outputs.multiline }}"
-          echo "json-json = ${{ fromJSON(steps.json.outputs.multiline) }}"
-          echo "json-x = ${{ steps.json.outputs.multiline.include }}"
-          echo "json-json-x = ${{ fromJSON(steps.json.outputs.multiline).include }}"
+          echo GITHUB CONTEXT === ${{{ toJSON(github) }}}
