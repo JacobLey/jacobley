@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        depth: 0
 
       - run: |
           echo HEAD === $(git rev-parse HEAD)
