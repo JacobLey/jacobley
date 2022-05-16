@@ -44,7 +44,7 @@ const processJob = ({
         seq.add(needs);
         job.set('needs', seq);
         needs = seq;
-    } else if (stage?.stage) {
+    } else if (!needs && stage?.stage) {
         needs = new Yaml.YAMLSeq();
         job.set('needs', needs);
     }

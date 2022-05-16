@@ -622,6 +622,8 @@ jobs:
         run: npm run test
   package-test-1:
     needs:
+      - package-build-1
+      - package-lint
       - package-test-0
     runs-on: ubuntu-latest
     strategy:
@@ -670,6 +672,8 @@ jobs:
         run: npm run test
   package-test-2:
     needs:
+      - package-build-2
+      - package-lint
       - package-test-1
     runs-on: ubuntu-latest
     strategy:
@@ -715,6 +719,8 @@ jobs:
         run: npm run test
   package-test-3:
     needs:
+      - package-build-3
+      - package-lint
       - package-test-2
     runs-on: ubuntu-latest
     strategy:
@@ -757,6 +763,8 @@ jobs:
         run: npm run test
   package-test-4:
     needs:
+      - package-build-4
+      - package-lint
       - package-test-3
     runs-on: ubuntu-latest
     strategy:
