@@ -16,7 +16,9 @@ jobs:
       - uses: actions/checkout@v3
 
       # Fetch history up to base
-      - run: git fetch --negotiation-tip=${{ github.event.pull_request.base.sha }}
+      - run: |
+          git fetch origin ${{ github.event.pull_request.base.sha }}
+          git fetch --shallow-since="$(git show ${{ github.event.pull_request.base.sha }} --format="%cD" -s)" origin
 
       # Determine required depth by comparing base to head, then adding 1
       - id: depth
