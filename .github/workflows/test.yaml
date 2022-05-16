@@ -13,8 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        depth: 0
 
       - run: |
           echo HEAD === $(git rev-parse HEAD)
+
+          echo LOG = $(git log)
+
+          git fetch --depth=9999
+
+          echo FETCHED LOG = $(git log)
 
           echo GITHUB CONTEXT === "${{ toJSON(github) }}"
