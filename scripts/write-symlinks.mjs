@@ -23,7 +23,10 @@ await Promise.all(configNames.map(async configName => {
         try {
             const symlinkPath = Path.join(packagesDir, packageName, configName);
             await fs.symlink(
-                Path.relative(symlinkPath, Path.join(configsDir, configName)),
+                Path.relative(
+                    Path.dirname(symlinkPath),
+                    Path.join(configsDir, configName)
+                ),
                 symlinkPath
             );
             noError = true;
