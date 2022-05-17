@@ -1,1 +1,1 @@
-../../../common/configs/nyc.instrument.cjs
+../../common/configs/nyc.instrument.cjs

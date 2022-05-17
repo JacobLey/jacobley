@@ -1,1 +1,1 @@
-../../../common/configs/.mocharc.cjs
+../../common/configs/.mocharc.cjs

@@ -1,1 +1,1 @@
-../../../common/configs/nyc.config.cjs
+../../common/configs/nyc.config.cjs
