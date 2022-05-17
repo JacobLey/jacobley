@@ -56,6 +56,7 @@ jobs:
             safe-name: rivendell
             path: packages/rivendell
     steps:
+      - uses: actions/checkout@v3
       # Artifact includes node_modules + all built packages
       - uses: actions/download-artifact@v3
         with:
