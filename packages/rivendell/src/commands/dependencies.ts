@@ -14,6 +14,7 @@ export const dependencies: CommandModule<{
     baseRef: string | undefined;
     headRef: string;
     only: 'dev' | 'prod' | undefined;
+    pretty: boolean;
 }> = {
     command: 'dependencies <package-name> [base-ref] [head-ref]',
     describe: 'List dependencies + metadata of package',
@@ -34,6 +35,10 @@ export const dependencies: CommandModule<{
     }).option('only', {
         description: 'Restrict to prod/dev files',
         choices: ['prod', 'dev'] as const,
+    }).option('pretty', {
+        description: 'Pretty print JSON',
+        type: 'boolean',
+        default: false,
     }).strict(),
     handler: async options => {
 
@@ -62,6 +67,6 @@ export const dependencies: CommandModule<{
             baseRef: options.baseRef,
         });
 
-        console.info(JSON.stringify(output, null, 2));
+        console.info(JSON.stringify(output, null, options.pretty ? 2 : 0));
     },
 };
