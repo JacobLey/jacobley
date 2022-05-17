@@ -169,7 +169,7 @@ jobs:
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz "${{ matrix.package.path }}/dist/**"
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{ matrix.package.path }}/dist/**
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
