@@ -211,7 +211,7 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
           tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       # Generate a hash that specifies "state" of package + dependencies
@@ -289,7 +289,7 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
           tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       # Generate a hash that specifies "state" of package + dependencies
@@ -364,7 +364,7 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
           tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       # Generate a hash that specifies "state" of package + dependencies
@@ -436,7 +436,7 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
           tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       # Generate a hash that specifies "state" of package + dependencies
@@ -508,7 +508,7 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
           tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       # Generate a hash that specifies "state" of package + dependencies
@@ -591,7 +591,7 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
           tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       - name: Check if package has changes
@@ -638,7 +638,7 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
           tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       - name: Check if package has changes
@@ -682,7 +682,7 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
           tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       - name: Check if package has changes
@@ -723,7 +723,7 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
           tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       - name: Check if package has changes
@@ -764,7 +764,7 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
           tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       - name: Check if package has changes
