@@ -73,9 +73,9 @@ jobs:
       # In "--only=prod" mode so test/dev only changes will not trigger a publish
       - id: rivendell
         run: |
-          DEPENDENCIES=`npx rivendell-dist dependencies ${{ matrix.package.name }} --only=prod`
+          DEPENDENCIES=`npx rivendell dependencies ${{ matrix.package.name }} --only=prod`
           echo "::set-output name=dependencies::${DEPENDENCIES}"
-          HASH=`npx rivendell-dist hash ${{ matrix.package.name }} --only=prod`
+          HASH=`npx rivendell hash ${{ matrix.package.name }} --only=prod`
           echo "::set-output name=hash::${HASH}"
 
       # Authorize NPM + download jq (CLI for JSON parsing + manipulation)

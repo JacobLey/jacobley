@@ -107,7 +107,7 @@ jobs:
       - name: Check if package has changes
         id: rivendell
         run: |
-          CHANGED=`npx rivendell-dist changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
 
       - if: steps.rivendell.outputs.changed == 'true'
@@ -146,7 +146,7 @@ jobs:
       - name: Calculate dependency hash
         id: rivendell
         run: |
-          HASH=`npx rivendell-dist hash ${{ matrix.package.name }}`
+          HASH=`npx rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
       # Try to load a previously cached version of build (determined by hash)
@@ -214,7 +214,7 @@ jobs:
 
       - name: Check if package has changes
         run: |
-          CHANGED=`npx rivendell-dist changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
         id: rivendell
 
