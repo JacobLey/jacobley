@@ -1,1 +1,1 @@
-/Users/jacobley/jacobley/common/configs/.mocharc.cjs
+../../../common/configs/.mocharc.cjs
