@@ -46,7 +46,7 @@ jobs:
       - run: |
           mkdir tarballs
           mkdir pre-build-tarball
-          tar -zcf ./tarballs/node_modules.tgz ./node_modules
+          tar -zcf ./tarballs/node_modules.tgz ./node_modules ./packages/*/node_modules
           tar -zcf ./pre-build-tarball/pre-build.tgz ./packages/*/dist/**
       - uses: actions/upload-artifact@v3
         with:
