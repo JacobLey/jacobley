@@ -64,7 +64,7 @@ jobs:
 
           npm version --git-tag-version=false $DEV_VERSION
 
-          DEPENDENCIES='${{ toJSON(steps.rivendell.outputs.dependencies) }}'
+          DEPENDENCIES=${{ toJSON(steps.rivendell.outputs.dependencies) }}
           PACKAGE_NAMES=`echo $DEPENDENCIES | jq 'keys | join(" ")' -r`
           for PACKAGE_NAME in $PACKAGE_NAMES
             do
