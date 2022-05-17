@@ -53,8 +53,8 @@ jobs:
           name: build
           # Use wildcard to ensure full path is written
           path: |
-            '*tarballs/node_modules.tgz'
-            '*pre-build-tarball/pre-build.tgz'
+            *tarballs/node_modules.tgz
+            *pre-build-tarball/pre-build.tgz
           retention-days: 1
 
   root-test:
