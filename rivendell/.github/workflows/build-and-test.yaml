@@ -60,11 +60,15 @@ jobs:
   root-test:
     needs: install-root
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: ${{ matrix.node-version }}
       - uses: actions/download-artifact@v3
         with:
           name: build
@@ -81,6 +85,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        node-version:
+          - 16
         # Rivendell will auto-expand to each package
         package: ${{{ rivendell.all-packages }}}
     steps:
@@ -91,7 +97,7 @@ jobs:
           fetch-depth: ${{ inputs.depth }}
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: ${{ matrix.node-version }}
       - uses: actions/download-artifact@v3
         with:
           name: build
@@ -154,7 +160,7 @@ jobs:
         id: hash-build
         with:
           path: ./tarballs/${{ matrix.package.safe-name }}.tgz
-          key: ${{ runner.os }}-package-${{ matrix.package.name }}-${{ steps.rivendell.outputs.hash }}
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{ steps.rivendell.outputs.hash }}
 
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -181,6 +187,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        node-version:
+          - 16
         package: ${{{ rivendell.stage-packages }}}
     steps:
       - uses: actions/checkout@v3
@@ -188,7 +196,7 @@ jobs:
           fetch-depth: ${{ inputs.depth }}
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: ${{ matrix.node-version }}
       - uses: actions/download-artifact@v3
         with:
           name: build
@@ -221,11 +229,15 @@ jobs:
       # which implicitly requires all packages built
       - package-test-${{{ rivendell.max-stage }}}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: ${{ matrix.node-version }}
       - run: |
           for TARBALL in ./tarballs/*.tgz
             do
