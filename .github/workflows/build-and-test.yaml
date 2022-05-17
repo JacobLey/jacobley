@@ -229,25 +229,15 @@ jobs:
           key: ${{ runner.os }}-package-${{ matrix.package.name }}-${{
             steps.rivendell.outputs.hash }}
 
-      # If cache missed (continued) build the package, and generate a pack (ensure respect .npmignore)
+      # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: |
-          npm run build:ci
-          # Pack to get list of desired files
-          cp ../../common/npm/.npmignore ./.npmignore
-          npm pack
+        run: npm run build:ci
 
-      # If cache missed (continued) copy packed files into tarball
+      # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: |
-          VERSION=`npm exec -w=${{ matrix.package.name }} -c 'npm pkg --no-workspaces get version' | sed -e "s|\"||g"`
-          # List files in npm packed archive
-          tar -tf "${{ matrix.package.path }}/${{ matrix.package.name }}-${VERSION}.tgz" | \
-            `# redirect package to file path` \
-            sed -e "s|^package|${{ matrix.package.path }}|" | \
-            `# pack new file based on list with proper paths` \
-            tar -czf ./tarballs/${{ matrix.package.safe-name }}.tgz -T -
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz "${{
+          matrix.package.path }}/dist/**"
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
@@ -307,25 +297,15 @@ jobs:
           key: ${{ runner.os }}-package-${{ matrix.package.name }}-${{
             steps.rivendell.outputs.hash }}
 
-      # If cache missed (continued) build the package, and generate a pack (ensure respect .npmignore)
+      # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: |
-          npm run build:ci
-          # Pack to get list of desired files
-          cp ../../common/npm/.npmignore ./.npmignore
-          npm pack
+        run: npm run build:ci
 
-      # If cache missed (continued) copy packed files into tarball
+      # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: |
-          VERSION=`npm exec -w=${{ matrix.package.name }} -c 'npm pkg --no-workspaces get version' | sed -e "s|\"||g"`
-          # List files in npm packed archive
-          tar -tf "${{ matrix.package.path }}/${{ matrix.package.name }}-${VERSION}.tgz" | \
-            `# redirect package to file path` \
-            sed -e "s|^package|${{ matrix.package.path }}|" | \
-            `# pack new file based on list with proper paths` \
-            tar -czf ./tarballs/${{ matrix.package.safe-name }}.tgz -T -
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz "${{
+          matrix.package.path }}/dist/**"
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
@@ -382,25 +362,15 @@ jobs:
           key: ${{ runner.os }}-package-${{ matrix.package.name }}-${{
             steps.rivendell.outputs.hash }}
 
-      # If cache missed (continued) build the package, and generate a pack (ensure respect .npmignore)
+      # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: |
-          npm run build:ci
-          # Pack to get list of desired files
-          cp ../../common/npm/.npmignore ./.npmignore
-          npm pack
+        run: npm run build:ci
 
-      # If cache missed (continued) copy packed files into tarball
+      # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: |
-          VERSION=`npm exec -w=${{ matrix.package.name }} -c 'npm pkg --no-workspaces get version' | sed -e "s|\"||g"`
-          # List files in npm packed archive
-          tar -tf "${{ matrix.package.path }}/${{ matrix.package.name }}-${VERSION}.tgz" | \
-            `# redirect package to file path` \
-            sed -e "s|^package|${{ matrix.package.path }}|" | \
-            `# pack new file based on list with proper paths` \
-            tar -czf ./tarballs/${{ matrix.package.safe-name }}.tgz -T -
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz "${{
+          matrix.package.path }}/dist/**"
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
@@ -454,25 +424,15 @@ jobs:
           key: ${{ runner.os }}-package-${{ matrix.package.name }}-${{
             steps.rivendell.outputs.hash }}
 
-      # If cache missed (continued) build the package, and generate a pack (ensure respect .npmignore)
+      # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: |
-          npm run build:ci
-          # Pack to get list of desired files
-          cp ../../common/npm/.npmignore ./.npmignore
-          npm pack
+        run: npm run build:ci
 
-      # If cache missed (continued) copy packed files into tarball
+      # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: |
-          VERSION=`npm exec -w=${{ matrix.package.name }} -c 'npm pkg --no-workspaces get version' | sed -e "s|\"||g"`
-          # List files in npm packed archive
-          tar -tf "${{ matrix.package.path }}/${{ matrix.package.name }}-${VERSION}.tgz" | \
-            `# redirect package to file path` \
-            sed -e "s|^package|${{ matrix.package.path }}|" | \
-            `# pack new file based on list with proper paths` \
-            tar -czf ./tarballs/${{ matrix.package.safe-name }}.tgz -T -
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz "${{
+          matrix.package.path }}/dist/**"
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
@@ -526,25 +486,15 @@ jobs:
           key: ${{ runner.os }}-package-${{ matrix.package.name }}-${{
             steps.rivendell.outputs.hash }}
 
-      # If cache missed (continued) build the package, and generate a pack (ensure respect .npmignore)
+      # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: |
-          npm run build:ci
-          # Pack to get list of desired files
-          cp ../../common/npm/.npmignore ./.npmignore
-          npm pack
+        run: npm run build:ci
 
-      # If cache missed (continued) copy packed files into tarball
+      # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: |
-          VERSION=`npm exec -w=${{ matrix.package.name }} -c 'npm pkg --no-workspaces get version' | sed -e "s|\"||g"`
-          # List files in npm packed archive
-          tar -tf "${{ matrix.package.path }}/${{ matrix.package.name }}-${VERSION}.tgz" | \
-            `# redirect package to file path` \
-            sed -e "s|^package|${{ matrix.package.path }}|" | \
-            `# pack new file based on list with proper paths` \
-            tar -czf ./tarballs/${{ matrix.package.safe-name }}.tgz -T -
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz "${{
+          matrix.package.path }}/dist/**"
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
