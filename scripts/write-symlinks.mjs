@@ -21,9 +21,10 @@ let noError = false;
 await Promise.all(configNames.map(async configName => {
     await Promise.all(packageNames.map(async packageName => {
         try {
+            const symlinkPath = Path.join(packagesDir, packageName, configName);
             await fs.symlink(
-                Path.join(configsDir, configName),
-                Path.join(packagesDir, packageName, configName)
+                Path.relative(symlinkPath, Path.join(configsDir, configName)),
+                symlinkPath
             );
             noError = true;
         } catch (err) {
