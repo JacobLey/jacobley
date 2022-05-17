@@ -28,10 +28,11 @@ jobs:
         with:
           node-version: 16
 
-      # Unpack only node_modules (rivendell executable) + specific build
       - run: |
-          tar -xf ./tarballs/node_modules.tgz
-          tar -xf ./tarballs/${{ matrix.package.safe-name }}.tgz
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
 
       # List all dependencies + hash for a package
       # In "--only=prod" mode so test/dev only changes will not trigger a publish
