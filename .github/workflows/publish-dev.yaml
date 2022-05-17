@@ -104,9 +104,9 @@ jobs:
           PACKAGE_NAMES=`echo $DEPENDENCIES | jq 'keys | join(" ")' -r`
           for PACKAGE_NAME in $PACKAGE_NAMES
             do
-              PACKAGE_VERSION=`echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].version' -r`
-              PACKAGE_HASH=`echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].hash' -r`
-              IS_DEV_DEPENDENCY=`echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].dev' -r`
+              PACKAGE_VERSION=`echo $DEPENDENCIES | jq ".[\"${PACKAGE_NAME}\"].version" -r`
+              PACKAGE_HASH=`echo $DEPENDENCIES | jq ".[\"${PACKAGE_NAME}\"].hash" -r`
+              IS_DEV_DEPENDENCY=`echo $DEPENDENCIES | jq ".[\"${PACKAGE_NAME}\"].dev" -r`
               if [[ $IS_DEV_DEPENDENCY == true ]]
                 then
                   DEPENDENCY_KIND=devDependencies
