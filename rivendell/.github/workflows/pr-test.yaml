@@ -18,16 +18,19 @@ jobs:
       # Fetch history up to base
       - run: |
           git fetch origin ${{ github.event.pull_request.base.sha }}
-          git fetch --shallow-since="$(git show ${{ github.event.pull_request.base.sha }} --format="%cD" -s)" origin
+          COMMITTER_DATE=`git show ${{ github.event.pull_request.base.sha }} --format="%cD" -s`
+          git fetch --shallow-since="${COMMITTER_DATE}" origin
 
       # Determine required depth by comparing base to head, then adding 1
       - id: depth
-        run: echo "::set-output name=depth::$(($(git rev-list ${{ github.event.pull_request.base.sha }}..HEAD --count) + 1))"
+        run: |
+          COUNT=`git rev-list ${{ github.event.pull_request.base.sha }}..HEAD --count`
+          echo "::set-output name=depth::$(($COUNT + 1))"
 
   build-and-test:
     needs: ref-depth
     uses: ./.github/workflows/build-and-test.yaml
     with:
-      depth: ${{ needs.ref-depth.outputs.depth }}
+      depth: ${{ fromJSON(needs.ref-depth.outputs.depth) }}
       base-ref: ${{ github.event.pull_request.base.sha }}
       head-ref: ${{ github.event.pull_request.head.sha }}

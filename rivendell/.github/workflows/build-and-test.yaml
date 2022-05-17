@@ -37,15 +37,24 @@ jobs:
       - if: steps.cache-install.outputs.cache-hit != 'true'
         run: npm ci -ws --include-workspace-root
 
+      # Chicken+egg problem that rivendell is not built yet, but we want CLI commands...
+      - working-directory: ./packages/rivendell
+        run: npm run build
+
       # We'll store all our outputted "builds" in a `./tarballs` directory
       # that only needs to live for the rest of the build + test
       - run: |
           mkdir tarballs
+          mkdir pre-build-tarball
           tar -zcf ./tarballs/node_modules.tgz ./node_modules
+          tar -zcf ./pre-build-tarball/pre-build.tgz ./packages/*/dist/**
       - uses: actions/upload-artifact@v3
         with:
           name: build
-          path: ./tarballs/node_modules.tgz
+          # Use wildcard to ensure full path is written
+          path: |
+            '*tarballs/node_modules.tgz'
+            '*pre-build-tarball/pre-build.tgz'
           retention-days: 1
 
   root-test:
@@ -64,7 +73,7 @@ jobs:
       # Conceptually barrel + rivendell checks should go here... but files aren't built yet
       - run: |
           ./scripts/write-symlinks.mjs
-          npm run lint:root
+          npm run lint
 
   # For each package (matrix.package) run lint tests
   package-lint:
@@ -90,12 +99,16 @@ jobs:
       # Only need to unpack node_modules (eslint executable + third party types).
       # Packages are being built, but package.json specifies to use original `.ts`
       # types over build `.d.ts` files, so everything that is required is already available.
-      - run: tar -xf ./tarballs/node_modules.tgz
+      - run: |
+          tar -xf ./tarballs/node_modules.tgz
+          tar -xf ./pre-build-tarball/pre-build.tgz
 
       # If a package has not changed since
       - name: Check if package has changes
         id: rivendell
-        run: echo "::set-output name=changed::$(npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }})"
+        run: |
+          CHANGED=`npx rivendell-dist changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
 
       - if: steps.rivendell.outputs.changed == 'true'
         working-directory: ${{ matrix.package.path }}
@@ -120,13 +133,21 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build
-      # And only unpack node_modules for now
-      - run: tar -xf ./tarballs/node_modules.tgz
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
 
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
-        run: echo "::set-output name=hash::$(npx rivendell hash ${{ matrix.package.name }})"
+        run: |
+          HASH=`npx rivendell-dist hash ${{ matrix.package.name }}`
+          echo "::set-output name=hash::${HASH}"
 
       # Try to load a previously cached version of build (determined by hash)
       - uses: actions/cache@v3
@@ -134,18 +155,6 @@ jobs:
         with:
           path: ./tarballs/${{ matrix.package.safe-name }}.tgz
           key: ${{ runner.os }}-package-${{ matrix.package.name }}-${{ steps.rivendell.outputs.hash }}
-
-      # If cache missed (no build) unpack the rest of builds (get built dependencies)
-      - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: |
-          for TARBALL in ./tarballs/*.tgz
-            do
-              # Can skip node_modules as already extracted
-              if [ $TARBALL != "./tarballs/node_modules.tgz" ]
-                then
-                  tar -xf $TARBALL
-              fi
-            done
 
       # If cache missed (continued) build the package, and generate a pack (ensure respect .npmignore)
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -159,9 +168,9 @@ jobs:
       # If cache missed (continued) copy packed files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
         run: |
-          VERSION=$(npm exec -w=${{ matrix.package.name }} -c 'npm pkg --no-workspaces get version' | sed -e "s|\"||g")
+          VERSION=`npm exec -w=${{ matrix.package.name }} -c 'npm pkg --no-workspaces get version' | sed -e "s|\"||g"`
           # List files in npm packed archive
-          tar -tf "${{ matrix.package.path }}/${{ matrix.package.name }}-${VERSION}.tgz" \
+          tar -tf "${{ matrix.package.path }}/${{ matrix.package.name }}-${VERSION}.tgz" | \
             `# redirect package to file path` \
             sed -e "s|^package|${{ matrix.package.path }}|" | \
             `# pack new file based on list with proper paths` \
@@ -171,7 +180,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: build
-          path: ./tarballs/${{ matrix.package.safe-name }}.tgz
+          path: '*tarballs/${{ matrix.package.safe-name }}.tgz'
           retention-days: 1
 
   # Split tests into stages, so a build's test will start immediately following build stage.
@@ -194,24 +203,22 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build
-      - run: tar -xf ./tarballs/node_modules.tgz
-
-      - name: Check if package has changes
-        run: echo "::set-output name=changed::$(npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }})"
-        id: rivendell
-
-      # If package has experienced changes, extract all builds (guaranteed to contain package + dependencies)
-      - if: steps.rivendell.outputs.changed == 'true'
-        run: |
+      - run: |
           for TARBALL in ./tarballs/*.tgz
             do
-              if [ $TARBALL != "./tarballs/node_modules.tgz" ]
-                then
-                  tar -xf $TARBALL
-              fi
+              tar -xf $TARBALL
             done
 
-      # If package has experienced changes (continued), test package
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c '[[ -d {}/dist ]]' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      - name: Check if package has changes
+        run: |
+          CHANGED=`npx rivendell-dist changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
+        id: rivendell
+
+      # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
         working-directory: ${{ matrix.package.path }}
         run: npm run test

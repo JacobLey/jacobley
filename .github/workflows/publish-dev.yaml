@@ -73,8 +73,10 @@ jobs:
       # In "--only=prod" mode so test/dev only changes will not trigger a publish
       - id: rivendell
         run: |
-          echo "::set-output name=dependencies::$(npx rivendell dependencies ${{ matrix.package.name }} --only=prod)"
-          echo "::set-output name=hash::$(npx rivendell hash ${{ matrix.package.name }} --only=prod)"
+          DEPENDENCIES=`npx rivendell-dist dependencies ${{ matrix.package.name }} --only=prod`
+          echo "::set-output name=dependencies::${DEPENDENCIES}"
+          HASH=`npx rivendell-dist hash ${{ matrix.package.name }} --only=prod`
+          echo "::set-output name=hash::${HASH}"
 
       # Authorize NPM + download jq (CLI for JSON parsing + manipulation)
       - run: |
@@ -85,10 +87,11 @@ jobs:
       - working-directory: ${{ matrix.package.path }}
         run: |
           
-          VERSION=$(npm pkg --no-workspaces get version | sed -e "s|\"||g")
+          VERSION=`npm pkg --no-workspaces get version | sed -e "s|\"||g"`
           DEV_VERSION="${VERSION}-dev.${{ steps.rivendell.outputs.hash }}"
 
-          if [[ $(../../scripts/package-exists.mjs ${{ matrix.package.name }} $DEV_VERSION) == true ]]
+          EXISTS=`../../scripts/package-exists.mjs ${{ matrix.package.name }} $DEV_VERSION`
+          if [[ $EXISTS == true ]]
             then
               exit 0
           fi
@@ -96,15 +99,17 @@ jobs:
           npm version --git-tag-version=false $DEV_VERSION
 
           DEPENDENCIES="${{ toJSON(steps.rivendell.outputs.dependencies) }}"
-          for PACKAGE_NAME in $(echo $DEPENDENCIES | jq 'keys | join(" ")' -r)
+          PACKAGE_NAMES=`echo $DEPENDENCIES | jq 'keys | join(" ")' -r`
+          for PACKAGE_NAME in $PACKAGE_NAMES
             do
-              PACKAGE_VERSION=$(echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].version' -r)
-              PACKAGE_HASH=$(echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].hash' -r)
-              if [[ $(echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].dev' -r) == true ]]
+              PACKAGE_VERSION=`echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].version' -r`
+              PACKAGE_HASH=`echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].hash' -r`
+              IS_DEV_DEPENDENCY=`echo $DEPENDENCIES | jq '.["${PACKAGE_NAME}"].dev' -r`
+              if [[ $IS_DEV_DEPENDENCY == true ]]
                 then
-                  DEPENDENCY_KIND=dependencies
-                else
                   DEPENDENCY_KIND=devDependencies
+                else
+                  DEPENDENCY_KIND=dependencies
               fi
               npm pkg set "${DEPENDENCY_KIND}.${PACKAGE_NAME}"="${PACKAGE_VERSION}-dev.${PACKAGE_HASH}"
             done;
