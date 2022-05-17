@@ -1,0 +1,12 @@
+{
+    "extends": "../../tsconfig.build.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": "src",
+        "tsBuildInfoFile": "dist/.tsbuildinfo"
+    },
+    "references": [
+        { "path": "../default-import" },
+        { "path": "../static-emitter" }
+    ]
+}

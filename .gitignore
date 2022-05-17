@@ -1,0 +1,12 @@
+/*.log*
+**/.DS_Store
+
+**/.eslintcache
+**/node_modules/**
+
+/packages/*/.eslintcache
+/packages/*/.nyc-cache/**
+/packages/*/.nyc_output/**
+/packages/*/coverage/**
+/packages/*/dist/**
+/packages/*/nyc/**

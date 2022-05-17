@@ -1,0 +1,47 @@
+{
+  "name": "static-emitter",
+  "version": "0.0.0",
+  "description": "Statically typed event emitter.",
+  "engines": {
+    "node": ">=14",
+    "npm": ">=7"
+  },
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/jacobley/jacobley/packages/static-emitter#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "keywords": [
+    "event",
+    "emitter",
+    "types"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc --build",
+    "build:ci": "tsc",
+    "coverage": "npm run instrument && nyc mocha ./nyc/tests/unit",
+    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
+    "lint": "npm run -w=../.. --include-workspace-root package-lint",
+    "lint:fix": "npm run -w=../.. --include-workspace-root package-lint:fix",
+    "test": "npm run coverage",
+    "unit-test": "mocha ./dist/tests/unit"
+  },
+  "main": "./dist/static-emitter.js",
+  "exports": {
+    ".": {
+      "types": [
+        "./src/static-emitter.ts",
+        "./dist/static-emitter.d.ts"
+      ],
+      "default": "./dist/static-emitter.js"
+    }
+  },
+  "devDependencies": {
+    "chai": "4.3.6",
+    "expect-type": "0.13.0"
+  }
+}

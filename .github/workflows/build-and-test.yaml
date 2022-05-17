@@ -1,0 +1,753 @@
+name: Build and Test
+
+on:
+  workflow_call:
+    inputs:
+      depth:
+        type: number
+        required: false
+        default: 1
+      base-ref:
+        type: string
+        required: false
+      head-ref:
+        type: string
+        required: false
+
+jobs:
+
+  install-root:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        id: cache-install
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+
+      # If node_modules not built, install node and install
+      - if: steps.cache-install.outputs.cache-hit != 'true'
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - if: steps.cache-install.outputs.cache-hit != 'true'
+        run: npm ci -ws --include-workspace-root
+
+      # Chicken+egg problem that rivendell is not built yet, but we want CLI commands...
+      - working-directory: ./packages/rivendell
+        run: npm run build
+
+      # We'll store all our outputted "builds" in a `./tarballs` directory
+      # that only needs to live for the rest of the build + test
+      - run: |
+          mkdir tarballs
+          mkdir pre-build-tarball
+          tar -zcf ./tarballs/node_modules.tgz ./node_modules ./packages/*/node_modules
+          tar -zcf ./pre-build-tarball/pre-build.tgz ./packages/*/dist/**
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          # Use wildcard to ensure full path is written
+          path: |
+            *tarballs/node_modules.tgz
+            *pre-build-tarball/pre-build.tgz
+          retention-days: 1
+
+  root-test:
+    needs: install-root
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: tar -xf ./tarballs/node_modules.tgz
+      # Ensure symlinks are generated + root files are linted
+      # Conceptually barrel + rivendell checks should go here... but files aren't built yet
+      - run: |
+          ./scripts/write-symlinks.mjs
+          npm run lint
+
+  # For each package (matrix.package) run lint tests
+  package-lint:
+    needs: install-root
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
+        # Rivendell will auto-expand to each package
+        package:
+          - name: default-import
+            safe-name: default-import
+            path: packages/default-import
+          - name: enum-to-array
+            safe-name: enum-to-array
+            path: packages/enum-to-array
+          - name: named-patch
+            safe-name: named-patch
+            path: packages/named-patch
+          - name: parse-cwd
+            safe-name: parse-cwd
+            path: packages/parse-cwd
+          - name: static-emitter
+            safe-name: static-emitter
+            path: packages/static-emitter
+          - name: entry-script
+            safe-name: entry-script
+            path: packages/entry-script
+          - name: juniper
+            safe-name: juniper
+            path: packages/juniper
+          - name: root-package-json
+            safe-name: root-package-json
+            path: packages/root-package-json
+          - name: barrelify
+            safe-name: barrelify
+            path: packages/barrelify
+          - name: packages-list
+            safe-name: packages-list
+            path: packages/packages-list
+          - name: dependency-order
+            safe-name: dependency-order
+            path: packages/dependency-order
+          - name: rivendell
+            safe-name: rivendell
+            path: packages/rivendell
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Should include depth on any jobs that will use `changed` command/logic
+          # Not necessary for hash/dependencies only commands
+          fetch-depth: ${{ inputs.depth }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+
+      # Only need to unpack node_modules (eslint executable + third party types).
+      # Packages are being built, but package.json specifies to use original `.ts`
+      # types over build `.d.ts` files, so everything that is required is already available.
+      - run: |
+          tar -xf ./tarballs/node_modules.tgz
+          tar -xf ./pre-build-tarball/pre-build.tgz
+
+      # If a package has not changed since
+      - name: Check if package has changes
+        id: rivendell
+        run: |
+          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
+
+      - if: steps.rivendell.outputs.changed == 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run lint
+
+  # Run some top-level tests once everything is built/tested
+  # Ideally these tests occur at start of CI (root-test), but executables are not built yet...
+  post-test:
+    needs:
+      - root-test
+      # Ensures all packages are individually tested first
+      # which implicitly requires all packages built
+      - package-test-4
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+      - run: |
+          npm run barrel:ci
+          npm run rivendell:ci
+  package-build-0:
+    needs: install-root
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Rivendell will populate matrix per-job with packages for that stage
+        package:
+          - name: default-import
+            safe-name: default-import
+            path: packages/default-import
+          - name: enum-to-array
+            safe-name: enum-to-array
+            path: packages/enum-to-array
+          - name: named-patch
+            safe-name: named-patch
+            path: packages/named-patch
+          - name: parse-cwd
+            safe-name: parse-cwd
+            path: packages/parse-cwd
+          - name: static-emitter
+            safe-name: static-emitter
+            path: packages/static-emitter
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Download _all_ builds up to this point
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      # Generate a hash that specifies "state" of package + dependencies
+      - name: Calculate dependency hash
+        id: rivendell
+        run: |
+          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          echo "::set-output name=hash::${HASH}"
+
+      # Try to load a previously cached version of build (determined by hash)
+      - uses: actions/cache@v3
+        id: hash-build
+        with:
+          path: ./tarballs/${{ matrix.package.safe-name }}.tgz
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
+            steps.rivendell.outputs.hash }}
+
+      # If cache missed build the package
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run build:ci
+
+      # If cache missed (continued) copy files into tarball
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
+          matrix.package.path }}/dist/**
+
+      # Upload tarball to build artifact (was either built in this run, or used cached version)
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: '*tarballs/${{ matrix.package.safe-name }}.tgz'
+          retention-days: 1
+  package-build-1:
+    needs:
+      - install-root
+      - package-build-0
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Rivendell will populate matrix per-job with packages for that stage
+        package:
+          - name: entry-script
+            safe-name: entry-script
+            path: packages/entry-script
+          - name: juniper
+            safe-name: juniper
+            path: packages/juniper
+          - name: root-package-json
+            safe-name: root-package-json
+            path: packages/root-package-json
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Download _all_ builds up to this point
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      # Generate a hash that specifies "state" of package + dependencies
+      - name: Calculate dependency hash
+        id: rivendell
+        run: |
+          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          echo "::set-output name=hash::${HASH}"
+
+      # Try to load a previously cached version of build (determined by hash)
+      - uses: actions/cache@v3
+        id: hash-build
+        with:
+          path: ./tarballs/${{ matrix.package.safe-name }}.tgz
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
+            steps.rivendell.outputs.hash }}
+
+      # If cache missed build the package
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run build:ci
+
+      # If cache missed (continued) copy files into tarball
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
+          matrix.package.path }}/dist/**
+
+      # Upload tarball to build artifact (was either built in this run, or used cached version)
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: '*tarballs/${{ matrix.package.safe-name }}.tgz'
+          retention-days: 1
+  package-build-2:
+    needs:
+      - install-root
+      - package-build-1
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Rivendell will populate matrix per-job with packages for that stage
+        package:
+          - name: barrelify
+            safe-name: barrelify
+            path: packages/barrelify
+          - name: packages-list
+            safe-name: packages-list
+            path: packages/packages-list
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Download _all_ builds up to this point
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      # Generate a hash that specifies "state" of package + dependencies
+      - name: Calculate dependency hash
+        id: rivendell
+        run: |
+          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          echo "::set-output name=hash::${HASH}"
+
+      # Try to load a previously cached version of build (determined by hash)
+      - uses: actions/cache@v3
+        id: hash-build
+        with:
+          path: ./tarballs/${{ matrix.package.safe-name }}.tgz
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
+            steps.rivendell.outputs.hash }}
+
+      # If cache missed build the package
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run build:ci
+
+      # If cache missed (continued) copy files into tarball
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
+          matrix.package.path }}/dist/**
+
+      # Upload tarball to build artifact (was either built in this run, or used cached version)
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: '*tarballs/${{ matrix.package.safe-name }}.tgz'
+          retention-days: 1
+  package-build-3:
+    needs:
+      - install-root
+      - package-build-2
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Rivendell will populate matrix per-job with packages for that stage
+        package:
+          - name: dependency-order
+            safe-name: dependency-order
+            path: packages/dependency-order
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Download _all_ builds up to this point
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      # Generate a hash that specifies "state" of package + dependencies
+      - name: Calculate dependency hash
+        id: rivendell
+        run: |
+          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          echo "::set-output name=hash::${HASH}"
+
+      # Try to load a previously cached version of build (determined by hash)
+      - uses: actions/cache@v3
+        id: hash-build
+        with:
+          path: ./tarballs/${{ matrix.package.safe-name }}.tgz
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
+            steps.rivendell.outputs.hash }}
+
+      # If cache missed build the package
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run build:ci
+
+      # If cache missed (continued) copy files into tarball
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
+          matrix.package.path }}/dist/**
+
+      # Upload tarball to build artifact (was either built in this run, or used cached version)
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: '*tarballs/${{ matrix.package.safe-name }}.tgz'
+          retention-days: 1
+  package-build-4:
+    needs:
+      - install-root
+      - package-build-3
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Rivendell will populate matrix per-job with packages for that stage
+        package:
+          - name: rivendell
+            safe-name: rivendell
+            path: packages/rivendell
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Download _all_ builds up to this point
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      # Generate a hash that specifies "state" of package + dependencies
+      - name: Calculate dependency hash
+        id: rivendell
+        run: |
+          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          echo "::set-output name=hash::${HASH}"
+
+      # Try to load a previously cached version of build (determined by hash)
+      - uses: actions/cache@v3
+        id: hash-build
+        with:
+          path: ./tarballs/${{ matrix.package.safe-name }}.tgz
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
+            steps.rivendell.outputs.hash }}
+
+      # If cache missed build the package
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run build:ci
+
+      # If cache missed (continued) copy files into tarball
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
+          matrix.package.path }}/dist/**
+
+      # Upload tarball to build artifact (was either built in this run, or used cached version)
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: '*tarballs/${{ matrix.package.safe-name }}.tgz'
+          retention-days: 1
+  package-test-0:
+    needs:
+      - package-build-0
+      - package-lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
+        package:
+          - name: default-import
+            safe-name: default-import
+            path: packages/default-import
+          - name: enum-to-array
+            safe-name: enum-to-array
+            path: packages/enum-to-array
+          - name: named-patch
+            safe-name: named-patch
+            path: packages/named-patch
+          - name: parse-cwd
+            safe-name: parse-cwd
+            path: packages/parse-cwd
+          - name: static-emitter
+            safe-name: static-emitter
+            path: packages/static-emitter
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ inputs.depth }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      - name: Check if package has changes
+        run: |
+          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
+        id: rivendell
+
+      # If package has experienced changes, test package
+      - if: steps.rivendell.outputs.changed == 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run test
+  package-test-1:
+    needs:
+      - package-build-1
+      - package-lint
+      - package-test-0
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
+        package:
+          - name: entry-script
+            safe-name: entry-script
+            path: packages/entry-script
+          - name: juniper
+            safe-name: juniper
+            path: packages/juniper
+          - name: root-package-json
+            safe-name: root-package-json
+            path: packages/root-package-json
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ inputs.depth }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      - name: Check if package has changes
+        run: |
+          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
+        id: rivendell
+
+      # If package has experienced changes, test package
+      - if: steps.rivendell.outputs.changed == 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run test
+  package-test-2:
+    needs:
+      - package-build-2
+      - package-lint
+      - package-test-1
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
+        package:
+          - name: barrelify
+            safe-name: barrelify
+            path: packages/barrelify
+          - name: packages-list
+            safe-name: packages-list
+            path: packages/packages-list
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ inputs.depth }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      - name: Check if package has changes
+        run: |
+          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
+        id: rivendell
+
+      # If package has experienced changes, test package
+      - if: steps.rivendell.outputs.changed == 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run test
+  package-test-3:
+    needs:
+      - package-build-3
+      - package-lint
+      - package-test-2
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
+        package:
+          - name: dependency-order
+            safe-name: dependency-order
+            path: packages/dependency-order
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ inputs.depth }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      - name: Check if package has changes
+        run: |
+          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
+        id: rivendell
+
+      # If package has experienced changes, test package
+      - if: steps.rivendell.outputs.changed == 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run test
+  package-test-4:
+    needs:
+      - package-build-4
+      - package-lint
+      - package-test-3
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
+        package:
+          - name: rivendell
+            safe-name: rivendell
+            path: packages/rivendell
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ inputs.depth }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
+          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
+
+      - name: Check if package has changes
+        run: |
+          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
+        id: rivendell
+
+      # If package has experienced changes, test package
+      - if: steps.rivendell.outputs.changed == 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: npm run test

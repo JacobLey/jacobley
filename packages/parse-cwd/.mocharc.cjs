@@ -1,0 +1,1 @@
+../../common/configs/.mocharc.cjs

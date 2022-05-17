@@ -1,0 +1,49 @@
+{
+  "name": "enum-to-array",
+  "version": "1.0.0",
+  "description": "Convert Typescript Enums to a strongly typed array.",
+  "engines": {
+    "node": ">=14",
+    "npm": ">=7"
+  },
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/jacobley/jacobley/packages/enum-to-array#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "keywords": [
+    "typescript",
+    "enum",
+    "array"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc --build",
+    "build:ci": "tsc",
+    "coverage": "npm run instrument && nyc mocha ./nyc/tests/unit",
+    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
+    "lint": "npm run -w=../.. --include-workspace-root package-lint",
+    "lint:fix": "npm run -w=../.. --include-workspace-root package-lint:fix",
+    "test": "npm run coverage",
+    "unit-test": "mocha ./dist/tests/unit"
+  },
+  "main": "./dist/enum-to-array.js",
+  "exports": {
+    ".": {
+      "types": [
+        "./src/enum-to-array.ts",
+        "./dist/enum-to-array.d.ts"
+      ],
+      "default": "./dist/enum-to-array.js"
+    }
+  },
+  "devDependencies": {
+    "chai": "4.3.6",
+    "expect-type": "0.13.0",
+    "mocha": "10.0.0",
+    "nyc": "15.1.0"
+  }
+}
