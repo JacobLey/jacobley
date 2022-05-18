@@ -1,0 +1,51 @@
+{
+  "name": "static-emitter",
+  "version": "0.0.1",
+  "description": "Statically typed event emitter.",
+  "engines": {
+    "node": ">=14",
+    "npm": ">=7"
+  },
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/JacobLey/jacobley/tree/main/tools/static-emitter#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "keywords": [
+    "event",
+    "emitter",
+    "types"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc",
+    "coverage": "rushx instrument && nyc mocha ./nyc/tests/unit",
+    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
+    "lint": "rush lint-package",
+    "test": "rushx coverage",
+    "unit-test": "mocha ./dist/tests/unit"
+  },
+  "main": "./dist/static-emitter.js",
+  "exports": {
+    ".": {
+      "types": [
+        "./src/static-emitter.ts",
+        "./dist/static-emitter.d.ts"
+      ],
+      "default": "./dist/static-emitter.js"
+    }
+  },
+  "devDependencies": {
+    "@types/chai": "4.3.1",
+    "@types/mocha": "9.1.1",
+    "@types/node": "17.0.33",
+    "chai": "4.3.6",
+    "expect-type": "0.13.0",
+    "mocha": "10.0.0",
+    "nyc": "15.1.0",
+    "typescript": "4.7.1-rc"
+  }
+}
