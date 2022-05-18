@@ -3,25 +3,25 @@
 import fs from 'node:fs/promises';
 import Path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import rushJson from './rush-json.cjs';
 
-const configsDir = Path.join(fileURLToPath(import.meta.url), '../../common/configs');
-const packagesDir = Path.join(fileURLToPath(import.meta.url), '../../packages');
+const configsDir = Path.join(fileURLToPath(import.meta.url), '../../config/packages');
+const { projects } = rushJson;
 
-const [
-    configNames,
-    packageNames,
-] = await Promise.all([
-    fs.readdir(configsDir),
-    fs.readdir(packagesDir),
-]);
+const configNames = await fs.readdir(configsDir);
 
 let unknownError = false;
 let noError = false;
 
 await Promise.all(configNames.map(async configName => {
-    await Promise.all(packageNames.map(async packageName => {
+    await Promise.all(projects.map(async project => {
         try {
-            const symlinkPath = Path.join(packagesDir, packageName, configName);
+            const symlinkPath = Path.join(
+                fileURLToPath(import.meta.url),
+                '../../..',
+                project.projectFolder,
+                configName
+            );
             await fs.symlink(
                 Path.relative(
                     Path.dirname(symlinkPath),

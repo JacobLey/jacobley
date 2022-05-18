@@ -1,0 +1,111 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/command-line.schema.json",
+
+  "commands": [
+    // Linting
+    {
+      "commandKind": "bulk",
+      "name": "lint",
+      "summary": "Lint packages",
+      "description": "Runs `eslint` against JS files in package.",
+      "safeForSimultaneousRushProcesses": true,
+      "enableParallelism": true,
+      "ignoreDependencyOrder": true
+    },
+    {
+      "commandKind": "global",
+      "name": "lint-root",
+      "summary": "Lint files outside packages",
+      "description": "Runs `eslint` against JS files outside packages.",
+      "safeForSimultaneousRushProcesses": true,
+      "shellCommand": "eslint --ext .cjs,.mjs --config ./root/jacobley/.eslintrc.cjs --report-unused-disable-directives . "
+    },
+    {
+      "commandKind": "global",
+      "name": "lint-package",
+      "summary": "Lint files in a package",
+      "description": "Runs `eslint` against JS files in a specific package. Should generally only be called programmatically via `lint`.",
+      "safeForSimultaneousRushProcesses": true,
+      "shellCommand": "eslint --ext .ts,.cts,.mts --config ./root/jacobley/.eslintrc.cjs --report-unused-disable-directives $RUSH_INVOKED_FOLDER"
+    },
+
+    // Testing
+    {
+      "commandKind": "bulk",
+      "name": "test",
+      "summary": "Test packages",
+      "description": "Runs `test` in package.",
+      "safeForSimultaneousRushProcesses": true,
+      "enableParallelism": true,
+      "ignoreDependencyOrder": true
+    },
+    {
+      "commandKind": "bulk",
+      "name": "unit-test",
+      "summary": "Test packages",
+      "description": "Runs `unit-test` in package.",
+      "safeForSimultaneousRushProcesses": true,
+      "enableParallelism": true,
+      "ignoreDependencyOrder": true
+    },
+
+    // Barrel
+    {
+      "commandKind": "global",
+      "name": "barrel",
+      "summary": "Generate barrels",
+      "description": "Generate index.ts barrel files.",
+      "safeForSimultaneousRushProcesses": false,
+      "shellCommand": "./apps/barrelify/cli.mjs --ignore './apps/barrelify/src/tests/data/wrong/*'"
+    },
+
+    // Rivendell
+    {
+      "commandKind": "global",
+      "name": "rivendell",
+      "summary": "Process CI scripts",
+      "description": "Use Rivendell to output processed CI scripts",
+      "safeForSimultaneousRushProcesses": false,
+      "shellCommand": "./apps/rivendell/cli.mjs"
+    },
+
+    // Internal Root
+    {
+      "commandKind": "global",
+      "name": "set-dev-version",
+      "summary": "Internal CLI scripts",
+      "description": "Set `-dev.<hash>` suffix for package.json",
+      "safeForSimultaneousRushProcesses": false,
+      "shellCommand": "./root/jacobley/cli.mjs set-dev-version"
+    }
+  ],
+
+  "parameters": [
+    {
+      "parameterKind": "flag",
+      "longName": "--info",
+      "description": "View command descriptions and parameters",
+      "associatedCommands": ["barrel", "rivendell", "set-dev-version"]
+    },
+    {
+      "parameterKind": "flag",
+      "longName": "--fix",
+      "description": "Run eslint in `--fix` mode",
+      "associatedCommands": ["lint", "lint-root", "lint-package"]
+    },
+    {
+      "parameterKind": "flag",
+      "longName": "--ci",
+      "description": "Run scripts in CI mode (no write, fail on unexpected diff)",
+      "associatedCommands": ["barrel", "rivendell"]
+    },
+    {
+      "parameterKind": "string",
+      "longName": "--project",
+      "argumentName": "PROJECT",
+      "required": true,
+      "description": "Project to set rivendell hash",
+      "associatedCommands": ["set-dev-version"]
+    }
+  ]
+}

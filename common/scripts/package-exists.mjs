@@ -6,7 +6,10 @@ import { Readable } from 'node:stream';
 const [
     packageName,
     version,
-] = process.argv.slice(2);
+] = process.argv.slice(2).map(
+    // De-JSON-ify
+    str => str.replaceAll(/^"|"$/gu, '')
+);
 
 let exists = false;
 

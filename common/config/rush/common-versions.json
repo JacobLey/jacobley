@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/common-versions.schema.json",
+
+  "allowedAlternativeVersions": {
+    // dev/internal versions should be strict ("canonical")
+    // but prod versions should be more lenient to avoid duplicates in consumer's code.
+    "ajv": ["^8.11.0"]
+  },
+
+  "implicitlyPreferredVersions": true
+}
