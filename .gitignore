@@ -1,12 +1,23 @@
-/*.log*
+**/*.log*
 **/.DS_Store
 
-**/.eslintcache
+**/.nyc-cache/**
+**/.nyc_output/**
 **/node_modules/**
 
-/packages/*/.eslintcache
-/packages/*/.nyc-cache/**
-/packages/*/.nyc_output/**
-/packages/*/coverage/**
-/packages/*/dist/**
-/packages/*/nyc/**
+/apps/*/coverage/**
+/apps/*/dist/**
+/apps/*/nyc/**
+
+/root/*/coverage/**
+/root/*/dist/**
+/root/*/nyc/**
+
+/tools/*/coverage/**
+/tools/*/dist/**
+/tools/*/nyc/**
+
+# Rush temporary files
+**/.rush/temp/**
+common/deploy/
+common/temp/
