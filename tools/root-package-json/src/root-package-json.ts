@@ -7,6 +7,7 @@ const require = createRequire(import.meta.url);
 export interface PackageJson {
     name: string;
     version: string;
+    private?: boolean;
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
     optionalDependencies?: Record<string, string>;

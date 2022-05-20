@@ -23,38 +23,7 @@ export interface PackageDependency {
     devDependencies: string[];
 }
 
-/**
- * List all packages in dependency order.
- *
- * Packages that occur later in results have dependencies on earlier results.
- *
- * Each package explicitly declares each package it is internally dependent on, defined via
- * `package.json`'s `dependencies`, `devDependencies`, and `optionalDependencies` (interpreted as `dependencies`).
- * These values are computed deeply, so A depends on B depends on C -> A depends on B + C.
- *
- * A dependent packages `devDependencies` will not impact `dependencies, but not vice versa.
- * e.g. A depends on B dev-depends on C -> A depends on B. A dev-depends on B depends on C -> A dev-depends on B + C.
- *
- * Note `peerDependencies` is omitted from this list,
- * as it is assumed that any usage is "inherited" by a parent package.
- * It is recommended `peerDependent` packages are also used in `devDependencies` if
- * it should explicitly impact dependency order.
- *
- * Outputted `devDependencies` and `dependencies` will have no overlap.
- *
- * For simplicity, dependency order is defined as a `stage` (0-based).
- * A packages `stage` is equal to `MAX(allDependencies.stage) + 1`.
- *
- * The results are in order of increasing `stage`, with parallel packages in alphabetical order.
- *
- * @param {object} options - see `rootPackageJson` options
- * @returns {Promise<object[]>} results in dependency order
- * @throws if circular dependency detected
- */
-export const dependencyOrder = async (options?: Parameters<typeof listPackages>[0]): Promise<PackageDependency[]> => {
-
-    const allPackages = await patch(listPackages)(options);
-
+export const calculateDependencyOrder = (allPackages: PackageMeta[]): PackageDependency[] => {
     // Initialize package map
     const packageMap: PackagesDict = {};
     for (const packageMeta of allPackages) {
@@ -159,6 +128,41 @@ export const dependencyOrder = async (options?: Parameters<typeof listPackages>[
         dependencies: [...packageMeta.dependenciesSet].sort(sortPackage),
         devDependencies: [...packageMeta.devDependenciesSet].sort(sortPackage),
     })).sort((a, b) => sortPackage(a.packageName, b.packageName));
+};
+
+/**
+ * List all packages in dependency order.
+ *
+ * Packages that occur later in results have dependencies on earlier results.
+ *
+ * Each package explicitly declares each package it is internally dependent on, defined via
+ * `package.json`'s `dependencies`, `devDependencies`, and `optionalDependencies` (interpreted as `dependencies`).
+ * These values are computed deeply, so A depends on B depends on C -> A depends on B + C.
+ *
+ * A dependent packages `devDependencies` will not impact `dependencies, but not vice versa.
+ * e.g. A depends on B dev-depends on C -> A depends on B. A dev-depends on B depends on C -> A dev-depends on B + C.
+ *
+ * Note `peerDependencies` is omitted from this list,
+ * as it is assumed that any usage is "inherited" by a parent package.
+ * It is recommended `peerDependent` packages are also used in `devDependencies` if
+ * it should explicitly impact dependency order.
+ *
+ * Outputted `devDependencies` and `dependencies` will have no overlap.
+ *
+ * For simplicity, dependency order is defined as a `stage` (0-based).
+ * A packages `stage` is equal to `MAX(allDependencies.stage) + 1`.
+ *
+ * The results are in order of increasing `stage`, with parallel packages in alphabetical order.
+ *
+ * @param {object} options - see `rootPackageJson` options
+ * @returns {Promise<object[]>} results in dependency order
+ * @throws if circular dependency detected
+ */
+export const dependencyOrder = async (options?: Parameters<typeof listPackages>[0]): Promise<PackageDependency[]> => {
+
+    const allPackages = await patch(listPackages)(options);
+
+    return calculateDependencyOrder(allPackages);
 };
 
 /**

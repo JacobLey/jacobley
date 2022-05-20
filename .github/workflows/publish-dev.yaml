@@ -55,9 +55,6 @@ jobs:
           - name: rivendell
             safe-name: rivendell
             path: apps/rivendell
-          - name: jacobley
-            safe-name: jacobley
-            path: root/jacobley
     steps:
       - uses: actions/checkout@v3
       # Artifact includes node_modules + all built packages

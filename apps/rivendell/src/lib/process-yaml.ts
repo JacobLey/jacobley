@@ -1,10 +1,56 @@
 import { readFile } from 'node:fs/promises';
 import Path from 'node:path';
-import type { PackageDependency } from 'dependency-order';
+import { calculateDependencyOrder, dependencyOrderByStage, type PackageDependency } from 'dependency-order';
 import Yaml from 'yaml';
 
-const stageRegExp = /\$\{\{\{\s*rivendell\.(?<max>max-)?stage\s*\}\}\}/u;
-const matrixRegExp = /\$\{\{\{\s*rivendell\.(?<kind>all|stage)-packages\s*\}\}\}/u;
+const rivendellRegExp = /\$\{\{\{\s*rivendell\.(?<command>\w+[^}]+)\s*\}\}\}/u;
+
+const parseRivendellExpression = (
+    text: string,
+    kind: 'packages' | 'stage'
+): {
+    all: boolean;
+    max: boolean;
+    include: (dependency: PackageDependency) => boolean;
+} | null => {
+
+    const match = rivendellRegExp.exec(text);
+
+    if (!match) {
+        return null;
+    }
+
+    const command = match.groups!.command!.trim();
+
+    const [keyword, filter] = command.split('?') as [string, string | undefined];
+
+    const searchParamEntries = [...new URLSearchParams(filter).entries()];
+    const include: (
+        dependency: PackageDependency
+    ) => boolean = dependency => searchParamEntries.every(([key, val]) => {
+        if (key === 'private') {
+            return (dependency.packageMeta.packageJson.private ?? false) === (val === 'true');
+        }
+        return false;
+    });
+
+    if (kind === 'stage') {
+        if (['max-stage', 'stage'].includes(keyword)) {
+            return {
+                all: false,
+                max: keyword.startsWith('max'),
+                include,
+            };
+        }
+    } else if (['all-packages', 'stage-packages'].includes(keyword)) {
+        return {
+            all: keyword.startsWith('all'),
+            max: false,
+            include,
+        };
+    }
+    return null;
+};
 
 const dependencyToMap = (
     dependency: PackageDependency,
@@ -26,7 +72,7 @@ const processJob = ({
     stage,
 }: {
     job: Yaml.YAMLMap;
-    dependencies: PackageDependency[][];
+    dependencies: PackageDependency[];
     root: string;
     stage: {
         stage: number;
@@ -37,7 +83,7 @@ const processJob = ({
     let needs = job.getIn(['needs'], true);
     if (
         Yaml.isScalar<string>(needs) && (
-            stage?.stage || stageRegExp.test(needs.value)
+            stage?.stage || rivendellRegExp.test(needs.value)
         )
     ) {
         const seq = new Yaml.YAMLSeq();
@@ -51,18 +97,29 @@ const processJob = ({
 
     if (Yaml.isSeq<Yaml.Scalar<string>>(needs)) {
         for (const need of needs.items) {
-            const stageMatch = stageRegExp.exec(need.value);
+            const stageMatch = parseRivendellExpression(need.value, 'stage');
             if (stageMatch) {
-                need.value = need.value.replace(
-                    stageRegExp,
-                    (stageMatch.groups!.max ? dependencies.length - 1 : stage!.stage).toString(10)
-                );
+                if (stageMatch.max) {
+                    const filteredDependencies = calculateDependencyOrder(
+                        dependencies.filter(dep => stageMatch.include(dep)).map(dep => dep.packageMeta)
+                    );
+                    const maxStage = Math.max(...filteredDependencies.map(dep => dep.stage));
+                    need.value = need.value.replace(
+                        rivendellRegExp,
+                        maxStage.toString(10)
+                    );
+                } else {
+                    need.value = need.value.replace(
+                        rivendellRegExp,
+                        stage!.stage.toString(10)
+                    );
+                }
             }
         }
         if (stage?.stage) {
             needs.add(new Yaml.Scalar(
                 stage.title.replace(
-                    stageRegExp,
+                    rivendellRegExp,
                     (stage.stage - 1).toString(10)
                 )
             ));
@@ -74,21 +131,20 @@ const processJob = ({
 
         for (const pair of matrix.items) {
             if (Yaml.isScalar<string>(pair.value)) {
-                const matrixMatch = matrixRegExp.exec(pair.value.value);
+                const matrixMatch = parseRivendellExpression(pair.value.value, 'packages');
                 if (matrixMatch) {
-                    if (matrixMatch.groups!.kind === 'all') {
-                        const seq = new Yaml.YAMLSeq();
-                        for (const dependency of dependencies.flat()) {
+                    const seq = new Yaml.YAMLSeq();
+                    const filteredDependencies = dependencies.filter(dep => matrixMatch.include(dep));
+                    if (matrixMatch.all) {
+                        for (const dependency of filteredDependencies) {
                             seq.add(dependencyToMap(dependency, root));
                         }
-                        pair.value = seq;
                     } else {
-                        const seq = new Yaml.YAMLSeq();
-                        for (const dependency of dependencies[stage!.stage]!) {
+                        for (const dependency of dependencyOrderByStage(filteredDependencies)[stage!.stage]!) {
                             seq.add(dependencyToMap(dependency, root));
                         }
-                        pair.value = seq;
                     }
+                    pair.value = seq;
                 }
             }
         }
@@ -103,11 +159,11 @@ const processJobTemplate = ({
 }: {
     jobs: Yaml.YAMLMap;
     key: Yaml.Scalar<string>;
-    dependencies: PackageDependency[][];
+    dependencies: PackageDependency[];
     root: string;
 }): void => {
 
-    const stageSplit = stageRegExp.exec(key.value);
+    const stageSplit = parseRivendellExpression(key.value, 'stage');
     const isStageSplit = stageSplit !== null;
 
     const job = jobs.getIn([key.value], !isStageSplit) as Yaml.YAMLMap;
@@ -115,7 +171,12 @@ const processJobTemplate = ({
     if (isStageSplit) {
         jobs.delete(key.value);
 
-        for (let stage = 0; stage < dependencies.length; ++stage) {
+        const filteredDependencies = dependencyOrderByStage(
+            calculateDependencyOrder(
+                dependencies.filter(dep => stageSplit.include(dep)).map(dep => dep.packageMeta)
+            )
+        );
+        for (let stage = 0; stage < filteredDependencies.length; ++stage) {
             const clone = job.clone() as Yaml.YAMLMap;
             processJob({
                 job: clone,
@@ -127,7 +188,7 @@ const processJobTemplate = ({
                 },
             });
             jobs.set(
-                key.value.replace(stageSplit[0]!, stage.toString(10)),
+                key.value.replace(rivendellRegExp, stage.toString(10)),
                 clone
             );
         }
@@ -143,7 +204,7 @@ const processJobTemplate = ({
 
 export const processFile = async ({ path, dependencies, root }: {
     path: string;
-    dependencies: PackageDependency[][];
+    dependencies: PackageDependency[];
     root: string;
 }): Promise<string> => {
 

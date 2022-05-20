@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: ${{{ rivendell.all-packages }}}
+        package: ${{{ rivendell.all-packages?private=false }}}
     steps:
       - uses: actions/checkout@v3
       # Artifact includes node_modules + all built packages

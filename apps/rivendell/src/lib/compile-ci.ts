@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import Path from 'node:path';
-import { dependencyOrder, dependencyOrderByStage, type PackageManager } from 'dependency-order';
+import { dependencyOrder, type PackageManager } from 'dependency-order';
 import { parseCwd } from 'parse-cwd';
 import { validateConfigFile } from '../commands/lib/validate-config-path.js';
 import { loadConfig } from './config.js';
@@ -41,7 +41,7 @@ export const compileCi = async (options: {
             cwd,
             configFile: options.configFile,
         }),
-        dependencyOrder({ cwd, manager: options.manager }).then(dependencyOrderByStage),
+        dependencyOrder({ cwd, manager: options.manager }),
         gitRoot({ cwd }),
     ]);
 
