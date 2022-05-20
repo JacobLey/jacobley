@@ -16,7 +16,7 @@ on:
 
 jobs:
 
-  install-root:
+  install-rush:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,10 +24,9 @@ jobs:
       - uses: actions/cache@v3
         id: cache-install
         with:
-          path: |
-            node_modules
-            packages/*/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          path: common/config/temp
+          key: ${{ runner.os }}-npm-${{ hashFiles('common/config/pnpm-lock.yaml',
+            'rush.json') }}
 
       # If node_modules not built, install node and install
       - if: steps.cache-install.outputs.cache-hit != 'true'
@@ -35,30 +34,23 @@ jobs:
         with:
           node-version: 16
       - if: steps.cache-install.outputs.cache-hit != 'true'
-        run: npm ci -ws --include-workspace-root
-
-      # Chicken+egg problem that rivendell is not built yet, but we want CLI commands...
-      - working-directory: ./packages/rivendell
-        run: npm run build
+        run: node ./common/scripts/install-run-rush.js install
 
       # We'll store all our outputted "builds" in a `./tarballs` directory
       # that only needs to live for the rest of the build + test
       - run: |
           mkdir tarballs
-          mkdir pre-build-tarball
-          tar -zcf ./tarballs/node_modules.tgz ./node_modules ./packages/*/node_modules
-          tar -zcf ./pre-build-tarball/pre-build.tgz ./packages/*/dist/**
+          tar -zcf ./tarballs/rush.tgz ./common/config/temp/**
       - uses: actions/upload-artifact@v3
         with:
           name: build
           # Use wildcard to ensure full path is written
           path: |
-            *tarballs/node_modules.tgz
-            *pre-build-tarball/pre-build.tgz
+            *tarballs/rush.tgz
           retention-days: 1
 
   root-test:
-    needs: install-root
+    needs: install-rush
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -72,16 +64,16 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build
-      - run: tar -xf ./tarballs/node_modules.tgz
+      - run: tar -xf ./tarballs/rush.tgz
       # Ensure symlinks are generated + root files are linted
       # Conceptually barrel + rivendell checks should go here... but files aren't built yet
       - run: |
           ./scripts/write-symlinks.mjs
-          npm run lint
+          node ${{ github.workspace }}/common/scripts/install-run-rushx.js lint-root
 
   # For each package (matrix.package) run lint tests
   package-lint:
-    needs: install-root
+    needs: install-rush
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -91,40 +83,43 @@ jobs:
         package:
           - name: default-import
             safe-name: default-import
-            path: packages/default-import
+            path: tools/default-import
           - name: enum-to-array
             safe-name: enum-to-array
-            path: packages/enum-to-array
+            path: tools/enum-to-array
           - name: named-patch
             safe-name: named-patch
-            path: packages/named-patch
+            path: tools/named-patch
           - name: parse-cwd
             safe-name: parse-cwd
-            path: packages/parse-cwd
+            path: tools/parse-cwd
           - name: static-emitter
             safe-name: static-emitter
-            path: packages/static-emitter
+            path: tools/static-emitter
           - name: entry-script
             safe-name: entry-script
-            path: packages/entry-script
+            path: tools/entry-script
           - name: juniper
             safe-name: juniper
-            path: packages/juniper
+            path: apps/juniper
           - name: root-package-json
             safe-name: root-package-json
-            path: packages/root-package-json
+            path: tools/root-package-json
           - name: barrelify
             safe-name: barrelify
-            path: packages/barrelify
+            path: apps/barrelify
           - name: packages-list
             safe-name: packages-list
-            path: packages/packages-list
+            path: tools/packages-list
           - name: dependency-order
             safe-name: dependency-order
-            path: packages/dependency-order
+            path: tools/dependency-order
           - name: rivendell
             safe-name: rivendell
-            path: packages/rivendell
+            path: apps/rivendell
+          - name: jacobley
+            safe-name: jacobley
+            path: root/jacobley
     steps:
       - uses: actions/checkout@v3
         with:
@@ -141,20 +136,21 @@ jobs:
       # Only need to unpack node_modules (eslint executable + third party types).
       # Packages are being built, but package.json specifies to use original `.ts`
       # types over build `.d.ts` files, so everything that is required is already available.
-      - run: |
-          tar -xf ./tarballs/node_modules.tgz
-          tar -xf ./pre-build-tarball/pre-build.tgz
+      - run: tar -xf ./tarballs/rush.tgz
 
       # If a package has not changed since
       - name: Check if package has changes
         id: rivendell
         run: |
+          echo "::set-output name=changed::true"
+          exit 0
+          # TODO run rivendell to check
           CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
 
       - if: steps.rivendell.outputs.changed == 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run lint
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js lint
 
   # Run some top-level tests once everything is built/tested
   # Ideally these tests occur at start of CI (root-test), but executables are not built yet...
@@ -163,7 +159,7 @@ jobs:
       - root-test
       # Ensures all packages are individually tested first
       # which implicitly requires all packages built
-      - package-test-4
+      - package-test-5
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -185,10 +181,10 @@ jobs:
             done
 
       - run: |
-          npm run barrel:ci
-          npm run rivendell:ci
+          node ./common/scripts/install-run-rush.js barrel --ci
+          node ./common/scripts/install-run-rush.js rivendell --ci
   package-build-0:
-    needs: install-root
+    needs: install-rush
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -196,19 +192,19 @@ jobs:
         package:
           - name: default-import
             safe-name: default-import
-            path: packages/default-import
+            path: tools/default-import
           - name: enum-to-array
             safe-name: enum-to-array
-            path: packages/enum-to-array
+            path: tools/enum-to-array
           - name: named-patch
             safe-name: named-patch
-            path: packages/named-patch
+            path: tools/named-patch
           - name: parse-cwd
             safe-name: parse-cwd
-            path: packages/parse-cwd
+            path: tools/parse-cwd
           - name: static-emitter
             safe-name: static-emitter
-            path: packages/static-emitter
+            path: tools/static-emitter
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -225,13 +221,13 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
         run: |
+          echo "::set-output name=hash::${{ hashFiles('**') }}"
+          exit 0
+          # TODO use rivendell to hash
           HASH=`npx rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
@@ -246,7 +242,7 @@ jobs:
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run build:ci
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js build
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -261,7 +257,7 @@ jobs:
           retention-days: 1
   package-build-1:
     needs:
-      - install-root
+      - install-rush
       - package-build-0
     runs-on: ubuntu-latest
     strategy:
@@ -270,13 +266,13 @@ jobs:
         package:
           - name: entry-script
             safe-name: entry-script
-            path: packages/entry-script
+            path: tools/entry-script
           - name: juniper
             safe-name: juniper
-            path: packages/juniper
+            path: apps/juniper
           - name: root-package-json
             safe-name: root-package-json
-            path: packages/root-package-json
+            path: tools/root-package-json
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -293,13 +289,13 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
         run: |
+          echo "::set-output name=hash::${{ hashFiles('**') }}"
+          exit 0
+          # TODO use rivendell to hash
           HASH=`npx rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
@@ -314,7 +310,7 @@ jobs:
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run build:ci
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js build
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -329,7 +325,7 @@ jobs:
           retention-days: 1
   package-build-2:
     needs:
-      - install-root
+      - install-rush
       - package-build-1
     runs-on: ubuntu-latest
     strategy:
@@ -338,10 +334,10 @@ jobs:
         package:
           - name: barrelify
             safe-name: barrelify
-            path: packages/barrelify
+            path: apps/barrelify
           - name: packages-list
             safe-name: packages-list
-            path: packages/packages-list
+            path: tools/packages-list
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -358,13 +354,13 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
         run: |
+          echo "::set-output name=hash::${{ hashFiles('**') }}"
+          exit 0
+          # TODO use rivendell to hash
           HASH=`npx rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
@@ -379,7 +375,7 @@ jobs:
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run build:ci
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js build
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -394,7 +390,7 @@ jobs:
           retention-days: 1
   package-build-3:
     needs:
-      - install-root
+      - install-rush
       - package-build-2
     runs-on: ubuntu-latest
     strategy:
@@ -403,7 +399,7 @@ jobs:
         package:
           - name: dependency-order
             safe-name: dependency-order
-            path: packages/dependency-order
+            path: tools/dependency-order
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -420,13 +416,13 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
         run: |
+          echo "::set-output name=hash::${{ hashFiles('**') }}"
+          exit 0
+          # TODO use rivendell to hash
           HASH=`npx rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
@@ -441,7 +437,7 @@ jobs:
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run build:ci
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js build
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -456,7 +452,7 @@ jobs:
           retention-days: 1
   package-build-4:
     needs:
-      - install-root
+      - install-rush
       - package-build-3
     runs-on: ubuntu-latest
     strategy:
@@ -465,7 +461,7 @@ jobs:
         package:
           - name: rivendell
             safe-name: rivendell
-            path: packages/rivendell
+            path: apps/rivendell
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -482,13 +478,13 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
         run: |
+          echo "::set-output name=hash::${{ hashFiles('**') }}"
+          exit 0
+          # TODO use rivendell to hash
           HASH=`npx rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
@@ -503,7 +499,69 @@ jobs:
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run build:ci
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js build
+
+      # If cache missed (continued) copy files into tarball
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
+          matrix.package.path }}/dist/**
+
+      # Upload tarball to build artifact (was either built in this run, or used cached version)
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: '*tarballs/${{ matrix.package.safe-name }}.tgz'
+          retention-days: 1
+  package-build-5:
+    needs:
+      - install-rush
+      - package-build-4
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Rivendell will populate matrix per-job with packages for that stage
+        package:
+          - name: jacobley
+            safe-name: jacobley
+            path: root/jacobley
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Download _all_ builds up to this point
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+      # Generate a hash that specifies "state" of package + dependencies
+      - name: Calculate dependency hash
+        id: rivendell
+        run: |
+          echo "::set-output name=hash::${{ hashFiles('**') }}"
+          exit 0
+          # TODO use rivendell to hash
+          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          echo "::set-output name=hash::${HASH}"
+
+      # Try to load a previously cached version of build (determined by hash)
+      - uses: actions/cache@v3
+        id: hash-build
+        with:
+          path: ./tarballs/${{ matrix.package.safe-name }}.tgz
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
+            steps.rivendell.outputs.hash }}
+
+      # If cache missed build the package
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js build
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -528,19 +586,19 @@ jobs:
         package:
           - name: default-import
             safe-name: default-import
-            path: packages/default-import
+            path: tools/default-import
           - name: enum-to-array
             safe-name: enum-to-array
-            path: packages/enum-to-array
+            path: tools/enum-to-array
           - name: named-patch
             safe-name: named-patch
-            path: packages/named-patch
+            path: tools/named-patch
           - name: parse-cwd
             safe-name: parse-cwd
-            path: packages/parse-cwd
+            path: tools/parse-cwd
           - name: static-emitter
             safe-name: static-emitter
-            path: packages/static-emitter
+            path: tools/static-emitter
     steps:
       - uses: actions/checkout@v3
         with:
@@ -557,11 +615,11 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       - name: Check if package has changes
         run: |
+          echo "::set-output name=changed::true"
+          exit 0
+          # TODO use rivendell
           CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
         id: rivendell
@@ -569,7 +627,7 @@ jobs:
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run test
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js test
   package-test-1:
     needs:
       - package-build-1
@@ -583,13 +641,13 @@ jobs:
         package:
           - name: entry-script
             safe-name: entry-script
-            path: packages/entry-script
+            path: tools/entry-script
           - name: juniper
             safe-name: juniper
-            path: packages/juniper
+            path: apps/juniper
           - name: root-package-json
             safe-name: root-package-json
-            path: packages/root-package-json
+            path: tools/root-package-json
     steps:
       - uses: actions/checkout@v3
         with:
@@ -606,11 +664,11 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       - name: Check if package has changes
         run: |
+          echo "::set-output name=changed::true"
+          exit 0
+          # TODO use rivendell
           CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
         id: rivendell
@@ -618,7 +676,7 @@ jobs:
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run test
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js test
   package-test-2:
     needs:
       - package-build-2
@@ -632,10 +690,10 @@ jobs:
         package:
           - name: barrelify
             safe-name: barrelify
-            path: packages/barrelify
+            path: apps/barrelify
           - name: packages-list
             safe-name: packages-list
-            path: packages/packages-list
+            path: tools/packages-list
     steps:
       - uses: actions/checkout@v3
         with:
@@ -652,11 +710,11 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       - name: Check if package has changes
         run: |
+          echo "::set-output name=changed::true"
+          exit 0
+          # TODO use rivendell
           CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
         id: rivendell
@@ -664,7 +722,7 @@ jobs:
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run test
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js test
   package-test-3:
     needs:
       - package-build-3
@@ -678,7 +736,7 @@ jobs:
         package:
           - name: dependency-order
             safe-name: dependency-order
-            path: packages/dependency-order
+            path: tools/dependency-order
     steps:
       - uses: actions/checkout@v3
         with:
@@ -695,11 +753,11 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       - name: Check if package has changes
         run: |
+          echo "::set-output name=changed::true"
+          exit 0
+          # TODO use rivendell
           CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
         id: rivendell
@@ -707,7 +765,7 @@ jobs:
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run test
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js test
   package-test-4:
     needs:
       - package-build-4
@@ -721,7 +779,7 @@ jobs:
         package:
           - name: rivendell
             safe-name: rivendell
-            path: packages/rivendell
+            path: apps/rivendell
     steps:
       - uses: actions/checkout@v3
         with:
@@ -738,11 +796,11 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       - name: Check if package has changes
         run: |
+          echo "::set-output name=changed::true"
+          exit 0
+          # TODO use rivendell
           CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
         id: rivendell
@@ -750,4 +808,47 @@ jobs:
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run test
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js test
+  package-test-5:
+    needs:
+      - package-build-5
+      - package-lint
+      - package-test-4
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
+        package:
+          - name: jacobley
+            safe-name: jacobley
+            path: root/jacobley
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ inputs.depth }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+      - name: Check if package has changes
+        run: |
+          echo "::set-output name=changed::true"
+          exit 0
+          # TODO use rivendell
+          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
+        id: rivendell
+
+      # If package has experienced changes, test package
+      - if: steps.rivendell.outputs.changed == 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js test

@@ -16,7 +16,7 @@ on:
 
 jobs:
 
-  install-root:
+  install-rush:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,10 +24,8 @@ jobs:
       - uses: actions/cache@v3
         id: cache-install
         with:
-          path: |
-            node_modules
-            packages/*/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          path: common/config/temp
+          key: ${{ runner.os }}-npm-${{ hashFiles('common/config/pnpm-lock.yaml', 'rush.json') }}
 
       # If node_modules not built, install node and install
       - if: steps.cache-install.outputs.cache-hit != 'true'
@@ -35,30 +33,23 @@ jobs:
         with:
           node-version: 16
       - if: steps.cache-install.outputs.cache-hit != 'true'
-        run: npm ci -ws --include-workspace-root
-
-      # Chicken+egg problem that rivendell is not built yet, but we want CLI commands...
-      - working-directory: ./packages/rivendell
-        run: npm run build
+        run: node ./common/scripts/install-run-rush.js install
 
       # We'll store all our outputted "builds" in a `./tarballs` directory
       # that only needs to live for the rest of the build + test
       - run: |
           mkdir tarballs
-          mkdir pre-build-tarball
-          tar -zcf ./tarballs/node_modules.tgz ./node_modules ./packages/*/node_modules
-          tar -zcf ./pre-build-tarball/pre-build.tgz ./packages/*/dist/**
+          tar -zcf ./tarballs/rush.tgz ./common/config/temp/**
       - uses: actions/upload-artifact@v3
         with:
           name: build
           # Use wildcard to ensure full path is written
           path: |
-            *tarballs/node_modules.tgz
-            *pre-build-tarball/pre-build.tgz
+            *tarballs/rush.tgz
           retention-days: 1
 
   root-test:
-    needs: install-root
+    needs: install-rush
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -72,16 +63,16 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build
-      - run: tar -xf ./tarballs/node_modules.tgz
+      - run: tar -xf ./tarballs/rush.tgz
       # Ensure symlinks are generated + root files are linted
       # Conceptually barrel + rivendell checks should go here... but files aren't built yet
       - run: |
           ./scripts/write-symlinks.mjs
-          npm run lint
+          node ${{ github.workspace }}/common/scripts/install-run-rushx.js lint-root
 
   # For each package (matrix.package) run lint tests
   package-lint:
-    needs: install-root
+    needs: install-rush
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -105,25 +96,26 @@ jobs:
       # Only need to unpack node_modules (eslint executable + third party types).
       # Packages are being built, but package.json specifies to use original `.ts`
       # types over build `.d.ts` files, so everything that is required is already available.
-      - run: |
-          tar -xf ./tarballs/node_modules.tgz
-          tar -xf ./pre-build-tarball/pre-build.tgz
+      - run: tar -xf ./tarballs/rush.tgz
 
       # If a package has not changed since
       - name: Check if package has changes
         id: rivendell
         run: |
+          echo "::set-output name=changed::true"
+          exit 0
+          # TODO run rivendell to check
           CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
 
       - if: steps.rivendell.outputs.changed == 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run lint
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js lint
 
   # Rivendell will create N copies of job, that depend on the previous (as well as any other `needs`)
   # N is determined by the max `stage` determined by `dependency-order` package
   package-build-${{{ rivendell.stage }}}:
-    needs: install-root
+    needs: install-rush
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -145,13 +137,13 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
         run: |
+          echo "::set-output name=hash::${{ hashFiles('**') }}"
+          exit 0
+          # TODO use rivendell to hash
           HASH=`npx rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
@@ -165,7 +157,7 @@ jobs:
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run build:ci
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js build
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -206,11 +198,11 @@ jobs:
               tar -xf $TARBALL
             done
 
-          EXCLUDED=`find . -path "./packages/*" -not -path "./packages/*/**" -type d -execdir sh -c 'test -d {}/dist' \; -execdir sh -c 'echo --exclude ./packages/{}' \;`
-          tar -xf ./pre-build-tarball/pre-build.tgz $EXCLUDED
-
       - name: Check if package has changes
         run: |
+          echo "::set-output name=changed::true"
+          exit 0
+          # TODO use rivendell
           CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
         id: rivendell
@@ -218,7 +210,7 @@ jobs:
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
         working-directory: ${{ matrix.package.path }}
-        run: npm run test
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js test
 
   # Run some top-level tests once everything is built/tested
   # Ideally these tests occur at start of CI (root-test), but executables are not built yet...
@@ -249,5 +241,5 @@ jobs:
             done
 
       - run: |
-          npm run barrel:ci
-          npm run rivendell:ci
+          node ./common/scripts/install-run-rush.js barrel --ci
+          node ./common/scripts/install-run-rush.js rivendell --ci

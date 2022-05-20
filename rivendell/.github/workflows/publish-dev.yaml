@@ -35,58 +35,41 @@ jobs:
               tar -xf $TARBALL
             done
 
-      # List all dependencies + hash for a package
-      # In "--only=prod" mode so test/dev only changes will not trigger a publish
-      - id: rivendell
-        run: |
-          DEPENDENCIES=`npx rivendell dependencies ${{ matrix.package.name }} --only=prod`
-          echo "::set-output name=dependencies::${DEPENDENCIES}"
-          HASH=`npx rivendell hash ${{ matrix.package.name }} --only=prod`
-          echo "::set-output name=hash::${HASH}"
-
       # Authorize NPM + download jq (CLI for JSON parsing + manipulation)
       - run: |
           echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }} >> ~/.npmrc
           sudo apt-get install jq
 
-      # Update `file://...` "versions" for local dependencies
+      # Update `file://...` "versions" for local dependencies, then publish
       - working-directory: ${{ matrix.package.path }}
         run: |
 
-          VERSION=`npm pkg --no-workspaces get version | sed -e "s|\"||g"`
-          DEV_VERSION="${VERSION}-dev.${{ steps.rivendell.outputs.hash }}"
+          VERSION=`cat ./package.json | jq '.version' -r`
 
-          EXISTS=`../../scripts/package-exists.mjs ${{ matrix.package.name }} $DEV_VERSION`
+          node ${{ github.workspace }}/common/scripts/install-run-rush.js set-dev-version --project ${{ matrix.package.name }}
+
+          DEV_VERSION=`cat ./package.json | jq '.version' -r`
+          EXISTS=`${{ github.workspace }}/common/scripts/package-exists.mjs ${{ matrix.package.name }} $DEV_VERSION`
+
           if [[ $EXISTS == true ]]
             then
               exit 0
           fi
 
-          npm version --git-tag-version=false $DEV_VERSION
-
-          DEPENDENCIES=${{ toJSON(steps.rivendell.outputs.dependencies) }}
-          PACKAGE_NAMES=`echo $DEPENDENCIES | jq 'keys | join(" ")' -r`
-          for PACKAGE_NAME in $PACKAGE_NAMES
-            do
-              PACKAGE_VERSION=`echo $DEPENDENCIES | jq ".[\"${PACKAGE_NAME}\"].version" -r`
-              PACKAGE_HASH=`echo $DEPENDENCIES | jq ".[\"${PACKAGE_NAME}\"].hash" -r`
-              IS_DEV_DEPENDENCY=`echo $DEPENDENCIES | jq ".[\"${PACKAGE_NAME}\"].dev" -r`
-              if [[ $IS_DEV_DEPENDENCY == true ]]
-                then
-                  DEPENDENCY_KIND=devDependencies
-                else
-                  DEPENDENCY_KIND=dependencies
-              fi
-              npm pkg set "${DEPENDENCY_KIND}.${PACKAGE_NAME}"="${PACKAGE_VERSION}-dev.${PACKAGE_HASH}"
-            done;
-
-          cp ../../common/npm/LICENSE ./LICENSE
-          cp ../../common/npm/.npmignore ./.npmignore
+          cp ../../common/config/publish/LICENSE ./LICENSE
+          cp ../../common/config/publish/.npmignore ./.npmignore
 
           if [[ ${{ github.ref_name }} == main ]]
             then
-              npm publish --tag=dev
+              TAG=dev
             else
-              npm publish --tag=ignore
-              npm dist-tag rm ${{ matrix.package.name }} ignore
+              TAG=ignore
           fi
+
+          ${{ github.workspace }}/common/temp/pnpm-local/node_modules/.bin/pnpm publish --no-git-checks --tag $TAG
+
+          npm pkg set version $VERSION-dev.${{ github.sha }}
+
+          ${{ github.workspace }}/common/temp/pnpm-local/node_modules/.bin/pnpm publish --no-git-checks --tag ignore
+
+          ${{ github.workspace }}/common/temp/pnpm-local/node_modules/.bin/pnpm dist-tag rm ${{ matrix.package.name }} ignore
