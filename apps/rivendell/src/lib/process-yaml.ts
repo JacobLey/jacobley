@@ -11,6 +11,7 @@ const parseRivendellExpression = (
 ): {
     all: boolean;
     max: boolean;
+    series: boolean;
     include: (dependency: PackageDependency) => boolean;
 } | null => {
 
@@ -24,10 +25,14 @@ const parseRivendellExpression = (
 
     const [keyword, filter] = command.split('?') as [string, string | undefined];
 
-    const searchParamEntries = [...new URLSearchParams(filter).entries()];
+    const searchParams = new URLSearchParams(filter);
+    const searchParamEntries = [...searchParams.entries()];
     const include: (
         dependency: PackageDependency
     ) => boolean = dependency => searchParamEntries.every(([key, val]) => {
+        if (key === 'parallel') {
+            return true;
+        }
         if (key === 'private') {
             return (dependency.packageMeta.packageJson.private ?? false) === (val === 'true');
         }
@@ -39,6 +44,7 @@ const parseRivendellExpression = (
             return {
                 all: false,
                 max: keyword.startsWith('max'),
+                series: searchParams.get('parallel') !== 'true',
                 include,
             };
         }
@@ -46,6 +52,7 @@ const parseRivendellExpression = (
         return {
             all: keyword.startsWith('all'),
             max: false,
+            series: true,
             include,
         };
     }
@@ -81,16 +88,17 @@ const processJob = ({
 }): void => {
 
     let needs = job.getIn(['needs'], true);
+    const matchedTitle = stage && parseRivendellExpression(stage.title, 'stage');
     if (
         Yaml.isScalar<string>(needs) && (
-            stage?.stage || rivendellRegExp.test(needs.value)
+            stage?.stage && matchedTitle?.series
         )
     ) {
         const seq = new Yaml.YAMLSeq();
         seq.add(needs);
         job.set('needs', seq);
         needs = seq;
-    } else if (!needs && stage?.stage) {
+    } else if (!needs && matchedTitle?.series) {
         needs = new Yaml.YAMLSeq();
         job.set('needs', needs);
     }
@@ -116,7 +124,7 @@ const processJob = ({
                 }
             }
         }
-        if (stage?.stage) {
+        if (stage?.stage && matchedTitle?.series) {
             needs.add(new Yaml.Scalar(
                 stage.title.replace(
                     rivendellRegExp,

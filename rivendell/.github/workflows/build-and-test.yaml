@@ -180,7 +180,7 @@ jobs:
 
   # Split tests into stages, so a build's test will start immediately following build stage.
   # Tests only run when package has changed, else optimistically ends early (skips actual test)
-  package-test-${{{ rivendell.stage }}}:
+  package-test-${{{ rivendell.stage?parallel=true }}}:
     needs:
       - package-build-${{{ rivendell.stage }}}
       - package-lint
