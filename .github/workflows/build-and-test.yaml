@@ -74,7 +74,7 @@ jobs:
       # Conceptually barrel + rivendell checks should go here... but files aren't built yet
       - run: |
           ./scripts/write-symlinks.mjs
-          node ${{ github.workspace }}/common/scripts/install-run-rushx.js lint-root
+          node ${{ github.workspace }}/common/scripts/install-run-rush.js lint-root
 
   # For each package (matrix.package) run lint tests
   package-lint:
