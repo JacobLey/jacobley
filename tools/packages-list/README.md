@@ -4,7 +4,7 @@
 <p>List all packages in a monorepo.</p>
 
 [![npm package](https://badge.fury.io/js/packages-list.svg)](https://www.npmjs.com/package/packages-list)
-[![License](https://img.shields.io/github/license/JacobLey/jacobley.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
+[![License](https://img.shields.io/github/license/JacobLey/jacobley.svg)](https://github.com/JacobLey/jacobley/blob/main/LICENSE)
 [![Quality](https://img.shields.io/npms-io/quality-score/packages-list.svg)](https://www.npmjs.com/package/packages-list)
 
 </div>

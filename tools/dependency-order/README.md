@@ -4,7 +4,7 @@
 <p>Generate a dependency graph of packages in a monorepo</p>
 
 [![npm package](https://badge.fury.io/js/dependency-order.svg)](https://www.npmjs.com/package/dependency-order)
-[![License](https://img.shields.io/github/license/JacobLey/jacobley.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
+[![License](https://img.shields.io/github/license/JacobLey/jacobley.svg)](https://github.com/JacobLey/jacobley/blob/main/LICENSE)
 [![Quality](https://img.shields.io/npms-io/quality-score/dependency-order.svg)](https://www.npmjs.com/package/dependency-order)
 
 </div>

@@ -4,7 +4,7 @@
 <p>Parse full current working directory from relative path or URL.</p>
 
 [![npm package](https://badge.fury.io/js/parse-cwd.svg)](https://www.npmjs.com/package/parse-cwd)
-[![License](https://img.shields.io/github/license/JacobLey/jacobley.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
+[![License](https://img.shields.io/github/license/JacobLey/jacobley.svg)](https://github.com/JacobLey/jacobley/blob/main/LICENSE)
 [![Quality](https://img.shields.io/npms-io/quality-score/parse-cwd.svg)](https://www.npmjs.com/package/parse-cwd)
 
 </div>
