@@ -54,7 +54,7 @@ interface PackageFiles {
     devFiles: GitFile[];
 }
 
-const sortFiles = (a: GitFile, b: GitFile): number => a.relativePath.localeCompare(b.relativePath);
+export const sortFiles = (a: GitFile, b: GitFile): number => a.relativePath.localeCompare(b.relativePath);
 
 const chunkFiles = (params: {
     config: Config;

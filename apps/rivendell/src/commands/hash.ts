@@ -39,7 +39,7 @@ export const hash: CommandModule<{
 
         if (options.list) {
             for (const hashData of hashes) {
-                console.info(`${hashData.hash} ${hashData.path}`);
+                console.info(`${hashData.hash} ${hashData.fullPath}`);
             }
         } else {
             console.info(combineHashes(hashes));

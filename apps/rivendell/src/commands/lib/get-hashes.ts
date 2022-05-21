@@ -1,7 +1,7 @@
 import type { PackageManager } from 'dependency-order';
 import { parseCwd } from 'parse-cwd';
 import { loadConfig } from '../../lib/config.js';
-import { hashFile } from '../../lib/file-hash.js';
+import { type HashedFile, hashFile } from '../../lib/file-hash.js';
 import { listPackageFiles } from '../../lib/list-files.js';
 import { getPackageData } from './get-package-data.js';
 import { validateConfigFile } from './validate-config-path.js';
@@ -12,7 +12,7 @@ export const getHashes = async (options: {
     manager?: PackageManager | undefined;
     packageName: string;
     only?: 'dev' | 'prod' | undefined;
-}): Promise<{ path: string; hash: string }[]> => {
+}): Promise<HashedFile[]> => {
 
     validateConfigFile(options.configFile);
     const cwd = await parseCwd(options.cwd);
