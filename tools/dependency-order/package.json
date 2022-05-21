@@ -1,6 +1,6 @@
 {
   "name": "dependency-order",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "List monorepo packages in dependency order.",
   "engines": {
     "node": ">=14",
