@@ -21,11 +21,11 @@ export const getHashVersion: CommandModule<unknown, {
         const { project } = options;
 
         const [packageHash, allPackages] = await Promise.all([
-            hash(project),
+            hash(project, { manager: 'rush', only: 'prod' }),
             listPackages({ manager: 'rush' }),
         ]);
 
-        const version = allPackages.find(packageMeta => packageMeta.name === project)!.packageJson.version;
+        const { version } = allPackages.find(packageMeta => packageMeta.name === project)!.packageJson;
 
         // Get git sha for given package hash
         const { stdout: sha } = await execAsync(`npm view ${project}@v${version}-dev.${packageHash} gitsha`);
