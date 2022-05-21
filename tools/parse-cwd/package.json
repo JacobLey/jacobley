@@ -21,7 +21,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "echo HERE!! tsc",
+    "build": "tsc",
     "coverage": "rushx instrument && nyc mocha ./nyc/tests/unit",
     "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
     "lint": "rush lint-package",
