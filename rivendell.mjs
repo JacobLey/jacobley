@@ -21,7 +21,11 @@ export default {
         {
             include: '*',
             root: true,
-            paths: 'tsconfig.build.json',
+            paths: [
+                'LICENSE',
+                'tsconfig.build.json',
+                'common/config/publish/*',
+            ],
         },
         {
             include: '*',
