@@ -68,7 +68,7 @@ jobs:
 
           ${{ github.workspace }}/common/temp/pnpm-local/node_modules/.bin/pnpm publish --no-git-checks --tag $TAG
 
-          npm pkg set version $VERSION-dev.${{ github.sha }}
+          npm pkg set version=$VERSION-dev.${{ github.sha }}
 
           ${{ github.workspace }}/common/temp/pnpm-local/node_modules/.bin/pnpm publish --no-git-checks --tag ignore
 
