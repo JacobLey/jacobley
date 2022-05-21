@@ -80,21 +80,27 @@ jobs:
       - working-directory: ${{ matrix.package.path }}
         run: |
           
+          # Get raw version (without dev suffix)
           VERSION=`cat ./package.json | jq '.version' -r`
 
+          # Add dev suffix (based on hash) to all relevant packages
           node ${{ github.workspace }}/common/scripts/install-run-rush.js set-dev-version --project ${{ matrix.package.name }}
 
+          # Read dev suffix, and check if version already exists
           DEV_VERSION=`cat ./package.json | jq '.version' -r`
           EXISTS=`${{ github.workspace }}/common/scripts/package-exists.mjs ${{ matrix.package.name }} $DEV_VERSION`
 
           if [[ $EXISTS == true ]]
             then
+              # If version already exists, publish is NOOP at best (fails at worst) so quit early
               exit 0
           fi
 
+          # Tack on generic License + npmignore
           cp ../../common/config/publish/LICENSE ./LICENSE
           cp ../../common/config/publish/.npmignore ./.npmignore
 
+          # Non-main branches should still publish, but never as "dev". "ignore" tag will be cleaned up.
           if [[ ${{ github.ref_name }} == main ]]
             then
               TAG=dev
@@ -102,10 +108,17 @@ jobs:
               TAG=ignore
           fi
 
-          ${{ github.workspace }}/common/temp/pnpm-local/node_modules/.bin/pnpm publish --no-git-checks --tag $TAG
-
+          # First publish with git sha (this version will be re-published if released, easiest to lookup in github action)
           npm pkg set version=$VERSION-dev.${{ github.sha }}
-
           ${{ github.workspace }}/common/temp/pnpm-local/node_modules/.bin/pnpm publish --no-git-checks --tag ignore
 
+          # Reset version to hash
+          npm pkg set version=$DEV_VERSION
+          # Indicate "paired" package for easy lookup
+          npm pkg set gitsha=${{ github.sha }}
+
+          # Publish with hash
+          ${{ github.workspace }}/common/temp/pnpm-local/node_modules/.bin/pnpm publish --no-git-checks --tag $TAG
+
+          # Cleanup "ignore" tag
           ${{ github.workspace }}/common/temp/pnpm-local/node_modules/.bin/pnpm dist-tag rm ${{ matrix.package.name }} ignore
