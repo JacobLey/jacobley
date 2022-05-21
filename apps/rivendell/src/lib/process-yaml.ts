@@ -112,6 +112,16 @@ const processJob = ({
                         dependencies.filter(dep => stageMatch.include(dep)).map(dep => dep.packageMeta)
                     );
                     const maxStage = Math.max(...filteredDependencies.map(dep => dep.stage));
+                    if (!stageMatch.series) {
+                        for (let i = 0; i < maxStage; ++i) {
+                            needs.add(new Yaml.Scalar(
+                                need.value.replace(
+                                    rivendellRegExp,
+                                    i.toString(10)
+                                )
+                            ));
+                        }
+                    }
                     need.value = need.value.replace(
                         rivendellRegExp,
                         maxStage.toString(10)

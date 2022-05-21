@@ -227,7 +227,7 @@ jobs:
       - root-test
       # Ensures all packages are individually tested first
       # which implicitly requires all packages built
-      - package-test-${{{ rivendell.max-stage }}}
+      - package-test-${{{ rivendell.max-stage?parallel=true }}}
     runs-on: ubuntu-latest
     strategy:
       matrix:

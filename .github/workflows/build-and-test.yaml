@@ -168,6 +168,11 @@ jobs:
       # Ensures all packages are individually tested first
       # which implicitly requires all packages built
       - package-test-5
+      - package-test-0
+      - package-test-1
+      - package-test-2
+      - package-test-3
+      - package-test-4
     runs-on: ubuntu-latest
     strategy:
       matrix:
