@@ -145,7 +145,7 @@ jobs:
       - name: Calculate dependency hash
         id: rivendell
         run: |
-          echo "::set-output name=hash::${{ hashFiles('**') }}"
+          echo "::set-output name=hash::${{ github.sha }}"
           exit 0
           # TODO use rivendell to hash
           HASH=`npx rivendell hash ${{ matrix.package.name }}`
