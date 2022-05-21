@@ -31,7 +31,7 @@ export const getHashVersion: CommandModule<unknown, {
         const { stdout: sha } = await execAsync(`npm view ${project}@v${version}-dev.${packageHash} gitsha`);
 
         console.info([
-            `git tag ${sha} ${project}@v${version}`,
+            `git tag ${project}@v${version} ${sha.trim()}`,
             `git push origin ${project}@v${version}`,
         ].join(' && '));
     },
