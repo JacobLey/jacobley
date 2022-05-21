@@ -1,3 +1,4 @@
+import type { PackageManager } from 'dependency-order';
 import type { CommandModule } from 'yargs';
 import { combineHashes } from '../lib/file-hash.js';
 import { getHashes } from './lib/index.js';
@@ -5,11 +6,13 @@ import { getHashes } from './lib/index.js';
 export const hash: CommandModule<{
     cwd: string;
     configFile: string | undefined;
+    manager: PackageManager | undefined;
 }, {
     cwd: string;
     configFile: string | undefined;
     packageName: string;
     list: boolean;
+    manager: PackageManager | undefined;
     only: 'dev' | 'prod' | undefined;
 }> = {
     command: 'hash <package-name>',

@@ -1,3 +1,4 @@
+import type { PackageManager } from 'dependency-order';
 import { parseCwd } from 'parse-cwd';
 import type { CommandModule } from 'yargs';
 import { loadConfig } from '../lib/config.js';
@@ -7,6 +8,7 @@ import { getPackageData, validateConfigFile } from './lib/index.js';
 export const changed: CommandModule<{
     cwd: string;
     configFile: string | undefined;
+    manager: PackageManager | undefined;
 }, {
     cwd: string;
     configFile: string | undefined;
@@ -14,6 +16,7 @@ export const changed: CommandModule<{
     baseRef: string | undefined;
     headRef: string;
     list: boolean;
+    manager: PackageManager | undefined;
     only: 'dev' | 'prod' | undefined;
 }> = {
     command: 'changed <package-name> [base-ref] [head-ref]',
@@ -65,6 +68,7 @@ export const changed: CommandModule<{
             config,
             baseRef: options.baseRef,
             headRef: options.headRef,
+            manager: options.manager,
         });
         const files = getPackageData(options.packageName, changedFiles);
 

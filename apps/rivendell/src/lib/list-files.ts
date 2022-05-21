@@ -3,6 +3,7 @@ import {
     dependencyOrder,
     dependencyOrderByPackage,
     type PackageDependency,
+    type PackageManager,
     type PackageMeta,
 } from 'dependency-order';
 import type { Config } from './config.js';
@@ -111,6 +112,7 @@ const chunkFiles = (params: {
 export const listPackageFiles = async (params: {
     config: Config;
     cwd: string;
+    manager: PackageManager | undefined;
 }): Promise<Record<string, PackageFiles>> => {
 
     const [gitFiles, dependencies] = await Promise.all([
@@ -132,6 +134,7 @@ export const listChangedPackageFiles = async (params: {
     packageName: string;
     baseRef: string;
     headRef: string;
+    manager: PackageManager | undefined;
 }): Promise<Record<string, PackageFiles>> => {
 
     const [gitFiles, dependencies] = await Promise.all([

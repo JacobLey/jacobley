@@ -71,6 +71,10 @@ export default class RivendellCli extends EntryScript {
                     default: '.',
                     describe: 'Current working directory',
                 },
+                manager: {
+                    describe: 'Package manager to use find packages',
+                    choices: ['npm', 'rush', 'yarn'] as const,
+                },
             })
             .strict()
             .help()

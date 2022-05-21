@@ -7,6 +7,7 @@ export const compile: CommandModule<{
     cwd: string;
     configFile: string | undefined;
     templateDirectory: string | undefined;
+    manager: PackageManager | undefined;
 }, {
     ci: boolean;
     clean: boolean;
@@ -34,10 +35,6 @@ export const compile: CommandModule<{
             describe: 'Remove existing files',
             type: 'boolean',
             default: false,
-        },
-        manager: {
-            describe: 'Package manager to use find packages',
-            choices: ['npm', 'rush', 'yarn'] as const,
         },
     }).strict(),
     handler: async options => {
