@@ -108,7 +108,12 @@ Returns a promise that resolves to a list of packages in the monorepo, in depend
         "packageName": "string",
         "stage": 2,
         "dependencies": ["<package-a>"],
-        "devDependencies": ["<package-b>"]
+        "devDependencies": ["<package-b>"],
+        "packageMeta": {
+            "directory": "/path/to/package",
+            "name": "string",
+            "packageJson": { "name": "string", "version": "1.2.3" }
+        }
     }
 ]
 ```
@@ -135,6 +140,27 @@ The results are in order of increasing `stage`, with parallel packages in alphab
 #### options
 See [`packages-list` options](https://www.npmjs.com/package/packages-list).
 
+### calculateDependencyOrder(packages)
+
+Internally used by `dependencyOrder`, returns same response given a list of packages.
+
+Used to calculate dependencies when the original list of packages has been edited/filtered.
+
+e.g.
+```ts
+import { calculateDependencyOrder, dependencyOrder } from 'dependency-order';
+
+const originalDependencies = await dependencyOrder();
+
+const onlyPublicPackages = originalDependencies.map(
+    dep => dep.packageMeta
+).filter(
+    packageMeta => !packageMeta.private
+);
+
+const onlyPublicDependencies = calculateDependencyOrder(onlyPublicPackages);
+```
+
 ### dependencyOrderByPackage(dependencies)
 
 Convenience method for mapping dependencies by package name.
@@ -145,7 +171,12 @@ Parameter is response from `dependencyOrder`.
         "packageName": "<package-a>",
         "stage": 2,
         "dependencies": ["<package-b>"],
-        "devDependencies": ["<package-c>"]
+        "devDependencies": ["<package-c>"],
+        "packageMeta": {
+            "directory": "/path/to/package-a",
+            "name": "string",
+            "packageJson": { "name": "string", "version": "1.2.3" }
+        }
     }
 }
 ```
@@ -161,7 +192,12 @@ Parameter is response from `dependencyOrder`.
             "packageName": "<package-a>",
             "stage": 0,
             "dependencies": [],
-            "devDependencies": []
+            "devDependencies": [],
+            "packageMeta": {
+                "directory": "/path/to/package-a",
+                "name": "<package-a>",
+                "packageJson": { "name": "<package-a>", "version": "1.2.3" }
+            }
         },
     ],
     [
@@ -169,7 +205,12 @@ Parameter is response from `dependencyOrder`.
             "packageName": "<package-b>",
             "stage": 1,
             "dependencies": ["<package-a>"],
-            "devDependencies": []
+            "devDependencies": [],
+            "packageMeta": {
+                "directory": "/path/to/package-b",
+                "name": "<package-b>",
+                "packageJson": { "name": "<package-b>", "version": "1.2.3" }
+            }
         },
     ]
 ]
