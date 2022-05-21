@@ -40,6 +40,7 @@
     "eslint-plugin-sonarjs": "0.13.0",
     "eslint-plugin-unicorn": "42.0.0",
     "named-patch": "workspace:^",
+    "packages-list": "workspace:^",
     "rivendell": "workspace:^",
     "typescript": "4.7.1-rc",
     "yargs": "^17.4.1"
