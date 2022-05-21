@@ -29,7 +29,7 @@ export default {
             dev: true,
             paths: [
                 '.eslintignore',
-                '.eslintrc.cjs',
+                './root/jacobley/.eslintrc.cjs',
                 'tsconfig.eslint.json',
             ],
         },
