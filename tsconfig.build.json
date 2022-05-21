@@ -40,8 +40,8 @@
         "useUnknownInCatchVariables": true
     },
     "exclude": [
-        "packages/*/coverage/**",
-        "packages/*/dist/**",
-        "packages/*/nyc/**"
+        "*/*/coverage/**",
+        "*/*/dist/**",
+        "*/*/nyc/**"
     ]
 }

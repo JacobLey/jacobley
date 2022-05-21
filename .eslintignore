@@ -1,7 +1,18 @@
 !**/.*.cjs
 
-node_modules
+apps/*/coverage
+apps/*/dist
+apps/*/nyc
 
-packages/*/coverage
-packages/*/dist
-packages/*/nyc
+root/*/coverage
+root/*/dist
+root/*/nyc
+
+tools/*/coverage
+tools/*/dist
+tools/*/nyc
+
+# Rush temporary files
+**/.rush/temp/**
+common/deploy/
+common/temp/

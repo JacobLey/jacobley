@@ -1,0 +1,7 @@
+[
+  {
+    "definitionName": "individualVersion",
+    "policyName": "individualVersions",
+    "includeEmailInChangeFile": false
+  }
+]

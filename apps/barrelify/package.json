@@ -1,0 +1,68 @@
+{
+  "name": "barrelify",
+  "version": "0.0.1",
+  "description": "Auto-generate TS barrel files.",
+  "engines": {
+    "node": ">=14",
+    "npm": ">=8"
+  },
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/JacobLey/jacobley/tree/main/apps/barrelify#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "keywords": [
+    "barrel",
+    "index"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc",
+    "coverage": "rushx instrument && nyc mocha ./nyc/tests/unit",
+    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
+    "lint": "rush lint-package",
+    "test": "rushx coverage",
+    "unit-test": "mocha ./dist/tests/unit"
+  },
+  "main": "./dist/barrelify.js",
+  "exports": {
+    ".": {
+      "types": [
+        "./src/barrelify.ts",
+        "./dist/barrelify.d.ts"
+      ],
+      "default": "./dist/barrelify.js"
+    }
+  },
+  "bin": {
+    "barrel": "./cli.mjs",
+    "barrelify": "./cli.mjs"
+  },
+  "dependencies": {
+    "default-import": "workspace:^",
+    "entry-script": "workspace:^",
+    "globby": "^13.1.1",
+    "named-patch": "workspace:^",
+    "parse-cwd": "workspace:^",
+    "read-pkg-up": "^9.1.0",
+    "yargs": "^17.4.1"
+  },
+  "devDependencies": {
+    "@types/chai": "4.3.1",
+    "@types/dedent": "0.7.0",
+    "@types/mocha": "9.1.1",
+    "@types/node": "17.0.33",
+    "@types/sinon": "10.0.11",
+    "@types/yargs": "17.0.10",
+    "chai": "4.3.6",
+    "dedent": "0.7.0",
+    "expect-type": "0.13.0",
+    "mocha": "10.0.0",
+    "nyc": "15.1.0",
+    "sinon": "14.0.0",
+    "typescript": "4.7.1-rc"
+  }
+}

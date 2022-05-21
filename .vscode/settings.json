@@ -1,11 +1,36 @@
 {
+    "eslint.nodePath": "common/temp/node_modules",
+    "eslint.probe": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact"
+    ],
     "eslint.runtime": "node",
+    "eslint.useESLintClass": true,
     "files.associations": {
         "*.cts": "typescript",
-        "*.mts": "typescript"
+        "*.mts": "typescript",
+        "rush.json": "jsonc",
+        "**/common/config/rush/*.json": "jsonc"
     },
     "javascript.preferences.quoteStyle": "single",
     "typescript.preferences.importModuleSpecifierEnding": "js",
     "typescript.preferences.quoteStyle": "single",
-    "typescript.tsdk": "node_modules/typescript/lib"
+    "typescript.tsdk": "common/temp/node_modules/.pnpm/typescript@4.7.1-rc/node_modules/typescript/lib",
+    "[javascript]": {
+      "editor.tabSize": 4
+    },
+    "[json]": {
+        "editor.tabSize": 2
+    },
+    "[jsonc]": {
+        "editor.tabSize": 2
+    },
+    "[yaml]": {
+        "editor.tabSize": 2
+    },
+    "eslint.options": {
+      "overrideConfigFile": "./root/jacobley/.eslintrc.cjs"
+    }
 }
