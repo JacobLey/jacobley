@@ -24,7 +24,12 @@ jobs:
       - uses: actions/cache@v3
         id: cache-install
         with:
-          path: common/config/temp
+          path: |
+            .rush
+            common/temp
+            apps/*/node_modules
+            root/*/node_modules
+            tools/*/node_modules
           key: ${{ runner.os }}-npm-${{ hashFiles('common/config/pnpm-lock.yaml',
             'rush.json') }}
 
@@ -40,7 +45,7 @@ jobs:
       # that only needs to live for the rest of the build + test
       - run: |
           mkdir tarballs
-          tar -zcf ./tarballs/rush.tgz ./common/config/temp/**
+          tar -zcf ./tarballs/rush.tgz .rush common/temp apps/*/node_modules root/*/node_modules tools/*/node_modules
       - uses: actions/upload-artifact@v3
         with:
           name: build
