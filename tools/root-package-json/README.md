@@ -4,7 +4,7 @@
 <p>Find the root package.json from an npm workspace.</p>
 
 [![npm package](https://badge.fury.io/js/root-package-json.svg)](https://www.npmjs.com/package/root-package-json)
-[![License](https://img.shields.io/github/license/JacobLey/jacobley.svg)](https://github.com/JacobLey/jacobley/blob/main/LICENSE)
+[![License](https://img.shields.io/npm/l/root-package-json.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
 [![Quality](https://img.shields.io/npms-io/quality-score/root-package-json.svg)](https://www.npmjs.com/package/root-package-json)
 
 </div>
