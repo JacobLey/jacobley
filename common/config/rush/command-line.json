@@ -72,8 +72,16 @@
     // Internal Root
     {
       "commandKind": "global",
+      "name": "get-hash-version",
+      "summary": "Lookup paired git sha",
+      "description": "Lookup the git sha that is paired with a package hash",
+      "safeForSimultaneousRushProcesses": false,
+      "shellCommand": "./root/jacobley/cli.mjs get-hash-version"
+    },
+    {
+      "commandKind": "global",
       "name": "set-dev-version",
-      "summary": "Internal CLI scripts",
+      "summary": "Set hash suffix",
       "description": "Set `-dev.<hash>` suffix for package.json",
       "safeForSimultaneousRushProcesses": false,
       "shellCommand": "./root/jacobley/cli.mjs set-dev-version"
@@ -115,7 +123,7 @@
       "argumentName": "PROJECT",
       "required": true,
       "description": "Project to set rivendell hash",
-      "associatedCommands": ["set-dev-version"]
+      "associatedCommands": ["get-hash-version", "set-dev-version"]
     }
   ]
 }

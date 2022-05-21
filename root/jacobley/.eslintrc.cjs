@@ -752,6 +752,7 @@ module.exports = {
             files: [
                 'common/scripts/*',
                 'apps/*/src/commands/*.ts',
+                'root/*/src/commands/*.ts',
             ],
             rules: {
                 'no-console': [
