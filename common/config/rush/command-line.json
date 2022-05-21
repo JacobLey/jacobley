@@ -77,6 +77,16 @@
       "description": "Set `-dev.<hash>` suffix for package.json",
       "safeForSimultaneousRushProcesses": false,
       "shellCommand": "./root/jacobley/cli.mjs set-dev-version"
+    },
+
+    // PNPM
+    {
+      "commandKind": "global",
+      "name": "outdated",
+      "summary": "Check for outdated dependencies",
+      "description": "Check for newly released packages that are not yet installed",
+      "safeForSimultaneousRushProcesses": true,
+      "shellCommand": "./common/temp/pnpm-local/node_modules/.bin/pnpm outdated -rC common/temp"
     }
   ],
 
