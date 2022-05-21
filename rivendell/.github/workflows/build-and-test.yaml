@@ -1,5 +1,8 @@
 name: Build and Test
 
+env:
+  RUSH_GLOBAL_FOLDER: ${{ github.workspace}}/.rush
+
 on:
   workflow_call:
     inputs:
@@ -25,7 +28,7 @@ jobs:
         id: cache-install
         with:
           path: |
-            ~/.rush
+            .rush
             common/temp
             apps/*/node_modules
             root/*/node_modules
@@ -44,8 +47,7 @@ jobs:
       # that only needs to live for the rest of the build + test
       - run: |
           mkdir tarballs
-          RUSH_HOME_DIR=`realpath --relative-to=$PWD ~/.rush`
-          tar -zcf ./tarballs/rush.tgz $RUSH_HOME_DIR common/temp apps/*/node_modules root/*/node_modules tools/*/node_modules
+          tar -zcf ./tarballs/rush.tgz .rush common/temp apps/*/node_modules root/*/node_modules tools/*/node_modules
       - uses: actions/upload-artifact@v3
         with:
           name: build
