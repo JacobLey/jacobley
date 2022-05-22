@@ -1,16 +1,18 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import Path from 'node:path';
+import { findImport } from 'find-import';
 import { globby } from 'globby';
 import { patch } from 'named-patch';
-import { readPackageUp } from 'read-pkg-up';
 
 const getExtensions = async (path: string): Promise<string> => {
 
-    const pkg = await readPackageUp({
-        cwd: Path.dirname(path),
+    const pkg = await findImport<{
+        type?: string;
+    }>('package.json', {
+        cwd: path,
     });
 
-    const isModule = pkg?.packageJson.type === 'module';
+    const isModule = pkg?.content.type === 'module';
     const fileIsModule = path.endsWith('.mts') || (
         path.endsWith('.ts') && isModule
     );

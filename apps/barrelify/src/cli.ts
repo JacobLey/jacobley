@@ -1,9 +1,7 @@
-import Path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { defaultImport } from 'default-import';
 import { EntryScript, type EntryScriptOptions } from 'entry-script';
+import { findImport } from 'find-import';
 import { patch } from 'named-patch';
-import { readPackageUp } from 'read-pkg-up';
 import yargsDefault, { type Argv, type CommandModule } from 'yargs';
 // eslint-disable-next-line node/file-extension-in-import
 import { hideBin } from 'yargs/helpers';
@@ -55,8 +53,10 @@ export default class BarrelCli extends EntryScript {
      */
     public override async start(): Promise<void> {
 
-        const pkg = await readPackageUp({
-            cwd: Path.dirname(fileURLToPath(import.meta.url)),
+        const pkg = await findImport<{
+            version: string;
+        }>('package.json', {
+            cwd: import.meta.url,
         });
 
         const yarg = (yargs() as unknown as Argv)
@@ -76,7 +76,7 @@ export default class BarrelCli extends EntryScript {
             .strict()
             .help()
             .alias('help', 'info')
-            .version(pkg!.packageJson.version);
+            .version(pkg!.content.version);
 
         for (const command of Object.values(Commands)) {
 

@@ -8,6 +8,7 @@
   "references": [
     { "path": "../../tools/default-import" },
     { "path": "../../tools/entry-script" },
+    { "path": "../../tools/find-import" },
     { "path": "../../tools/named-patch" },
     { "path": "../../tools/parse-cwd" }
   ]
