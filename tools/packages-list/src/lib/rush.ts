@@ -3,9 +3,9 @@ import type * as RushLib from '@microsoft/rush-lib';
 import { patch } from 'named-patch';
 import { type Directory, parseCwd } from 'parse-cwd';
 import which from 'which';
-import type { PackageMeta } from './types.js';
+import type { PackageMeta } from './lib/types.js';
 
-export const rushPackages = async (options?: {
+export const rush = async (options?: {
     cwd: Directory;
 }): Promise<PackageMeta[] | null> => {
 

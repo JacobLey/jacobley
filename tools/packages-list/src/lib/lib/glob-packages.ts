@@ -1,32 +1,22 @@
 import { createRequire } from 'node:module';
 import Path from 'node:path';
 import { globby } from 'globby';
-import { patch } from 'named-patch';
-import { rootPackageJson } from 'root-package-json';
 import type { PackageMeta } from './types.js';
 
 const require = createRequire(import.meta.url);
 
-export const npmPackages = async (
-    options?: Parameters<typeof rootPackageJson>[0]
-): Promise<PackageMeta[] | null> => {
+export const globPackages = async ({
+    rootPath,
+    dirGlobs,
+}: {
+    rootPath: string;
+    dirGlobs: string | string[];
+}): Promise<PackageMeta[]> => {
 
-    const rootPackage = await patch(rootPackageJson)(options);
-
-    if (!rootPackage) {
-        return null;
-    }
-
-    const workspaces = rootPackage.packageJson.workspaces as string[] | undefined;
-
-    if (!Array.isArray(workspaces)) {
-        return null;
-    }
-
-    const rootPath = Path.dirname(rootPackage.filePath);
+    const globs = Array.isArray(dirGlobs) ? dirGlobs : [dirGlobs];
 
     const packagePaths = await globby(
-        workspaces.map((workspace: string) => Path.join(workspace, 'package.json')),
+        globs.map(dirGlob => Path.join(dirGlob, 'package.json')),
         { cwd: rootPath }
     );
 

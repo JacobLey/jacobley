@@ -39,6 +39,7 @@
     }
   },
   "dependencies": {
+    "find-import": "workspace:^",
     "globby": "^13.1.1",
     "named-patch": "workspace:^",
     "parse-cwd": "workspace:^",
