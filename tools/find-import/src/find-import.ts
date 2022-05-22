@@ -28,7 +28,7 @@ export const findImport = async <T>(
     options: {
         cwd?: Directory;
         direction?: 'down' | 'up';
-        startAt?: string;
+        startAt?: Directory;
     } = {}
 ): Promise<{
     filePath: string;
@@ -39,7 +39,8 @@ export const findImport = async <T>(
 
     let [directory, startAt] = await Promise.all([
         parseCwd(options),
-        parseCwd(options.startAt ?? '/'),
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        options.startAt ? parseCwd(options.startAt) : '/',
     ]);
     let parentDirectory = Path.dirname(directory);
 
