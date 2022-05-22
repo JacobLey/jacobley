@@ -1,6 +1,6 @@
 {
   "name": "rivendell",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Preprocessor for monorepo CI configs.",
   "engines": {
     "node": ">=16.15",
