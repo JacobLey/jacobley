@@ -33,7 +33,7 @@ jobs:
             apps/*/node_modules
             root/*/node_modules
             tools/*/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('common/config/rush/pnpm-lock.yaml', 'rush.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('common/config/rush/pnpm-lock.yaml', 'common/config/rush/.pnpmfile.cjs', 'rush.json') }}
 
       # If node_modules not built, install node and install
       - if: steps.cache-install.outputs.cache-hit != 'true'
@@ -148,11 +148,9 @@ jobs:
       # If a package has not changed since
       - name: Check if package has changes
         id: rivendell
+        working-directory: root/jacobley
         run: |
-          echo "::set-output name=changed::true"
-          exit 0
-          # TODO run rivendell to check
-          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          CHANGED=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
           echo "::set-output name=changed::${CHANGED}"
 
       - if: steps.rivendell.outputs.changed == 'true'
@@ -236,11 +234,9 @@ jobs:
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
+        working-directory: root/jacobley
         run: |
-          echo "::set-output name=hash::${{ github.sha }}"
-          exit 0
-          # TODO use rivendell to hash
-          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          HASH=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
       # Try to load a previously cached version of build (determined by hash)
@@ -302,11 +298,9 @@ jobs:
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
+        working-directory: root/jacobley
         run: |
-          echo "::set-output name=hash::${{ github.sha }}"
-          exit 0
-          # TODO use rivendell to hash
-          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          HASH=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
       # Try to load a previously cached version of build (determined by hash)
@@ -365,11 +359,9 @@ jobs:
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
+        working-directory: root/jacobley
         run: |
-          echo "::set-output name=hash::${{ github.sha }}"
-          exit 0
-          # TODO use rivendell to hash
-          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          HASH=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
       # Try to load a previously cached version of build (determined by hash)
@@ -425,11 +417,9 @@ jobs:
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
+        working-directory: root/jacobley
         run: |
-          echo "::set-output name=hash::${{ github.sha }}"
-          exit 0
-          # TODO use rivendell to hash
-          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          HASH=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
       # Try to load a previously cached version of build (determined by hash)
@@ -485,11 +475,9 @@ jobs:
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
+        working-directory: root/jacobley
         run: |
-          echo "::set-output name=hash::${{ github.sha }}"
-          exit 0
-          # TODO use rivendell to hash
-          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          HASH=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
       # Try to load a previously cached version of build (determined by hash)
@@ -545,11 +533,9 @@ jobs:
       # Generate a hash that specifies "state" of package + dependencies
       - name: Calculate dependency hash
         id: rivendell
+        working-directory: root/jacobley
         run: |
-          echo "::set-output name=hash::${{ github.sha }}"
-          exit 0
-          # TODO use rivendell to hash
-          HASH=`npx rivendell hash ${{ matrix.package.name }}`
+          HASH=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell hash ${{ matrix.package.name }}`
           echo "::set-output name=hash::${HASH}"
 
       # Try to load a previously cached version of build (determined by hash)
@@ -616,13 +602,11 @@ jobs:
             done
 
       - name: Check if package has changes
-        run: |
-          echo "::set-output name=changed::true"
-          exit 0
-          # TODO use rivendell
-          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
-          echo "::set-output name=changed::${CHANGED}"
         id: rivendell
+        working-directory: root/jacobley
+        run: |
+          CHANGED=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
 
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
@@ -664,13 +648,11 @@ jobs:
             done
 
       - name: Check if package has changes
-        run: |
-          echo "::set-output name=changed::true"
-          exit 0
-          # TODO use rivendell
-          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
-          echo "::set-output name=changed::${CHANGED}"
         id: rivendell
+        working-directory: root/jacobley
+        run: |
+          CHANGED=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
 
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
@@ -709,13 +691,11 @@ jobs:
             done
 
       - name: Check if package has changes
-        run: |
-          echo "::set-output name=changed::true"
-          exit 0
-          # TODO use rivendell
-          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
-          echo "::set-output name=changed::${CHANGED}"
         id: rivendell
+        working-directory: root/jacobley
+        run: |
+          CHANGED=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
 
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
@@ -751,13 +731,11 @@ jobs:
             done
 
       - name: Check if package has changes
-        run: |
-          echo "::set-output name=changed::true"
-          exit 0
-          # TODO use rivendell
-          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
-          echo "::set-output name=changed::${CHANGED}"
         id: rivendell
+        working-directory: root/jacobley
+        run: |
+          CHANGED=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
 
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
@@ -793,13 +771,11 @@ jobs:
             done
 
       - name: Check if package has changes
-        run: |
-          echo "::set-output name=changed::true"
-          exit 0
-          # TODO use rivendell
-          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
-          echo "::set-output name=changed::${CHANGED}"
         id: rivendell
+        working-directory: root/jacobley
+        run: |
+          CHANGED=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
 
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
@@ -835,13 +811,11 @@ jobs:
             done
 
       - name: Check if package has changes
-        run: |
-          echo "::set-output name=changed::true"
-          exit 0
-          # TODO use rivendell
-          CHANGED=`npx rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
-          echo "::set-output name=changed::${CHANGED}"
         id: rivendell
+        working-directory: root/jacobley
+        run: |
+          CHANGED=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
 
       # If package has experienced changes, test package
       - if: steps.rivendell.outputs.changed == 'true'
