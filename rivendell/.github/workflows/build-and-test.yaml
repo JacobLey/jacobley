@@ -33,7 +33,7 @@ jobs:
             apps/*/node_modules
             root/*/node_modules
             tools/*/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('common/config/rush/pnpm-lock.yaml', 'rush.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('common/config/rush/pnpm-lock.yaml', 'common/config/rush/.pnpmfile.cjs', 'rush.json') }}
 
       # If node_modules not built, install node and install
       - if: steps.cache-install.outputs.cache-hit != 'true'
