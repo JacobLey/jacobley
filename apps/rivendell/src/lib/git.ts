@@ -84,6 +84,10 @@ export const gitDiffFiles = async ({
         gitRoot({ cwd }),
     ]);
 
+    if (!files) {
+        return [];
+    }
+
     const gitFiles: {
         relativePath: string;
         mode: string;
