@@ -11,6 +11,7 @@
 
 ## Contents
 - [Introduction](#introduction)
+- [Supported Package Managers](#supported-package-managers)
 - [Install](#install)
 - [Example](#example)
 - [Usage](#usage)
@@ -24,6 +25,17 @@ Lists all packages in a monorepo.
 Includes directory, name, and contents of package.json. Order is non-deterministic.
 
 Can be called from any location inside a monorepo.
+
+<a name="Supported Package Managers"></a>
+## Supported Package Managers
+
+Package managers that are supported for finding/parsing packages are:
+
+* ✅ [Lerna](https://lerna.js.org/)
+* ✅ [NPM](https://docs.npmjs.com/cli/v8/using-npm/workspaces)
+* ✅ [Nx](https://nx.dev/configuration/projectjson#workspace-json)
+* ✅ [Rush](https://rushjs.io/pages/configs/rush_json/)
+* ✅ [Yarn](https://yarnpkg.com/features/workspaces)
 
 <a name="Install"></a>
 ## Install

@@ -6,8 +6,6 @@
     "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
   "references": [
-    { "path": "../find-import" },
-    { "path": "../named-patch" },
-    { "path": "../root-package-json" }
+    { "path": "../parse-cwd" }
   ]
 }

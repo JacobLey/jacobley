@@ -1,9 +1,8 @@
-import { npmPackages } from './lib/npm-packages.js';
-import { rushPackages } from './lib/rush-packages.js';
-import type { PackageMeta } from './lib/types.js';
+import { lerna, npmYarn, nx, rush } from './lib/index.js';
+import type { PackageMeta } from './lib/lib/types.js';
 
 export type { PackageMeta };
-export type PackageManager = 'npm' | 'rush' | 'yarn';
+export type PackageManager = 'lerna' | 'npm' | 'nx' | 'rush' | 'yarn';
 
 const managerAllowed = (
     check: PackageManager,
@@ -36,14 +35,26 @@ export const listPackages = async (
 
     let packagePaths: PackageMeta[] | null = null;
 
+    if (managerAllowed('lerna', manager)) {
+        packagePaths = await lerna({ cwd });
+        if (packagePaths) {
+            return packagePaths;
+        }
+    }
+    if (managerAllowed('nx', manager)) {
+        packagePaths = await nx({ cwd });
+        if (packagePaths) {
+            return packagePaths;
+        }
+    }
     if (managerAllowed('npm', manager) || managerAllowed('yarn', manager)) {
-        packagePaths = await npmPackages({ cwd });
+        packagePaths = await npmYarn({ cwd });
         if (packagePaths) {
             return packagePaths;
         }
     }
     if (managerAllowed('rush', manager)) {
-        packagePaths = await rushPackages({ cwd });
+        packagePaths = await rush({ cwd });
         if (packagePaths) {
             return packagePaths;
         }

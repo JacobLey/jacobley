@@ -6,6 +6,6 @@
     "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
   "references": [
-    { "path": "../parse-cwd" }
+    { "path": "../find-import" }
   ]
 }
