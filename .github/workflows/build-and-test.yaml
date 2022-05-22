@@ -106,15 +106,18 @@ jobs:
           - name: entry-script
             safe-name: entry-script
             path: tools/entry-script
+          - name: find-import
+            safe-name: find-import
+            path: tools/find-import
           - name: juniper
             safe-name: juniper
             path: apps/juniper
-          - name: root-package-json
-            safe-name: root-package-json
-            path: tools/root-package-json
           - name: barrelify
             safe-name: barrelify
             path: apps/barrelify
+          - name: root-package-json
+            safe-name: root-package-json
+            path: tools/root-package-json
           - name: packages-list
             safe-name: packages-list
             path: tools/packages-list
@@ -164,12 +167,13 @@ jobs:
       - root-test
       # Ensures all packages are individually tested first
       # which implicitly requires all packages built
-      - package-test-5
+      - package-test-6
       - package-test-0
       - package-test-1
       - package-test-2
       - package-test-3
       - package-test-4
+      - package-test-5
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -273,12 +277,12 @@ jobs:
           - name: entry-script
             safe-name: entry-script
             path: tools/entry-script
+          - name: find-import
+            safe-name: find-import
+            path: tools/find-import
           - name: juniper
             safe-name: juniper
             path: apps/juniper
-          - name: root-package-json
-            safe-name: root-package-json
-            path: tools/root-package-json
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -337,9 +341,9 @@ jobs:
           - name: barrelify
             safe-name: barrelify
             path: apps/barrelify
-          - name: packages-list
-            safe-name: packages-list
-            path: tools/packages-list
+          - name: root-package-json
+            safe-name: root-package-json
+            path: tools/root-package-json
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -395,9 +399,9 @@ jobs:
       matrix:
         # Rivendell will populate matrix per-job with packages for that stage
         package:
-          - name: dependency-order
-            safe-name: dependency-order
-            path: tools/dependency-order
+          - name: packages-list
+            safe-name: packages-list
+            path: tools/packages-list
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -453,9 +457,9 @@ jobs:
       matrix:
         # Rivendell will populate matrix per-job with packages for that stage
         package:
-          - name: rivendell
-            safe-name: rivendell
-            path: apps/rivendell
+          - name: dependency-order
+            safe-name: dependency-order
+            path: tools/dependency-order
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -506,6 +510,64 @@ jobs:
     needs:
       - install-rush
       - package-build-4
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Rivendell will populate matrix per-job with packages for that stage
+        package:
+          - name: rivendell
+            safe-name: rivendell
+            path: apps/rivendell
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Download _all_ builds up to this point
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+      # Generate a hash that specifies "state" of package + dependencies
+      - name: Calculate dependency hash
+        id: rivendell
+        working-directory: root/jacobley
+        run: |
+          HASH=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell hash ${{ matrix.package.name }}`
+          echo "::set-output name=hash::${HASH}"
+
+      # Try to load a previously cached version of build (determined by hash)
+      - uses: actions/cache@v3
+        id: hash-build
+        with:
+          path: ./tarballs/${{ matrix.package.safe-name }}.tgz
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{ steps.rivendell.outputs.hash }}
+
+      # If cache missed build the package
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js build
+
+      # If cache missed (continued) copy files into tarball
+      - if: steps.hash-build.outputs.cache-hit != 'true'
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{ matrix.package.path }}/dist/**
+
+      # Upload tarball to build artifact (was either built in this run, or used cached version)
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: '*tarballs/${{ matrix.package.safe-name }}.tgz'
+          retention-days: 1
+  package-build-6:
+    needs:
+      - install-rush
+      - package-build-5
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -625,12 +687,12 @@ jobs:
           - name: entry-script
             safe-name: entry-script
             path: tools/entry-script
+          - name: find-import
+            safe-name: find-import
+            path: tools/find-import
           - name: juniper
             safe-name: juniper
             path: apps/juniper
-          - name: root-package-json
-            safe-name: root-package-json
-            path: tools/root-package-json
     steps:
       - uses: actions/checkout@v3
         with:
@@ -671,9 +733,9 @@ jobs:
           - name: barrelify
             safe-name: barrelify
             path: apps/barrelify
-          - name: packages-list
-            safe-name: packages-list
-            path: tools/packages-list
+          - name: root-package-json
+            safe-name: root-package-json
+            path: tools/root-package-json
     steps:
       - uses: actions/checkout@v3
         with:
@@ -711,9 +773,9 @@ jobs:
         node-version:
           - 16
         package:
-          - name: dependency-order
-            safe-name: dependency-order
-            path: tools/dependency-order
+          - name: packages-list
+            safe-name: packages-list
+            path: tools/packages-list
     steps:
       - uses: actions/checkout@v3
         with:
@@ -751,9 +813,9 @@ jobs:
         node-version:
           - 16
         package:
-          - name: rivendell
-            safe-name: rivendell
-            path: apps/rivendell
+          - name: dependency-order
+            safe-name: dependency-order
+            path: tools/dependency-order
     steps:
       - uses: actions/checkout@v3
         with:
@@ -784,6 +846,46 @@ jobs:
   package-test-5:
     needs:
       - package-build-5
+      - package-lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 16
+        package:
+          - name: rivendell
+            safe-name: rivendell
+            path: apps/rivendell
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ inputs.depth }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: |
+          for TARBALL in ./tarballs/*.tgz
+            do
+              tar -xf $TARBALL
+            done
+
+      - name: Check if package has changes
+        id: rivendell
+        working-directory: root/jacobley
+        run: |
+          CHANGED=`node ${{ github.workspace }}/common/scripts/install-run-rushx.js --quiet rivendell changed ${{ matrix.package.name }} ${{ inputs.base-ref }} ${{ inputs.head-ref }}`
+          echo "::set-output name=changed::${CHANGED}"
+
+      # If package has experienced changes, test package
+      - if: steps.rivendell.outputs.changed == 'true'
+        working-directory: ${{ matrix.package.path }}
+        run: node ${{ github.workspace }}/common/scripts/install-run-rushx.js test
+  package-test-6:
+    needs:
+      - package-build-6
       - package-lint
     runs-on: ubuntu-latest
     strategy:

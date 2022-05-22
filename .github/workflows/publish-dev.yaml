@@ -37,15 +37,18 @@ jobs:
           - name: entry-script
             safe-name: entry-script
             path: tools/entry-script
+          - name: find-import
+            safe-name: find-import
+            path: tools/find-import
           - name: juniper
             safe-name: juniper
             path: apps/juniper
-          - name: root-package-json
-            safe-name: root-package-json
-            path: tools/root-package-json
           - name: barrelify
             safe-name: barrelify
             path: apps/barrelify
+          - name: root-package-json
+            safe-name: root-package-json
+            path: tools/root-package-json
           - name: packages-list
             safe-name: packages-list
             path: tools/packages-list
