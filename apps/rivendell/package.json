@@ -41,8 +41,7 @@
     }
   },
   "bin": {
-    "rivendell": "./cli.mjs",
-    "rivendell-dist": "./dist/cli.js"
+    "rivendell": "./cli.mjs"
   },
   "dependencies": {
     "ajv": "^8.11.0",
