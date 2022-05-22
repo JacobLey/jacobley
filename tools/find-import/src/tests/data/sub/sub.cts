@@ -1,0 +1,3 @@
+export = {
+    kind: 'sub-cjs',
+};
