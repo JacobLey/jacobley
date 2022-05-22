@@ -241,6 +241,8 @@ export const processFile = async ({ path, dependencies, root }: {
             });
         }
 
-        return document.toString();
+        return document.toString({
+            lineWidth: 0,
+        }).replaceAll(/^\s+$/gmu, '');
     }).join('\n---\n');
 };

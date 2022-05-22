@@ -79,7 +79,7 @@ jobs:
       # Update `file://...` "versions" for local dependencies, then publish
       - working-directory: ${{ matrix.package.path }}
         run: |
-          
+
           # Get raw version (without dev suffix)
           VERSION=`cat ./package.json | jq '.version' -r`
 

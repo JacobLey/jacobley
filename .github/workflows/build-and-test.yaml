@@ -33,8 +33,7 @@ jobs:
             apps/*/node_modules
             root/*/node_modules
             tools/*/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('common/config/rush/pnpm-lock.yaml',
-            'rush.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('common/config/rush/pnpm-lock.yaml', 'rush.json') }}
 
       # If node_modules not built, install node and install
       - if: steps.cache-install.outputs.cache-hit != 'true'
@@ -249,8 +248,7 @@ jobs:
         id: hash-build
         with:
           path: ./tarballs/${{ matrix.package.safe-name }}.tgz
-          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
-            steps.rivendell.outputs.hash }}
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{ steps.rivendell.outputs.hash }}
 
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -259,8 +257,7 @@ jobs:
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
-          matrix.package.path }}/dist/**
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{ matrix.package.path }}/dist/**
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
@@ -317,8 +314,7 @@ jobs:
         id: hash-build
         with:
           path: ./tarballs/${{ matrix.package.safe-name }}.tgz
-          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
-            steps.rivendell.outputs.hash }}
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{ steps.rivendell.outputs.hash }}
 
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -327,8 +323,7 @@ jobs:
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
-          matrix.package.path }}/dist/**
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{ matrix.package.path }}/dist/**
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
@@ -382,8 +377,7 @@ jobs:
         id: hash-build
         with:
           path: ./tarballs/${{ matrix.package.safe-name }}.tgz
-          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
-            steps.rivendell.outputs.hash }}
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{ steps.rivendell.outputs.hash }}
 
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -392,8 +386,7 @@ jobs:
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
-          matrix.package.path }}/dist/**
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{ matrix.package.path }}/dist/**
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
@@ -444,8 +437,7 @@ jobs:
         id: hash-build
         with:
           path: ./tarballs/${{ matrix.package.safe-name }}.tgz
-          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
-            steps.rivendell.outputs.hash }}
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{ steps.rivendell.outputs.hash }}
 
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -454,8 +446,7 @@ jobs:
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
-          matrix.package.path }}/dist/**
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{ matrix.package.path }}/dist/**
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
@@ -506,8 +497,7 @@ jobs:
         id: hash-build
         with:
           path: ./tarballs/${{ matrix.package.safe-name }}.tgz
-          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
-            steps.rivendell.outputs.hash }}
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{ steps.rivendell.outputs.hash }}
 
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -516,8 +506,7 @@ jobs:
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
-          matrix.package.path }}/dist/**
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{ matrix.package.path }}/dist/**
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3
@@ -568,8 +557,7 @@ jobs:
         id: hash-build
         with:
           path: ./tarballs/${{ matrix.package.safe-name }}.tgz
-          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{
-            steps.rivendell.outputs.hash }}
+          key: ${{ runner.os }}-package-name-${{ matrix.package.name }}-${{ steps.rivendell.outputs.hash }}
 
       # If cache missed build the package
       - if: steps.hash-build.outputs.cache-hit != 'true'
@@ -578,8 +566,7 @@ jobs:
 
       # If cache missed (continued) copy files into tarball
       - if: steps.hash-build.outputs.cache-hit != 'true'
-        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{
-          matrix.package.path }}/dist/**
+        run: tar -zcf ./tarballs/${{ matrix.package.safe-name }}.tgz ${{ matrix.package.path }}/dist/**
 
       # Upload tarball to build artifact (was either built in this run, or used cached version)
       - uses: actions/upload-artifact@v3

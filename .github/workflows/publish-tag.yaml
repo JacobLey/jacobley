@@ -13,7 +13,6 @@ jobs:
         with:
           node-version: 16
 
-      - run: echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }} >>
-          ~/.npmrc
+      - run: echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }} >> ~/.npmrc
 
       - run: ./common/scripts/publish.mjs ${{ github.ref_name }} ${{ github.sha }}
