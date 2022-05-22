@@ -1,8 +1,5 @@
-import { createRequire } from 'node:module';
-import Path from 'node:path';
-import { type Directory, parseCwd } from 'parse-cwd';
-
-const require = createRequire(import.meta.url);
+import { homedir } from 'node:os';
+import { type Directory, findImport } from 'find-import';
 
 export interface PackageJson {
     name: string;
@@ -29,29 +26,17 @@ export const rootPackageJson = async (options?: { cwd?: Directory }): Promise<{
     packageJson: PackageJson;
 } | null> => {
 
-    let directory = await parseCwd(options);
-    let parentDirectory = Path.dirname(directory);
+    const found = await findImport<PackageJson>('package.json', {
+        ...options,
+        direction: 'down',
+        startAt: homedir(),
+    });
 
-    const allFiles = [directory];
-
-    while (directory !== parentDirectory) {
-        allFiles.push(parentDirectory);
-
-        directory = parentDirectory;
-        parentDirectory = Path.dirname(directory);
-    }
-
-    // In future could parallel `import` json (once experimental warnings disabled)
-    for (const basePath of allFiles.reverse()) {
-        try {
-            const filePath = Path.join(basePath, 'package.json');
-            // eslint-disable-next-line import/no-dynamic-require
-            const packageJson = require(filePath) as PackageJson;
-            return {
-                filePath,
-                packageJson,
-            };
-        } catch {}
+    if (found) {
+        return {
+            filePath: found.filePath,
+            packageJson: found.content,
+        };
     }
     return null;
 };

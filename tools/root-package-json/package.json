@@ -39,7 +39,7 @@
     }
   },
   "dependencies": {
-    "parse-cwd": "workspace:^"
+    "find-import": "workspace:^"
   },
   "devDependencies": {
     "@types/chai": "4.3.1",

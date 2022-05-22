@@ -28,31 +28,16 @@ export const RootPackageJsonSpec = {
             expect(cachedPackage!.packageJson).to.eq(rootPackage!.packageJson);
         },
 
-        'Optionally provide path': {
+        async 'Optionally provide path'() {
 
-            async 'Absolute path'() {
+            const rootPackage = await RootPackageJson.rootPackageJson({
+                cwd: import.meta.url,
+            });
 
-                const rootPackage = await RootPackageJson.rootPackageJson({
-                    cwd: import.meta.url,
-                });
-
-                expect(rootPackage).to.deep.equal({
-                    filePath: rootPath,
-                    packageJson: root,
-                });
-            },
-
-            async 'Relative path'() {
-
-                const rootPackage = await RootPackageJson.rootPackageJson({
-                    cwd: './src/tests',
-                });
-
-                expect(rootPackage).to.deep.equal({
-                    filePath: rootPath,
-                    packageJson: root,
-                });
-            },
+            expect(rootPackage).to.deep.equal({
+                filePath: rootPath,
+                packageJson: root,
+            });
         },
 
         async 'No package.json'() {
