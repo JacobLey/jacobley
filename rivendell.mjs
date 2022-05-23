@@ -4,7 +4,7 @@ export default {
             include: '*',
             paths: [
                 'package.json',
-                'cli.js',
+                'README.md',
                 'src/**',
                 'tsconfig.json',
             ],
