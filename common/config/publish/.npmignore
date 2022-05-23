@@ -1,6 +1,5 @@
 # Copied into individual packages
 *
-!cli.js
 !/dist/**
 /dist/tests
 /dist/**/*.map

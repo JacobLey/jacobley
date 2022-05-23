@@ -45,7 +45,7 @@
   },
   "publishConfig": {
     "bin": {
-      "rivendell": "./cli.mjs"
+      "rivendell": "./dist/cli.js"
     }
   },
   "dependencies": {
