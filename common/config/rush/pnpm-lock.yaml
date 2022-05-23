@@ -147,7 +147,7 @@ importers:
       named-patch: workspace:^
       packages-list: workspace:^
       rivendell: workspace:^
-      rivendell-dist: npm:rivendell@0.3.0
+      rivendell-npm: npm:rivendell@0.3.0
       typescript: 4.7.1-rc
       yargs: ^17.4.1
     devDependencies:
@@ -168,7 +168,7 @@ importers:
       named-patch: link:../../tools/named-patch
       packages-list: link:../../tools/packages-list
       rivendell: link:../../apps/rivendell
-      rivendell-dist: /rivendell/0.3.0
+      rivendell-npm: /rivendell/0.3.0
       typescript: 4.7.1-rc
       yargs: 17.5.1
 
@@ -1915,6 +1915,11 @@ packages:
     engines: {node: '>=0.3.1'}
     dev: true
 
+  /diff/5.1.0:
+    resolution: {integrity: sha512-D+mk+qE8VC/PAUrlAU34N+VfXev0ghe5ywmpqrawphmVZc1bEfn56uo9qpyGp1p4xpzOHkSW4ztBd6L7Xx4ACw==}
+    engines: {node: '>=0.3.1'}
+    dev: true
+
   /dir-glob/3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
@@ -3418,7 +3423,7 @@ packages:
     resolution: {integrity: sha512-/5CMN3T0R4XTj4DcGaexo+roZSdSFW/0AOOTROrjxzCG1wrWXEsGbRKevjlIL+ZDE4sZlJr5ED4YW0yqmkK+eA==}
     dependencies:
       hosted-git-info: 2.8.9
-      resolve: 1.22.0
+      resolve: 1.17.0
       semver: 5.7.1
       validate-npm-package-license: 3.0.4
     dev: true
@@ -4089,7 +4094,7 @@ packages:
       '@sinonjs/commons': 1.8.3
       '@sinonjs/fake-timers': 9.1.2
       '@sinonjs/samsam': 6.1.1
-      diff: 5.0.0
+      diff: 5.1.0
       nise: 5.1.1
       supports-color: 7.2.0
     dev: true

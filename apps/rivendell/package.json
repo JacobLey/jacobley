@@ -41,7 +41,12 @@
     }
   },
   "bin": {
-    "rivendell": "./cli.mjs"
+    "rivendell-local": "./cli.mjs"
+  },
+  "publishConfig": {
+    "bin": {
+      "rivendell": "./cli.mjs"
+    }
   },
   "dependencies": {
     "ajv": "^8.11.0",
