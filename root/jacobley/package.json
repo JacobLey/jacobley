@@ -43,7 +43,7 @@
     "named-patch": "workspace:^",
     "packages-list": "workspace:^",
     "rivendell": "workspace:^",
-    "rivendell-npm": "npm:rivendell@0.3.0",
+    "rivendell-npm": "npm:rivendell@0.3.1",
     "typescript": "4.7.1-rc",
     "yargs": "^17.4.1"
   },
