@@ -119,8 +119,3 @@ If true, will not actually perform file writes.
 string[] (default = [])
 
 Globs for index files that should be explicitly ignored.
-
-##### logger
-boolean OR [pino](https://www.npmjs.com/package/pino) compliant logger (default = false)
-
-If true/logger, will log files written.
