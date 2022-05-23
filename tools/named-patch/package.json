@@ -3,8 +3,7 @@
   "version": "1.0.3",
   "description": "Higher order function for patching named export functions.",
   "engines": {
-    "node": ">=14",
-    "npm": ">=8"
+    "node": ">=14"
   },
   "type": "module",
   "author": "jacobley",

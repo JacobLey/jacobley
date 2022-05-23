@@ -3,8 +3,7 @@
   "version": "1.0.3",
   "description": "Properly handle CJS imports in ESM.",
   "engines": {
-    "node": ">=14",
-    "npm": ">=7"
+    "node": ">=14"
   },
   "type": "module",
   "author": "jacobley",

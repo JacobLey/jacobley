@@ -3,8 +3,7 @@
   "version": "1.0.3",
   "description": "Statically typed event emitter.",
   "engines": {
-    "node": ">=14",
-    "npm": ">=7"
+    "node": ">=14"
   },
   "type": "module",
   "author": "jacobley",

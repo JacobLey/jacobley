@@ -3,8 +3,7 @@
   "version": "1.1.0",
   "description": "List all packages in a monorepo.",
   "engines": {
-    "node": ">=14",
-    "npm": ">=8"
+    "node": ">=14"
   },
   "type": "module",
   "author": "jacobley",

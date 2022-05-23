@@ -3,8 +3,7 @@
   "version": "1.0.3",
   "description": "Convert relative path or URL to full path",
   "engines": {
-    "node": ">=14",
-    "npm": ">=8"
+    "node": ">=14"
   },
   "type": "module",
   "author": "jacobley",

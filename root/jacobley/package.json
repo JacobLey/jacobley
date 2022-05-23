@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "description": "Monorepo root.",
   "engines": {
-    "node": ">=14",
-    "npm": ">=7"
+    "node": ">=14"
   },
   "private": true,
   "type": "module",

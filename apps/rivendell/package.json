@@ -3,8 +3,7 @@
   "version": "0.3.1",
   "description": "Preprocessor for monorepo CI configs.",
   "engines": {
-    "node": ">=16.15",
-    "npm": ">=7"
+    "node": ">=16.15"
   },
   "type": "module",
   "author": "jacobley",
