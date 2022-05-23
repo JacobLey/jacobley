@@ -92,7 +92,7 @@ It is generally recommended to only include `barrelify` as a dev/test dependency
 
 Make sure your index files are flagged with `// AUTO-BARREL` as the very first characters in the file. It will not generate index files by itself.
 
-`npx barrel ci` will execute a special "dry-run" version, that throws an error if any files are found out of sync. This can ensure barrel files are properly generated _before_ checking into version control.
+`npx barrel --ci` will execute a special "dry-run" version, that throws an error if any files are found out of sync. This can ensure barrel files are properly generated _before_ checking into version control, or during CI tests.
 
 <a name="api"></a>
 ## API
