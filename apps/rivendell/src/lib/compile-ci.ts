@@ -2,7 +2,6 @@ import fs from 'node:fs/promises';
 import Path from 'node:path';
 import { dependencyOrder, type PackageManager } from 'dependency-order';
 import { parseCwd } from 'parse-cwd';
-import { validateConfigFile } from '../commands/lib/validate-config-path.js';
 import { loadConfig } from './config.js';
 import { gitRoot } from './git.js';
 import { processFile } from './process-yaml.js';
@@ -31,8 +30,6 @@ export const compileCi = async (options: {
     manager: PackageManager | undefined;
     templateDirectory: string | undefined;
 }): Promise<string[]> => {
-
-    validateConfigFile(options.configFile);
 
     const cwd = await parseCwd(options.cwd);
 

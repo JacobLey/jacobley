@@ -3,7 +3,7 @@ import { parseCwd } from 'parse-cwd';
 import type { CommandModule } from 'yargs';
 import { loadConfig } from '../lib/config.js';
 import { listChangedPackageFiles } from '../lib/list-files.js';
-import { getPackageData, validateConfigFile } from './lib/index.js';
+import { getPackageData } from './lib/index.js';
 
 export const changed: CommandModule<{
     cwd: string;
@@ -47,8 +47,6 @@ export const changed: CommandModule<{
         },
     }).strict(),
     handler: async options => {
-
-        validateConfigFile(options.configFile);
 
         if (!options.baseRef) {
             console.info('true');

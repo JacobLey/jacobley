@@ -120,6 +120,10 @@ export const loadConfig = async (params: {
     cwd: string;
 }): Promise<Config> => {
 
+    if (params.configFile && !/\.(?:json|[cm]?js)$/u.test(params.configFile)) {
+        throw new Error(`Unsupported file type: ${params.configFile}`);
+    }
+
     const root = await gitRoot(params);
     const { config, filePath } = await findAndLoadConfigs({
         ...params,

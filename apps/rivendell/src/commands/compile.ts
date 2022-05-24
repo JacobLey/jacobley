@@ -1,7 +1,6 @@
 import type { PackageManager } from 'dependency-order';
 import type { CommandModule } from 'yargs';
 import { compileCi } from '../lib/compile-ci.js';
-import { validateConfigFile } from './lib/index.js';
 
 export const compile: CommandModule<{
     cwd: string;
@@ -38,8 +37,6 @@ export const compile: CommandModule<{
         },
     }).strict(),
     handler: async options => {
-
-        validateConfigFile(options.configFile);
 
         const changed = await compileCi({
             ...options,
