@@ -10,6 +10,7 @@
     { "path": "../../tools/default-import" },
     { "path": "../../tools/dependency-order" },
     { "path": "../../tools/entry-script" },
+    { "path": "../../tools/find-import" },
     { "path": "../../tools/parse-cwd" },
     { "path": "../../tools/root-package-json" }
   ]

@@ -52,6 +52,7 @@
     "default-import": "workspace:^",
     "dependency-order": "workspace:^",
     "entry-script": "workspace:^",
+    "find-import": "workspace:^",
     "juniper": "workspace:^",
     "minimatch": "^5.0.1",
     "named-patch": "workspace:^",

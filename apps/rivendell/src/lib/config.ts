@@ -1,7 +1,7 @@
-import { createRequire } from 'node:module';
 import Path from 'node:path';
 import DefaultAjv from 'ajv/dist/2020.js';
 import { defaultImport } from 'default-import';
+import { findImport } from 'find-import';
 import {
     arraySchema,
     booleanSchema,
@@ -44,7 +44,8 @@ export interface ConfigSchema extends SchemaType<typeof configSchema> {}
 const validator = new Ajv({ strict: true }).compile<ConfigSchema>(configSchema);
 
 export interface Config {
-    configPath: string;
+    configPath: string | null;
+    root: string;
     templateDirectory: string;
     dependencies: {
         root: boolean;
@@ -60,27 +61,6 @@ export interface Config {
     }[];
 }
 
-const loadConfigFile = async (path: string): Promise<{
-    config: ConfigSchema;
-    path: string;
-} | null> => {
-    let rawConfig: unknown;
-    if (path.endsWith('.json')) {
-        try {
-            rawConfig = createRequire(import.meta.url)(path);
-        } catch {}
-    } else {
-        try {
-            rawConfig = await import(path);
-        } catch {}
-    }
-    rawConfig = defaultImport(rawConfig);
-    if (validator(rawConfig)) {
-        return { config: rawConfig, path };
-    }
-    return null;
-};
-
 const findAndLoadConfigs = async ({
     configFile,
     cwd,
@@ -90,29 +70,38 @@ const findAndLoadConfigs = async ({
     cwd: string;
     root: string;
 }): Promise<{
+    filePath: string | null;
     config: ConfigSchema;
-    path: string;
 }> => {
-    let config: { config: ConfigSchema; path: string } | null | undefined;
-    if (configFile) {
-        config = await loadConfigFile(Path.resolve(cwd, configFile));
-    } else {
-        const configs = await Promise.all([
-            'rivendell.js',
-            'rivendell.cjs',
-            'rivendell.mjs',
-            'rivendell.json',
-        ].map(
-            async file => loadConfigFile(Path.resolve(root, file))
-        ));
-        config = configs.find(Boolean);
-    }
 
-    if (!config) {
-        throw new Error('rivendell file not found');
-    }
+    const rawConfig = configFile ?
+        await findImport<ConfigSchema>(configFile, {
+            cwd,
+            startAt: root,
+        }) :
+        await findImport<ConfigSchema>(
+            [
+                'rivendell.js',
+                'rivendell.cjs',
+                'rivendell.mjs',
+                'rivendell.json',
+            ],
+            {
+                cwd: root,
+                startAt: root,
+            }
+        );
 
-    return config;
+    if (rawConfig && validator(rawConfig.content)) {
+        return {
+            filePath: rawConfig.filePath,
+            config: rawConfig.content,
+        };
+    }
+    return {
+        filePath: null,
+        config: {},
+    };
 };
 
 const arrayify = (str: string | string[] = []): string[] => (Array.isArray(str) ? str : [str]);
@@ -132,14 +121,18 @@ export const loadConfig = async (params: {
 }): Promise<Config> => {
 
     const root = await gitRoot(params);
-    const { config, path } = await findAndLoadConfigs({
+    const { config, filePath } = await findAndLoadConfigs({
         ...params,
         root,
     });
 
     return {
-        templateDirectory: Path.resolve(root, config.templateDirectory ?? './rivendell'),
-        configPath: path,
+        configPath: filePath,
+        root,
+        templateDirectory: Path.resolve(
+            filePath ? Path.dirname(filePath) : root,
+            config.templateDirectory ?? './rivendell'
+        ),
         dependencies: (config.dependencies ?? []).map(packageDependency => {
 
             const include = strArrayToMinimatch(packageDependency.include);
