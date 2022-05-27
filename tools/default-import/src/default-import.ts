@@ -1,3 +1,9 @@
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export type ExtractDefault<T> = T extends { __esModule?: boolean; default: infer U } ?
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    (U extends { __esModule?: boolean; default: infer V } ? V : U) :
+    T;
+
 /**
  * With ESM it is possible to export both a default value and multiple named exports.
  * With CJS it is possible to "mock" ESM functionality with a `__esModule=true` flag
@@ -16,27 +22,26 @@
  * @returns {*} unwrapped module
  */
 export const defaultImport = <T>(
-    mod: T |
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        { __esModule?: boolean; default: T } |
-        // Webpack provides a Module tag to match NodeJS' Module module
-        { [Symbol.toStringTag]: 'Module'; default: T }
-): T => {
+    mod: T
+): ExtractDefault<T> => {
+
     if (typeof mod !== 'object' || mod === null) {
-        return mod;
+        return mod as ExtractDefault<T>;
     }
 
+    // Webpack provides a Module tag to match NodeJS' Module module
     const defaultVal = Symbol.toStringTag in mod &&
-        (mod as { [Symbol.toStringTag]: string; default: T })[Symbol.toStringTag] === 'Module' ?
-        (mod as { [Symbol.toStringTag]: 'Module'; default?: T }).default ?? mod :
+        (mod as unknown as { [Symbol.toStringTag]: string; default: T })[Symbol.toStringTag] === 'Module' ?
+        (mod as unknown as { [Symbol.toStringTag]: 'Module'; default?: T }).default ?? mod :
         mod;
 
     if (
         '__esModule' in defaultVal &&
-        defaultVal.__esModule &&
-        defaultVal.default !== undefined
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        (defaultVal as unknown as { __esModule?: boolean }).__esModule &&
+        (defaultVal as unknown as { default?: ExtractDefault<T> | undefined }).default !== undefined
     ) {
-        return defaultVal.default;
+        return (defaultVal as unknown as { default: ExtractDefault<T> }).default;
     }
-    return defaultVal as T;
+    return defaultVal as ExtractDefault<T>;
 };
