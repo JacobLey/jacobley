@@ -1,7 +1,7 @@
 <div style="text-align:center">
 
 <h1>default-import</h1>
-<p>Properly handle CJS imports in ESM.</p>
+<p>Properly handle CJS default imports in ESM.</p>
 
 [![npm package](https://badge.fury.io/js/default-import.svg)](https://www.npmjs.com/package/default-import)
 [![License](https://img.shields.io/npm/l/default-import.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
@@ -64,7 +64,14 @@ console.log(a);
 // Expected: 123
 // Actual: { __esModule: true, default: 123, named: 456 }
 
+const dynamicA = await import('./a.cjs');
+console.log(dynamicA.default);
+// Expected: 123
+// Actual: { __esModule: true, default: 123, named: 456 }
+
 console.log(defaultImport(a)) // 123
+console.log(defaultImport(dynamicA)) // 123
+console.log(defaultImport(dynamicA.default)) // 123
 ```
 
 <a name="usage"></a>
@@ -93,3 +100,5 @@ Idempotent, and correctly handles proper default exports (e.g. default import fr
 * Styled Components
   * https://github.com/styled-components/styled-components/issues/3437
   * https://github.com/styled-components/styled-components/issues/3601
+* Typescript
+  * https://github.com/microsoft/TypeScript/issues/49160#issuecomment-1137482639
