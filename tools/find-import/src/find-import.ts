@@ -18,9 +18,9 @@ const isInside = (
  * @param {string|string[]} fileName - name(s) of file to load
  * @param {object} [options] - options
  * @param {string|URL} [options.cwd] - bottom-most directory for search. See `parse-cwd`
- * @param {string|URL} [options.direction=up] - start searching for files from subdir->parent (up, default)
- *                                              or parent->subdir (down).
- * @param {string|URL} [options.startAt] - top-most directory for searchs
+ * @param {string|URL} [options.direction=up] - start searching for files from subdir->parent
+ *                                              (up, default) or parent->subdir (down).
+ * @param {string|URL} [options.startAt] - top-most directory for searches
  * @returns {object|null} filePath + content pair if found, null if none found
  */
 export const findImport = async <T>(
