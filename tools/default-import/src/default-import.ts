@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export type ExtractDefault<T> = T extends { __esModule?: boolean; default: infer U } ?
+type ExtractDefault<T> = T extends { __esModule?: boolean; default: infer U } ?
     // eslint-disable-next-line @typescript-eslint/naming-convention
     (U extends { __esModule?: boolean; default: infer V } ? V : U) :
     T;
