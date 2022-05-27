@@ -3,8 +3,7 @@ import fs from 'node:fs/promises';
 import Path from 'node:path';
 import { parseCwd } from 'parse-cwd';
 import type { CommandModule } from 'yargs';
-import { gitRoot } from '../lib/git.js';
-import { validateConfigFile } from './lib/validate-config-path.js';
+import { ciDirectories, loadConfig } from '../lib/index.js';
 
 export const init: CommandModule<{
     cwd: string;
@@ -16,38 +15,28 @@ export const init: CommandModule<{
     templateDirectory: string | undefined;
 }> = {
     command: 'init',
-    describe: 'Write index.ts barrel files',
+    describe: 'Create config file and template directory',
     handler: async options => {
 
         const cwd = await parseCwd(options.cwd);
 
-        let configFile: string;
+        const config = await loadConfig({
+            configFile: options.configFile,
+            cwd,
+        });
 
-        if (validateConfigFile(options.configFile)) {
-            configFile = options.configFile;
-        } else {
-            const root = await gitRoot({ cwd });
-            configFile = Path.relative(
-                cwd,
-                Path.join(root, '../rivendell.json')
-            );
-        }
-
-        const configPath = Path.join(cwd, configFile);
-        const templatePath = Path.resolve(cwd, options.templateDirectory ?? 'rivendell');
-
-        const configExists = existsSync(configPath);
-        const templateExists = existsSync(templatePath);
-
-        if (configExists) {
+        if (config.configPath) {
             console.info({
-                configPath,
+                configPath: config.configPath,
             }, 'Config already exists, skipping creation');
         } else {
+            const configPath = options.configFile ?
+                Path.join(cwd, options.configFile) :
+                Path.resolve(config.root, 'rivendell.json');
             await fs.writeFile(
                 configPath,
                 (
-                    configFile.endsWith('.json') ?
+                    configPath.endsWith('.json') ?
                         [
                             '{',
                             '  "dependencies": [',
@@ -69,20 +58,28 @@ export const init: CommandModule<{
             );
         }
 
+        const templatePath = options.templateDirectory ?
+            Path.resolve(cwd, options.templateDirectory) :
+            config.templateDirectory;
+        const templateExists = existsSync(templatePath);
+
         if (templateExists) {
-            console.info('Template directory already exists, skipping creation');
+            console.info({
+                templatePath,
+            }, 'Template directory already exists, skipping creation');
         } else {
             await fs.mkdir(templatePath, { recursive: true });
 
-            const baseDir = await gitRoot({ cwd });
-            const githubPath = Path.join(baseDir, '.github');
-            const githubExists = existsSync(githubPath);
-            if (githubExists) {
-                await fs.cp(
-                    githubPath,
-                    Path.join(templatePath, '.github'),
-                    { recursive: true }
-                );
+            for (const { ci, template } of ciDirectories) {
+                const ciPath = Path.join(config.root, ci);
+                const ciExists = existsSync(ciPath);
+                if (ciExists) {
+                    await fs.cp(
+                        ciPath,
+                        Path.join(templatePath, template),
+                        { recursive: true }
+                    );
+                }
             }
         }
     },

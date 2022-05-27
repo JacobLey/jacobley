@@ -220,7 +220,26 @@ const processJobTemplate = ({
     }
 };
 
-export const processFile = async ({ path, dependencies, root }: {
+const processDocument = ({ document, ...params }: {
+    dependencies: PackageDependency[];
+    document: Yaml.Document.Parsed;
+    kind: 'circleci' | 'github';
+    root: string;
+}): void => {
+
+    const jobs = document.get('jobs', true) as Yaml.YAMLMap;
+
+    for (const key of jobs.items.map(i => i.key)) {
+        processJobTemplate({
+            jobs,
+            key: key as Yaml.Scalar<string>,
+            ...params,
+        });
+    }
+};
+
+export const processFile = async ({ path, dependencies, kind, root }: {
+    kind: 'circleci' | 'github';
     path: string;
     dependencies: PackageDependency[];
     root: string;
@@ -230,16 +249,12 @@ export const processFile = async ({ path, dependencies, root }: {
 
     return Yaml.parseAllDocuments(rawYaml).map(document => {
 
-        const jobs = document.get('jobs', true) as Yaml.YAMLMap;
-
-        for (const key of jobs.items.map(i => i.key)) {
-            processJobTemplate({
-                jobs,
-                key: key as Yaml.Scalar<string>,
-                dependencies,
-                root,
-            });
-        }
+        processDocument({
+            document,
+            kind,
+            dependencies,
+            root,
+        });
 
         return document.toString({
             lineWidth: 0,

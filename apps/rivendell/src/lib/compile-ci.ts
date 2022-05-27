@@ -6,7 +6,14 @@ import { loadConfig } from './config.js';
 import { gitRoot } from './git.js';
 import { processFile } from './process-yaml.js';
 
-const ciDirectories = [Path.join('.github', 'workflows')];
+export const ciDirectories = [
+    {
+        kind: 'github',
+        template: 'github-workflows',
+        ci: '.github/workflows',
+    },
+] as const;
+
 const deepListDirectories = async (dir: string): Promise<string[]> => {
 
     try {
@@ -45,15 +52,15 @@ export const compileCi = async (options: {
     const templateDirectory = Path.resolve(cwd, options.templateDirectory ?? config.templateDirectory);
 
     const writtenFiles: string[] = [];
-    for (const ciDirectory of ciDirectories) {
+    for (const { ci, kind, template } of ciDirectories) {
 
-        const ciDir = Path.join(root, ciDirectory);
+        const ciDir = Path.join(root, ci);
         // eslint-disable-next-line unicorn/consistent-function-scoping
         const toRelativeCi = (path: string): string => Path.relative(ciDir, path);
         // eslint-disable-next-line unicorn/consistent-function-scoping
         const toFullCi = (path: string): string => Path.resolve(ciDir, path);
 
-        const templateCiDir = Path.join(templateDirectory, ciDirectory);
+        const templateCiDir = Path.join(templateDirectory, template);
         // eslint-disable-next-line unicorn/consistent-function-scoping
         const toRelativeTemplate = (path: string): string => Path.relative(templateCiDir, path);
         // eslint-disable-next-line unicorn/consistent-function-scoping
@@ -78,23 +85,24 @@ export const compileCi = async (options: {
             }
         }
 
-        for (const template of templateSet) {
+        for (const writeToWrite of templateSet) {
             const [processed, existing] = await Promise.all([
                 processFile({
-                    path: toFullTemplate(template),
+                    path: toFullTemplate(writeToWrite),
+                    kind,
                     dependencies,
                     root,
                 }),
-                existingSet.has(template) ? fs.readFile(toFullCi(template), 'utf8') : null,
+                existingSet.has(writeToWrite) ? fs.readFile(toFullCi(writeToWrite), 'utf8') : null,
             ]);
 
             if (processed !== existing) {
-                writtenFiles.push(toFullCi(template));
+                writtenFiles.push(toFullCi(writeToWrite));
                 if (!options.dryRun) {
-                    await fs.mkdir(Path.dirname(toFullCi(template)), {
+                    await fs.mkdir(Path.dirname(toFullCi(writeToWrite)), {
                         recursive: true,
                     });
-                    await fs.writeFile(toFullCi(template), processed);
+                    await fs.writeFile(toFullCi(writeToWrite), processed);
                 }
             }
         }
