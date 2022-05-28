@@ -1867,8 +1867,8 @@ packages:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
     dev: true
 
-  /default-import/1.1.0:
-    resolution: {integrity: sha512-pmFRm7m5B3SfQxPJGa54F9uhEoifggV3YXPqaAFn+bfMlWM6tOwzxJSASTNmeiX1U06ePm6ufcB08oUd+doaQg==}
+  /default-import/1.1.1:
+    resolution: {integrity: sha512-CUFKx88ZyLFX8VEtwk9Cbgp2uxrretCzoZxB1qC7Ade22KaCytxmR3CLo0kVcM1mQ9ibUKeK1/whra5P8Ef1Ig==}
     engines: {node: '>=14'}
     dev: true
 
@@ -1959,7 +1959,7 @@ packages:
     resolution: {integrity: sha512-2KTzLUkAm+PQFCQBKUJbjH/qh5OSoV0gKVRjy2gnNRRWHBRgJ/Ux1eN5XovIL1izPkOKlLFrfefhQFidkHU8vg==}
     engines: {node: '>=14', npm: '>=7'}
     dependencies:
-      default-import: 1.1.0
+      default-import: 1.1.1
       static-emitter: 1.0.3
     dev: true
 
@@ -3425,7 +3425,7 @@ packages:
     resolution: {integrity: sha512-/5CMN3T0R4XTj4DcGaexo+roZSdSFW/0AOOTROrjxzCG1wrWXEsGbRKevjlIL+ZDE4sZlJr5ED4YW0yqmkK+eA==}
     dependencies:
       hosted-git-info: 2.8.9
-      resolve: 1.17.0
+      resolve: 1.22.0
       semver: 5.7.1
       validate-npm-package-license: 3.0.4
     dev: true
@@ -3976,7 +3976,7 @@ packages:
     hasBin: true
     dependencies:
       ajv: 8.11.0
-      default-import: 1.1.0
+      default-import: 1.1.1
       dependency-order: 1.1.0
       entry-script: 1.0.1
       juniper: 1.1.3
