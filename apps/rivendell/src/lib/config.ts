@@ -95,7 +95,7 @@ const findAndLoadConfigs = async ({
     if (rawConfig && validator(rawConfig.content)) {
         return {
             filePath: rawConfig.filePath,
-            config: rawConfig.content,
+            config: defaultImport(rawConfig.content),
         };
     }
     return {
