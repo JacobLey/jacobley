@@ -94,7 +94,7 @@ console.log(packages);
 
 ### listPackages(options?)
 
-Returns a promise that resolves to a list of packages. Every package contains:
+Returns a promise that resolves to an array of packages. Every package contains:
 ```json
 {
     "directory": "string",
@@ -104,4 +104,15 @@ Returns a promise that resolves to a list of packages. Every package contains:
 ```
 
 #### options
-See [`root-package-json` options](https://www.npmjs.com/package/root-package-json).
+
+* cwd
+  * Type: `string` or `URL`
+  * optional, defaults to `process.cwd()`
+  * Directory to use as base directory.
+  * See [`parse-cwd`](https://www.npmjs.com/package/parse-cwd).
+
+* manager
+  * Specify package manager to use
+  * `'lerna'` | `'npm'` | `'nx'` | `'rush'` | `'yarn'`
+  * If omitted, will try all and take first found
+    * e.g. would use `lerna.json` to load packages if found, but can be forced to use npm workspaces if `manager = 'npm'`

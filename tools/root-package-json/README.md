@@ -73,6 +73,8 @@ console.log(rootPackage);
 
 ### rootPackageJson(options?)
 
+Returns promise that resolves to either the root package.json, or null if none can be found.
+
 #### options
 
 * cwd
