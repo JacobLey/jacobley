@@ -109,12 +109,12 @@ The instance returned by all three methods will be an instance of that schema cl
 ```ts
 import { StringSchema, stringSchema } from 'juniper';
 
-// All schemas are logically the same
+// All methods are logically the same
 const schema1 = new StringSchema({ maxLength: 10 });
 const schema2 = StringSchema.create({ maxLength: 10 });
 const schema3 = stringSchema({ maxLength: 10 })
 
-console.log(schema1 instanceof StringSchema); // true
+console.log(schema3 instanceof StringSchema); // true
 ```
 
 Juniper instances are **immutable**. That means calling an instance method does not alter the existing instance, and has no side effects. Every method that "alters" the schema will return a clone of the instance.
