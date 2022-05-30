@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
   "rushVersion": "5.71.0",
 
-  "pnpmVersion": "7.1.6",
+  "pnpmVersion": "7.1.7",
   "pnpmOptions": {
     "pnpmStore": "local",
     "strictPeerDependencies": false,
