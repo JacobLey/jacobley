@@ -2,6 +2,16 @@
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/command-line.schema.json",
 
   "commands": [
+    // Clean
+    {
+      "commandKind": "global",
+      "name": "clean",
+      "summary": "Delete built files in each project",
+      "description": "Similar to purge, but removes all non-tracked files.",
+      "safeForSimultaneousRushProcesses": false,
+      "shellCommand": "rm -r */*/.nyc_output */*/.nyc-cache */*/.rush */*/coverage */*/dist */*/node_modules */*/nyc */*/*.log"
+    },
+
     // Linting
     {
       "commandKind": "bulk",
