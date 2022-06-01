@@ -541,6 +541,13 @@ module.exports = {
                     ['object', 'unknown'],
                 ],
                 'newlines-between': 'never',
+                'pathGroups': [
+                    {
+                        pattern: '\\#*',
+                        group: 'internal',
+                        position: 'after',
+                    },
+                ],
                 'warnOnUnassignedImports': true,
             },
         ],
@@ -637,6 +644,14 @@ module.exports = {
         'unicorn/import-index': ['error', { ignoreImports: true }],
         'unicorn/no-keyword-prefix': 'off',
         'unicorn/no-null': 'off',
+        'unicorn/numeric-separators-style': [
+            'error',
+            {
+                hexadecimal: {
+                    groupLength: 8,
+                },
+            },
+        ],
         'unicorn/prefer-export-from': ['error', { ignoreUsedVariables: true }],
         'unicorn/prefer-ternary': ['error', 'only-single-line'],
         'unicorn/prevent-abbreviations': 'off',
