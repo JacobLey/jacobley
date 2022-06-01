@@ -182,7 +182,7 @@ export const EncryptionSpec = {
             async success(this: EncryptionTest) {
                 Chai.expect(
                     await this.encryption.generateEccPrivateKey()
-                ).to.match(/^$[A-Za-z\\d\\-_]{43}$/u);
+                ).to.match(/^[A-Za-z\d\-_]{43}$/u);
             },
         },
 
@@ -209,7 +209,7 @@ export const EncryptionSpec = {
             async success(this: EncryptionTest) {
                 Chai.expect(this.encryption.generateEccPublicKey(
                     await this.encryption.generateEccPrivateKey()
-                )).to.match(/^$[A-Za-z\\d\\-_]{44}$/u);
+                )).to.match(/^[A-Za-z\d\-_]{44}$/u);
 
                 Chai.expect(
                     this.encryption.generateEccPublicKey(EncryptionKeys.eccPrivateKey1)
