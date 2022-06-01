@@ -1,7 +1,7 @@
 <div style="text-align:center">
 
 <h1>entry-script</h1>
-<p>Auto-generate TS barrel files.</p>
+<p>Modular control for entry script execution.</p>
 
 [![npm package](https://badge.fury.io/js/entry-script.svg)](https://www.npmjs.com/package/entry-script)
 [![License](https://img.shields.io/npm/l/entry-script.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
