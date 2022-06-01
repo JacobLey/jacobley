@@ -96,6 +96,12 @@
       "tags": ["tools"]
     },
     {
+      "packageName": "iso-crypto",
+      "projectFolder": "tools/iso-crypto",
+      "shouldPublish": true,
+      "tags": ["tools"]
+    },
+    {
       "packageName": "named-patch",
       "projectFolder": "tools/named-patch",
       "shouldPublish": true,
