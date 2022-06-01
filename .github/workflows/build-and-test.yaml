@@ -109,6 +109,9 @@ jobs:
           - name: find-import
             safe-name: find-import
             path: tools/find-import
+          - name: iso-crypto
+            safe-name: iso-crypto
+            path: tools/iso-crypto
           - name: juniper
             safe-name: juniper
             path: apps/juniper
@@ -280,6 +283,9 @@ jobs:
           - name: find-import
             safe-name: find-import
             path: tools/find-import
+          - name: iso-crypto
+            safe-name: iso-crypto
+            path: tools/iso-crypto
           - name: juniper
             safe-name: juniper
             path: apps/juniper
@@ -690,6 +696,9 @@ jobs:
           - name: find-import
             safe-name: find-import
             path: tools/find-import
+          - name: iso-crypto
+            safe-name: iso-crypto
+            path: tools/iso-crypto
           - name: juniper
             safe-name: juniper
             path: apps/juniper
