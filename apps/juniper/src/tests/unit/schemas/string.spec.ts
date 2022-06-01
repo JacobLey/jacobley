@@ -2,11 +2,12 @@ import DefaultAjv from 'ajv/dist/2020.js';
 import { expect } from 'chai';
 import { defaultImport } from 'default-import';
 import { expectTypeOf } from 'expect-type';
+import type { Context } from 'mocha';
 import { type SchemaType, type StringSchema, stringSchema } from '../../../index.js';
 
 const Ajv = defaultImport(DefaultAjv);
 
-interface StringSchemaTest extends Mocha.Context {
+interface StringSchemaTest extends Context {
     schema: StringSchema<string>;
 }
 

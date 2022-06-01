@@ -1,11 +1,12 @@
 import Path from 'node:path';
 import { expect } from 'chai';
+import type { Context } from 'mocha';
 import { patchKey } from 'named-patch';
 import Sinon from 'sinon';
 import BarrelCli, { yargsOutput } from '../../cli.js';
 import { barrelFiles } from '../../lib/barrel.js';
 
-interface CliTest extends Mocha.Context {
+interface CliTest extends Context {
     outputStub: Sinon.SinonStub<Parameters<typeof yargsOutput>, unknown>;
 }
 

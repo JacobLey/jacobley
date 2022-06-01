@@ -1,12 +1,13 @@
 import Path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect } from 'chai';
+import type { Context } from 'mocha';
 import Sinon from 'sinon';
 import * as ExportedEntryScript from '../../../index.js';
 import * as EntryScript from '../../../lib/entry-script.js';
 import EntryScriptMock from '../../data/entry-script-mock.js';
 
-interface EntryScriptTest extends Mocha.Context {
+interface EntryScriptTest extends Context {
     entryScript: EntryScriptMock;
 }
 
