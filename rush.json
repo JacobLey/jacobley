@@ -120,6 +120,12 @@
       "tags": ["tools"]
     },
     {
+      "packageName": "punycode-esm",
+      "projectFolder": "tools/punycode-esm",
+      "shouldPublish": true,
+      "tags": ["tools"]
+    },
+    {
       "packageName": "root-package-json",
       "projectFolder": "tools/root-package-json",
       "shouldPublish": true,
