@@ -38,29 +38,15 @@ npm i punycode-esm
 ## Example
 
 ```ts
-import * as Punycode from 'punycode-esm';
-
-// decode domain name parts
-Punycode.decode('maana-pta'); // 'mañana'
-Punycode.decode('--dqo34k'); // '☃-⌘'
-
-// encode domain name parts
-Punycode.encode('mañana'); // 'maana-pta'
-Punycode.encode('☃-⌘'); // '--dqo34k'
-
-// decode domain names
-Punycode.toUnicode('xn--maana-pta.com'); // 'mañana.com'
-Punycode.toUnicode('xn----dqo34k.com'); // '☃-⌘.com'
-
-// decode email addresses
-Punycode.toUnicode('джумла@xn--p-8sbkgc5ag7bhce.xn--ba-lmcq'); // 'джумла@джpумлатест.bрфa'
+import { toASCII, toUnicode } as Punycode from 'punycode-esm';
 
 // encode domain names
-Punycode.toASCII('mañana.com'); // 'xn--maana-pta.com'
-Punycode.toASCII('☃-⌘.com'); // 'xn----dqo34k.com'
+toASCII('mañana.com'); // 'xn--maana-pta.com'
+toASCII('☃-⌘.com'); // 'xn----dqo34k.com'
 
-// encode email addresses
-Punycode.toASCII('джумла@джpумлатест.bрфa'); // 'джумла@xn--p-8sbkgc5ag7bhce.xn--ba-lmcq'
+// decode domain names
+toUnicode('xn--maana-pta.com'); // 'mañana.com'
+toUnicode('xn----dqo34k.com'); // '☃-⌘.com'
 ```
 
 <a name="usage"></a>
