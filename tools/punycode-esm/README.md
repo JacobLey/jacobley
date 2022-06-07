@@ -38,7 +38,7 @@ npm i punycode-esm
 ## Example
 
 ```ts
-import { toASCII, toUnicode } as Punycode from 'punycode-esm';
+import { toASCII, toUnicode } from 'punycode-esm';
 
 // encode domain names
 toASCII('mañana.com'); // 'xn--maana-pta.com'
