@@ -6,7 +6,6 @@
       "typescript",
       "typescriptreact"
     ],
-    "eslint.runtime": "node",
     "eslint.useESLintClass": true,
     "files.associations": {
         "*.cts": "typescript",
