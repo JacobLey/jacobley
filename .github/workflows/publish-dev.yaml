@@ -31,6 +31,9 @@ jobs:
           - name: parse-cwd
             safe-name: parse-cwd
             path: tools/parse-cwd
+          - name: punycode-esm
+            safe-name: punycode-esm
+            path: tools/punycode-esm
           - name: static-emitter
             safe-name: static-emitter
             path: tools/static-emitter
