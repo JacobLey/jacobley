@@ -70,7 +70,7 @@ export const barrelFiles = patch(async ({
         [
             '**/index.?(c|m)ts',
             '!**/node_modules/**',
-            ...ignore.map(i => `!${i}`),
+            ...ignore.map(i => `!${i.replaceAll('\\', '/')}`),
         ],
         {
             cwd,

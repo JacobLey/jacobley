@@ -16,7 +16,9 @@ export const globPackages = async ({
     const globs = Array.isArray(dirGlobs) ? dirGlobs : [dirGlobs];
 
     const packagePaths = await globby(
-        globs.map(dirGlob => Path.join(dirGlob, 'package.json').replace(/\\/g, '/')),
+        globs.map(
+            dirGlob => Path.join(dirGlob, 'package.json').replaceAll('\\', '/')
+        ),
         { cwd: rootPath }
     );
 
