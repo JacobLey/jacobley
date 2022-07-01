@@ -16,7 +16,7 @@
     "javascript.preferences.quoteStyle": "single",
     "typescript.preferences.importModuleSpecifierEnding": "js",
     "typescript.preferences.quoteStyle": "single",
-    "typescript.tsdk": "common/temp/node_modules/.pnpm/typescript@4.7.3/node_modules/typescript/lib",
+    "typescript.tsdk": "common/temp/node_modules/.pnpm/typescript@4.7.4/node_modules/typescript/lib",
     "[javascript]": {
       "editor.tabSize": 4
     },
