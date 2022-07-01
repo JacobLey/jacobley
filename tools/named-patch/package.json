@@ -1,6 +1,6 @@
 {
   "name": "named-patch",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Higher order function for patching named export functions.",
   "engines": {
     "node": ">=14"
