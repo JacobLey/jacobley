@@ -652,6 +652,7 @@ module.exports = {
                 },
             },
         ],
+        'unicorn/prefer-event-target': 'off',
         'unicorn/prefer-export-from': ['error', { ignoreUsedVariables: true }],
         'unicorn/prefer-ternary': ['error', 'only-single-line'],
         'unicorn/prevent-abbreviations': 'off',

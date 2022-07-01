@@ -257,7 +257,6 @@ export const EnumToArraySpec = {
                     value: typeof Computed.HALF;
                 } | {
                     key: 'Infinity';
-                    // eslint-disable-next-line unicorn/prefer-number-properties
                     value: typeof Computed.Infinity;
                 } | {
                     key: 'NAN';
