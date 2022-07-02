@@ -17,6 +17,12 @@ module.exports = {
         statements: [100, 95],
     },
 
-    'exclude': ['src/tests/**', 'node_modules/**'],
+    'exclude': [
+        // During CI.
+        'dist/tests/**',
+        // During local.
+        'src/tests/**',
+        'node_modules/**',
+    ],
     'cacheDir': '.nyc-cache',
 };
