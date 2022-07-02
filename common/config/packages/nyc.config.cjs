@@ -20,6 +20,7 @@ module.exports = {
     'exclude': [
         // During CI.
         'dist/tests/**',
+        'nyc/**',
         // During local.
         'src/tests/**',
         'node_modules/**',
