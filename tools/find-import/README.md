@@ -5,7 +5,7 @@
 
 [![npm package](https://badge.fury.io/js/find-import.svg)](https://www.npmjs.com/package/find-import)
 [![License](https://img.shields.io/npm/l/find-import.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
-[![Quality](https://img.shields.io/npms-io/quality-score/find-import.svg)](https://www.npmjs.com/package/find-import)
+[![Quality](https://packagequality.com/shield/find-import.svg)](https://github.com/JacobLey/jacobley/blob/main/tools/find-import)
 
 </div>
 

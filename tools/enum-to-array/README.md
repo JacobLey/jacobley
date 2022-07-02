@@ -5,7 +5,7 @@
 
 [![npm package](https://badge.fury.io/js/enum-to-array.svg)](https://www.npmjs.com/package/enum-to-array)
 [![License](https://img.shields.io/npm/l/enum-to-array.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
-[![Quality](https://img.shields.io/npms-io/quality-score/enum-to-array)](https://www.npmjs.com/package/enum-to-array)
+[![Quality](https://packagequality.com/shield/enum-to-array.svg)](https://github.com/JacobLey/jacobley/blob/main/tools/enum-to-array)
 
 </div>
 

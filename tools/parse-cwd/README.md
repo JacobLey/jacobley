@@ -5,7 +5,7 @@
 
 [![npm package](https://badge.fury.io/js/parse-cwd.svg)](https://www.npmjs.com/package/parse-cwd)
 [![License](https://img.shields.io/npm/l/parse-cwd.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
-[![Quality](https://img.shields.io/npms-io/quality-score/parse-cwd.svg)](https://www.npmjs.com/package/parse-cwd)
+[![Quality](https://packagequality.com/shield/parse-cwd.svg)](https://github.com/JacobLey/jacobley/blob/main/tools/parse-cwd)
 
 </div>
 

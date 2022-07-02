@@ -5,7 +5,7 @@
 
 [![npm package](https://badge.fury.io/js/barrelify.svg)](https://www.npmjs.com/package/barrelify)
 [![License](https://img.shields.io/npm/l/barrelify.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
-[![Quality](https://img.shields.io/npms-io/quality-score/barrelify.svg)](https://www.npmjs.com/package/barrelify)
+[![Quality](https://packagequality.com/shield/barrelify.svg)](https://github.com/JacobLey/jacobley/blob/main/apps/barrelify)
 
 </div>
 

@@ -5,7 +5,7 @@
 
 [![npm package](https://badge.fury.io/js/dependency-order.svg)](https://www.npmjs.com/package/dependency-order)
 [![License](https://img.shields.io/npm/l/dependency-order.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
-[![Quality](https://img.shields.io/npms-io/quality-score/dependency-order.svg)](https://www.npmjs.com/package/dependency-order)
+[![Quality](https://packagequality.com/shield/dependency-order.svg)](https://github.com/JacobLey/jacobley/blob/main/tools/dependency-order)
 
 </div>
 
