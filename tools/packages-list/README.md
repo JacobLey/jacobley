@@ -5,7 +5,7 @@
 
 [![npm package](https://badge.fury.io/js/packages-list.svg)](https://www.npmjs.com/package/packages-list)
 [![License](https://img.shields.io/npm/l/packages-list.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
-[![Quality](https://packagequality.com/shield/packages-list.svg)](https://github.com/JacobLey/jacobley/blob/main/tools/packages-list)
+[![Quality](https://img.shields.io/npms-io/quality-score/packages-list.svg)](https://github.com/JacobLey/jacobley/blob/main/tools/packages-list)
 
 </div>
 

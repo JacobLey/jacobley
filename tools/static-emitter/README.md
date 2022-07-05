@@ -5,7 +5,7 @@
 
 [![npm package](https://badge.fury.io/js/static-emitter.svg)](https://www.npmjs.com/package/static-emitter)
 [![License](https://img.shields.io/npm/l/static-emitter.svg)](https://github.com/JacobLey/jacobley/blob/main/common/config/publish/LICENSE)
-[![Quality](https://packagequality.com/shield/enum-to-array.svg)](https://github.com/JacobLey/jacobley/blob/main/tools/enum-to-array)
+[![Quality](https://img.shields.io/npms-io/quality-score/static-emitter.svg)](https://github.com/JacobLey/jacobley/blob/main/tools/static-emitter)
 
 </div>
 
