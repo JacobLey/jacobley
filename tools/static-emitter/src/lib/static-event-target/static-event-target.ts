@@ -1,2 +1,2 @@
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export const TypedEventTarget = EventTarget;
+export const StaticEventTarget = EventTarget;

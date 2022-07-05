@@ -1,5 +1,5 @@
 import CustomEvent from '#custom-event';
-import { TypedEventTarget } from '#typed-event-target';
+import { StaticEventTarget } from '#static-event-target';
 import type * as Types from './lib/types.js';
 
 /**
@@ -30,7 +30,7 @@ import type * as Types from './lib/types.js';
  */
 export class StaticEmitter<
     InterfaceEvents extends Types.EventDict = Types.EmptyObject
-> extends TypedEventTarget<InterfaceEvents> {
+> extends StaticEventTarget<InterfaceEvents> {
 
     #eventNameId = 0;
     readonly #wrappedListeners = new WeakMap<

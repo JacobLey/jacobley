@@ -2,16 +2,16 @@ import { expect } from 'chai';
 import { expectTypeOf } from 'expect-type';
 import { CustomEvent } from '../../custom-event.js';
 import { events } from '../../events.js';
-import { TypedEventTarget } from '../../typed-event-target.js';
-import { ExtendTarget } from '../data/extend-event-target.js';
+import { StaticEventTarget } from '../../static-event-target.js';
+import { ExtendTarget, NativeEvent } from '../data/extend-event-target.js';
 import { ServerEvent } from '../data/server-event.js';
 
-export const TypedEventTargetSpec = {
+export const StaticEventTargetSpec = {
 
     success: {
 
         'Unchanged EventTarget'() {
-            expect(TypedEventTarget).to.eq(TypedEventTarget);
+            expect(StaticEventTarget).to.eq(EventTarget);
         },
 
         'Declare event types': {
@@ -30,9 +30,13 @@ export const TypedEventTargetSpec = {
                 extendTarget.addEventListener('bar', event => {
                     expectTypeOf(event).toEqualTypeOf<ServerEvent<'bar'>>();
                 });
+                extendTarget.addEventListener('onStuff', event => {
+                    expectTypeOf(event).toEqualTypeOf<NativeEvent>();
+                });
 
                 extendTarget.dispatchEvent(new CustomEvent('foo', { detail: 123 }));
                 extendTarget.dispatchEvent(new ServerEvent('bar', '<server-data>'));
+                extendTarget.dispatchEvent(new NativeEvent('onStuff'));
                 // @ts-expect-error
                 extendTarget.dispatchEvent(new CustomEvent('foo', { detail: 456 }));
 
@@ -52,7 +56,7 @@ export const TypedEventTargetSpec = {
                 /**
                  * @override
                  */
-                class ExtendTargetDeclare extends TypedEventTarget {
+                class ExtendTargetDeclare extends StaticEventTarget {
                     declare public [events]: {
                         foo: 123;
                         bar: ServerEvent<'bar'>;
@@ -67,10 +71,10 @@ export const TypedEventTargetSpec = {
                 /**
                  * @override
                  */
-                class ExtendTargetCombo extends TypedEventTarget<{
+                class ExtendTargetCombo extends StaticEventTarget<{
                     foo: 123;
                 }> {
-                    declare public [events]: TypedEventTarget<{
+                    declare public [events]: StaticEventTarget<{
                         foo: 123;
                     }>[typeof events] & {
                         bar: ServerEvent<'bar'>;

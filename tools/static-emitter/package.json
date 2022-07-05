@@ -36,6 +36,13 @@
       ],
       "default": "./dist/index.js"
     },
+    "./custom-event": {
+      "types": [
+        "./src/custom-event.ts",
+        "./dist/custom-event.d.ts"
+      ],
+      "default": "./dist/custom-event.js"
+    },
     "./static-emitter": {
       "types": [
         "./src/static-emitter.ts",
@@ -43,12 +50,19 @@
       ],
       "default": "./dist/static-emitter.js"
     },
-    "./typed-event-target": {
+    "./static-event-target": {
       "types": [
-        "./src/typed-event-target.ts",
-        "./dist/typed-event-target.d.ts"
+        "./src/static-event-target.ts",
+        "./dist/static-event-target.d.ts"
       ],
-      "default": "./dist/typed-event-target.js"
+      "default": "./dist/static-event-target.js"
+    },
+    "./typed-event": {
+      "types": [
+        "./src/typed-event.ts",
+        "./dist/typed-event.d.ts"
+      ],
+      "default": "./dist/typed-event.js"
     }
   },
   "imports": {
@@ -71,13 +85,13 @@
       "nyc-static-emitter": "./nyc/lib/typed-event/typed-event.js",
       "default": "./dist/lib/typed-event/typed-event.js"
     },
-    "#typed-event-target": {
+    "#static-event-target": {
       "types": [
-        "./src/lib/typed-event-target/type.ts",
-        "./dist/lib/typed-event-target/type.d.ts"
+        "./src/lib/static-event-target/type.ts",
+        "./dist/lib/static-event-target/type.d.ts"
       ],
-      "nyc-static-emitter": "./nyc/lib/typed-event-target/typed-event-target.js",
-      "default": "./dist/lib/typed-event-target/typed-event-target.js"
+      "nyc-static-emitter": "./nyc/lib/static-event-target/static-event-target.js",
+      "default": "./dist/lib/static-event-target/static-event-target.js"
     }
   },
   "devDependencies": {
