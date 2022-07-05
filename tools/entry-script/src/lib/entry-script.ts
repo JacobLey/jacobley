@@ -1,7 +1,5 @@
 import { defaultImport } from 'default-import';
-import { type events, StaticEmitter } from 'static-emitter';
-
-export interface EntryScriptOptions extends NonNullable<ConstructorParameters<typeof StaticEmitter>[0]> {}
+import { StaticEmitter } from 'static-emitter';
 
 export const runtimeError = Symbol('runtimeError');
 
@@ -12,11 +10,9 @@ export const runtimeError = Symbol('runtimeError');
  *
  * Extends StaticEmitter to emit error events.
  */
-export class EntryScript extends StaticEmitter {
-
-    declare public [events]: {
-        [runtimeError]: [unknown];
-    };
+export class EntryScript extends StaticEmitter<{
+    [runtimeError]: unknown;
+}> {
 
     /**
      * Creates an instance of EntryScript's child class.

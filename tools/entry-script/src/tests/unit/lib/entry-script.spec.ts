@@ -82,7 +82,7 @@ export const EntryScriptSpec = {
                     throw error;
                 });
                 const finishSpy = Sinon.stub(this.entryScript, 'finish');
-                const listenerStub = Sinon.fake((err: unknown) => err);
+                const listenerStub = Sinon.fake((err: unknown, event: CustomEvent<unknown>) => [err, event]);
 
                 this.entryScript.on(EntryScript.runtimeError, listenerStub);
 
@@ -100,7 +100,8 @@ export const EntryScriptSpec = {
 
                 expect(caughtError).to.eq(error);
                 expect(finishSpy.callCount).to.equal(1);
-                expect(listenerStub.calledOnceWithExactly(error)).to.equal(true);
+                expect(listenerStub.callCount).to.equal(1);
+                expect(listenerStub.getCall(0).args[0]).to.eq(error);
             },
         },
     },

@@ -1,5 +1,5 @@
 import { defaultImport } from 'default-import';
-import { EntryScript, type EntryScriptOptions } from 'entry-script';
+import { EntryScript } from 'entry-script';
 import { patch } from 'named-patch';
 import yargsDefault, { type Argv, type CommandModule } from 'yargs';
 // eslint-disable-next-line node/file-extension-in-import
@@ -27,13 +27,14 @@ export default class InternalCli extends EntryScript {
     /**
      * Create CLI given args.
      *
-     * @param {object} options - options
+     * @param {object} params - params
+     * @param {object} params.argv - args from CLI process
      */
-    public constructor(options: EntryScriptOptions & {
+    public constructor(params: {
         argv: string[];
     }) {
-        super(options);
-        this.#argv = hideBin(options.argv);
+        super();
+        this.#argv = hideBin(params.argv);
     }
 
     /**
