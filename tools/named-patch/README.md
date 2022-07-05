@@ -43,7 +43,7 @@ import * as NamespacePath from 'node:path';
 
 const mock = () => '<mocked>';
 // TypeError: Cannot assign to read only property 'join' of object '[object Module]'
-Path.join = mock;
+NamespacePath.join = mock;
 ```
 
 This generally requires wrapping named imports into a single container,
@@ -76,10 +76,10 @@ npm i named-patch
 // a.js
 import { patch } from 'named-patch';
 
-export const randName = <T extends string>(names: T[]) => names[Math.trunc(Math.random() * names.length)];
+export const randName = patch(<T extends string>(names: T[]) => names[Math.trunc(Math.random() * names.length)]);
 
 // b.js
-import { patch, patchKey } from 'named-patch';
+import { patchKey } from 'named-patch';
 import { randName } from './a.js';
 
 rand(['foo', 'bar']); // 'foo'
@@ -104,7 +104,7 @@ This enforces a best practice that _by default_ monkey patching and stubbing is 
 Conditions may be set a number of ways:
 * `node --conditions=patchable ./my-script.js`
 * `NODE_OPTIONS='--conditions=patchable' node ./my-script.js`
-* Frameworks like `mocha` provide setting these conditions via config's [`node-option`](https://mochajs.org/#-node-option-name-n-name).
+    * Frameworks like `mocha` provide setting these conditions via config's [`node-option`](https://mochajs.org/#-node-option-name-n-name).
 
 <a name="api"></a>
 ## API
