@@ -6,6 +6,8 @@ import {
 } from '../lib/schema.js';
 import type { Schema, SchemaType } from '../lib/types.js';
 
+type AnyMergeSchema = MergeSchema<any>;
+
 /**
  * Schema for defining "merged" `anyOf` + `oneOf` sub-schemas.
  *
@@ -26,24 +28,25 @@ export class MergeSchema<
 
     declare public allOf: <
         S extends Schema<unknown>
-    >(schema: S) => MergeSchema<SchemaType<S> & T>;
+    >(this: AnyMergeSchema, schema: S) => MergeSchema<SchemaType<S> & T>;
 
     declare public anyOf: <
         S extends Schema<unknown>
-    >(schemas: S[]) => MergeSchema<SchemaType<S> & T>;
+    >(this: AnyMergeSchema, schemas: S[]) => MergeSchema<SchemaType<S> & T>;
 
     declare public if: <
         If extends AbstractSchema<SchemaGenerics<unknown>>,
         Then extends AbstractSchema<SchemaGenerics<unknown>>,
         Else extends AbstractSchema<SchemaGenerics<unknown>>
     >(
+        this: AnyMergeSchema,
         schema: If,
         conditionals: ConditionalResult<Then, Else>
     ) => MergeSchema<
         T & (SchemaType<Else> | SchemaType<If> & SchemaType<Then>)
     >;
 
-    declare public not: (schemas: Schema<unknown>) => this;
+    declare public not: (this: AnyMergeSchema, schemas: Schema<unknown>) => this;
 
     /**
      * Not applicable.
@@ -52,7 +55,7 @@ export class MergeSchema<
 
     declare public oneOf: <
         S extends Schema<unknown>
-    >(schemas: S[]) => MergeSchema<SchemaType<S> & T>;
+    >(this: AnyMergeSchema, schemas: S[]) => MergeSchema<SchemaType<S> & T>;
 
     /**
      * Create a new instance of MergeSchema.

@@ -67,6 +67,8 @@ const numToExclusive = (
     value: number | LimitWithExclusive
 ): LimitWithExclusive => (typeof value === 'number' ? { value, exclusive: false } : value);
 
+type AnyNumberSchema = NumberSchema<number, boolean>;
+
 /**
  * Schema for defining numeric types.
  *
@@ -91,14 +93,14 @@ export class NumberSchema<
 
     declare public allOf: <
         S extends NumberSchema<number, boolean>
-    >(schema: S) => NumberSchema<
+    >(this: AnyNumberSchema, schema: S) => NumberSchema<
         NonNullable<SchemaType<S>> & T,
         null extends SchemaType<S> ? N : boolean
     >;
 
     declare public anyOf: <
         S extends NumberSchema<number, boolean>
-    >(schemas: S[]) => NumberSchema<
+    >(this: AnyNumberSchema, schemas: S[]) => NumberSchema<
         NonNullable<SchemaType<S>> & T,
         null extends SchemaType<S> ? N : boolean
     >;
@@ -111,6 +113,7 @@ export class NumberSchema<
         ThenN extends boolean = true,
         ElseN extends boolean = true
     >(
+        this: AnyNumberSchema,
         schema: NumberSchema<IfT, IfN>,
         conditionals: ConditionalResult<
             NumberSchema<ThenT, ThenN>,
@@ -123,13 +126,15 @@ export class NumberSchema<
 
     declare public not: <
         NotN extends boolean
-    >(schema: NumberSchema<number, NotN>) => NotN extends true ? NumberSchema<T, boolean> : this;
+    >(this: AnyNumberSchema, schema: NumberSchema<number, NotN>) => NotN extends true ? NumberSchema<T, boolean> : this;
 
-    declare public nullable: () => NumberSchema<T, boolean extends N ? boolean : true>;
+    declare public nullable: (
+        this: AnyNumberSchema
+    ) => NumberSchema<T, boolean extends N ? boolean : true>;
 
     declare public oneOf: <
         S extends NumberSchema<number, boolean>
-    >(schemas: S[]) => NumberSchema<
+    >(this: AnyNumberSchema, schemas: S[]) => NumberSchema<
         NonNullable<SchemaType<S>> & T,
         null extends SchemaType<S> ? N : boolean
     >;
@@ -171,10 +176,11 @@ export class NumberSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.1.1}
      *
+     * @param {this} this - this instance
      * @param {string} type - `integer` or `number`
      * @returns {StringSchema} schema
      */
-    public type(type: 'integer' | 'number'): this {
+    public type(this: this, type: 'integer' | 'number'): this {
         return this.clone({ type });
     }
 
@@ -185,10 +191,11 @@ export class NumberSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.2.1}
      *
+     * @param {this} this - this instance
      * @param {number} multipleOf - multiple of
      * @returns {StringSchema} schema
      */
-    public multipleOf(multipleOf: number): this {
+    public multipleOf(this: this, multipleOf: number): this {
         return this.clone({
             multipleOf: [...this.#multipleOfs, multipleOf],
         });
@@ -204,10 +211,11 @@ export class NumberSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.2.2}
      *
+     * @param {this} this - this instance
      * @param {number} maximum - maximum
      * @returns {StringSchema} schema
      */
-    public maximum(maximum: number | LimitWithExclusive): this {
+    public maximum(this: this, maximum: number | LimitWithExclusive): this {
         return this.clone({
             maximum: numToExclusive(maximum),
         });
@@ -222,10 +230,11 @@ export class NumberSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.2.3}
      *
+     * @param {this} this - this instance
      * @param {number} exclusiveMaximum - exclusive maximum
      * @returns {StringSchema} schema
      */
-    public exclusiveMaximum(exclusiveMaximum: number): this {
+    public exclusiveMaximum(this: this, exclusiveMaximum: number): this {
         return this.maximum({ value: exclusiveMaximum, exclusive: true });
     }
 
@@ -239,10 +248,11 @@ export class NumberSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.2.4}
      *
+     * @param {this} this - this instance
      * @param {number} minimum - minimum
      * @returns {StringSchema} schema
      */
-    public minimum(minimum: number | LimitWithExclusive): this {
+    public minimum(this: this, minimum: number | LimitWithExclusive): this {
         return this.clone({
             minimum: numToExclusive(minimum),
         });
@@ -257,10 +267,11 @@ export class NumberSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.2.5}
      *
+     * @param {this} this - this instance
      * @param {number} exclusiveMinimum - exclusive minimum
      * @returns {StringSchema} schema
      */
-    public exclusiveMinimum(exclusiveMinimum: number): this {
+    public exclusiveMinimum(this: this, exclusiveMinimum: number): this {
         return this.minimum({ value: exclusiveMinimum, exclusive: true });
     }
 

@@ -117,9 +117,10 @@ export class CustomSchema<T> extends AbstractSchema<SchemaGenerics<T>> {
     /**
      * Takes no options, as schema is defined internally.
      *
+     * @param {this} this - this instance
      * @returns {object} JSON Schema
      */
-    public override toJSON(): JsonSchema<SchemaType<this>> {
+    public override toJSON(this: this): JsonSchema<SchemaType<this>> {
         return this.toSchema();
     }
 

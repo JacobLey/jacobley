@@ -113,6 +113,10 @@ interface ObjectGenerics<
     params: ObjectParams<P, R, A, X, M, N>;
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+type AnyObjectSchema = ObjectSchema<any, any, any, any, unknown, boolean>;
+
 /**
  * Schema for defining `object` types.
  */
@@ -146,7 +150,7 @@ export class ObjectSchema<
 
     declare public allOf: <
         S extends Schema<Record<string, unknown> | null>
-    >(schema: S) => ObjectSchema<
+    >(this: AnyObjectSchema, schema: S) => ObjectSchema<
         P, R, A, X,
         M & NonNullable<SchemaType<S>>,
         null extends SchemaType<S> ? N : boolean
@@ -154,7 +158,7 @@ export class ObjectSchema<
 
     declare public anyOf: <
         S extends Schema<Record<string, unknown> | null>
-    >(schemas: S[]) => ObjectSchema<
+    >(this: AnyObjectSchema, schemas: S[]) => ObjectSchema<
         P, R, A, X,
         M & NonNullable<SchemaType<S>>,
         null extends SchemaType<S> ? N : boolean
@@ -170,6 +174,7 @@ export class ObjectSchema<
         Then extends Schema<Record<string, unknown> | null> = ObjectSchema,
         Else extends Schema<Record<string, unknown> | null> = ObjectSchema
     >(
+        this: AnyObjectSchema,
         schema: ObjectSchema<IfP, IfR, IfA, IfX, IfM, IfN>,
         conditionals: ConditionalResult<
             Then,
@@ -197,14 +202,20 @@ export class ObjectSchema<
         NotR extends StripString<Extract<keyof NotP, string>>,
         NotN extends boolean
     >(
+        this: AnyObjectSchema,
         schema: ObjectSchema<NotP, NotR, any, any, any, NotN>
     ) => NotN extends true ? ObjectSchema<P, R, A, X, M, boolean> : this;
 
-    declare public nullable: () => ObjectSchema<P, R, A, X, M, boolean extends N ? boolean : true>;
+    declare public nullable: (
+        this: AnyObjectSchema
+    ) => ObjectSchema<P, R, A, X, M, boolean extends N ? boolean : true>;
 
     declare public oneOf: <
         S extends Schema<Record<string, unknown> | null>
-    >(schemas: S[]) => ObjectSchema<
+    >(
+        this: AnyObjectSchema,
+        schemas: S[]
+    ) => ObjectSchema<
         P, R, A, X,
         M & NonNullable<SchemaType<S>>,
         null extends SchemaType<S> ? N : boolean
@@ -276,12 +287,14 @@ export class ObjectSchema<
      *
      * @see {@link https://json-schema.org/understanding-json-schema/reference/object.html#properties}
      *
+     * @param {this} this - this instance
      * @param {object} properties - Schemas keyed by property name
      * @returns {ObjectSchema} object schema
      */
     public properties<
         T extends BaseParameterSchemaObject
     >(
+        this: this,
         properties: T,
         ...invalid: keyof P & keyof T extends never ? [] : [never]
     ): ObjectSchema<P & T, R, A, X, M, N>;
@@ -289,6 +302,7 @@ export class ObjectSchema<
      * @inheritdoc
      */
     public properties<T extends BaseParameterSchemaObject>(
+        this: this,
         ...properties: [T, ...never[]]
     ): ObjectSchema<P & T, R, A, X, M, N> {
         return (this as unknown as ObjectSchema<P & T, R, A, X, M, N>).clone({
@@ -308,10 +322,11 @@ export class ObjectSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.5.1}
      *
+     * @param {this} this - this instance
      * @param {number} maxProperties - maxProperties
      * @returns {ObjectSchema} object schema
      */
-    public maxProperties(maxProperties: number): this {
+    public maxProperties(this: this, maxProperties: number): this {
         return this.clone({ maxProperties });
     }
 
@@ -324,10 +339,11 @@ export class ObjectSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.5.2}
      *
+     * @param {this} this - this instance
      * @param {number} minProperties - minProperties
      * @returns {ObjectSchema} object schema
      */
-    public minProperties(minProperties: number): this {
+    public minProperties(this: this, minProperties: number): this {
         return this.clone({ minProperties });
     }
 
@@ -339,10 +355,12 @@ export class ObjectSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.5.3}
      *
+     * @param {this} this - this instance
      * @param {string|string[]} required - required properties
      * @returns {ObjectSchema} object schema
      */
     public required<K extends StripString<Extract<keyof P, string>>>(
+        this: this,
         required: K | K[]
     ): ObjectSchema<P, K | R, A, X, M, N> {
         return (this as ObjectSchema<P, K | R, A, X, M, N>).clone({
@@ -358,12 +376,13 @@ export class ObjectSchema<
      *
      * @see {@link https://json-schema.org/understanding-json-schema/reference/object.html#additional-properties}
      *
+     * @param {this} this - this instance
      * @param {boolean|Schema} additionalProperties - additional properties
      * @returns {ObjectSchema} object schema
      */
     public additionalProperties<
         NewA extends boolean | AbstractSchema<SchemaGenerics<unknown>>
-    >(additionalProperties: NewA): ObjectSchema<P, R, NewA, X, M, N> {
+    >(this: this, additionalProperties: NewA): ObjectSchema<P, R, NewA, X, M, N> {
         return (this as unknown as ObjectSchema<P, R, NewA, X, M, N>).clone({
             additionalProperties,
         });
@@ -392,6 +411,7 @@ export class ObjectSchema<
      * );
      * SchemaType<typeof openApiVendor> // Record<`x-${string}`, unknown>
      *
+     * @param {this} this - this instance
      * @param {string} pattern - regexp pattern, typed as PatternProperties
      * @param {Schema} schema - Json Schema
      * @returns {ObjectSchema} object schema
@@ -399,7 +419,7 @@ export class ObjectSchema<
     public patternProperties<
         Pattern extends PatternProperties<string>,
         S extends boolean | Schema<unknown>
-    >(pattern: Pattern, schema: S): ObjectSchema<
+    >(this: this, pattern: Pattern, schema: S): ObjectSchema<
         P, R, A,
         AbstractStrip<X, EmptyIndex, unknown> &
             Record<NonNullable<Pattern[typeof patternPropertiesSym]>, SchemaType<StripBoolean<S>>>,
@@ -432,6 +452,7 @@ export class ObjectSchema<
      *
      * @see {@link https://json-schema.org/understanding-json-schema/reference/conditionals.html#dependentrequired}
      *
+     * @param {this} this - this instance
      * @param {string} key - property of object that if exists, `dependents` are required.
      * @param {string[]} dependents - dependents that are required if `key` exists.
      * @returns {ObjectSchema} object schema
@@ -440,9 +461,9 @@ export class ObjectSchema<
         K extends Extract<keyof P, string>,
         D extends Exclude<Extract<keyof P, string>, K>
     >(
+        this: this,
         key: K,
         dependents: D[]
-    // eslint-disable-next-line @typescript-eslint/prefer-return-this-type
     ): ObjectSchema<
         P, R, A, X,
         M & (
@@ -464,6 +485,7 @@ export class ObjectSchema<
      *
      * @see {@link https://json-schema.org/understanding-json-schema/reference/conditionals.html#dependentschemas}
      *
+     * @param {this} this - this instance
      * @param {string} key - property of object that if exists, `schema` is applied.
      * @param {schema} schema - schema that is applied if `key` exists.
      * @returns {ObjectSchema} object schema
@@ -472,9 +494,9 @@ export class ObjectSchema<
         K extends Extract<keyof P, string>,
         S extends AbstractSchema<SchemaGenerics<Record<string, unknown> | null>>
     >(
+        this: this,
         key: K,
         schema: S
-    // eslint-disable-next-line @typescript-eslint/prefer-return-this-type
     ): ObjectSchema<
         P, R, A, X,
         M & (
@@ -496,10 +518,11 @@ export class ObjectSchema<
      *
      * @see {@link https://json-schema.org/understanding-json-schema/reference/object.html#unevaluated-properties}
      *
+     * @param {this} this - this instance
      * @param {boolean} unevaluatedProperties - allow unevaluated properties
      * @returns {ObjectSchema} object schema
      */
-    public unevaluatedProperties(unevaluatedProperties: boolean): this {
+    public unevaluatedProperties(this: this, unevaluatedProperties: boolean): this {
         return this.clone({
             unevaluatedProperties,
         });

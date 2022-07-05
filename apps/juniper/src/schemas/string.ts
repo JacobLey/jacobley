@@ -34,6 +34,8 @@ interface StringGenerics<
 
 type StripString<T extends string> = AbstractClean<string, T>;
 
+type AnyStringSchema = StringSchema<string, boolean>;
+
 /**
  * Schema for defining `string` types.
  *
@@ -59,14 +61,14 @@ export class StringSchema<
 
     declare public allOf: <
         S extends StringSchema<string, boolean>
-    >(schema: S) => StringSchema<
+    >(this: AnyStringSchema, schema: S) => StringSchema<
         NonNullable<SchemaType<S>> & T,
         null extends SchemaType<S> ? N : boolean
     >;
 
     declare public anyOf: <
         S extends StringSchema<string, boolean>
-    >(schemas: S[]) => StringSchema<
+    >(this: AnyStringSchema, schemas: S[]) => StringSchema<
         NonNullable<SchemaType<S>> & T,
         null extends SchemaType<S> ? N : boolean
     >;
@@ -79,6 +81,7 @@ export class StringSchema<
         ThenN extends boolean = true,
         ElseN extends boolean = true
     >(
+        this: AnyStringSchema,
         schema: StringSchema<IfT, IfN>,
         conditionals: ConditionalResult<
             StringSchema<ThenT, ThenN>,
@@ -91,13 +94,15 @@ export class StringSchema<
 
     declare public not: <
         NotN extends boolean
-    >(schema: StringSchema<string, NotN>) => NotN extends true ? StringSchema<T, boolean> : this;
+    >(this: AnyStringSchema, schema: StringSchema<string, NotN>) => NotN extends true ? StringSchema<T, boolean> : this;
 
-    declare public nullable: () => StringSchema<T, boolean extends N ? boolean : true>;
+    declare public nullable: (
+        this: AnyStringSchema
+    ) => StringSchema<T, boolean extends N ? boolean : true>;
 
     declare public oneOf: <
         S extends StringSchema<string, boolean>
-    >(schemas: S[]) => StringSchema<
+    >(this: AnyStringSchema, schemas: S[]) => StringSchema<
         NonNullable<SchemaType<S>> & T,
         null extends SchemaType<S> ? N : boolean
     >;
@@ -149,10 +154,11 @@ export class StringSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.7}
      *
+     * @param {this} this - this instance
      * @param {string|null} format - format
      * @returns {StringSchema} schema
      */
-    public format(format: string | null): this {
+    public format(this: this, format: string | null): this {
         return this.clone({ format });
     }
 
@@ -165,10 +171,11 @@ export class StringSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.3.1}
      *
+     * @param {this} this - this instance
      * @param {number} maxLength - max length
      * @returns {StringSchema} schema
      */
-    public maxLength(maxLength: number): this {
+    public maxLength(this: this, maxLength: number): this {
         return this.clone({ maxLength });
     }
 
@@ -181,10 +188,11 @@ export class StringSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.3.2}
      *
+     * @param {this} this - this instance
      * @param {number} minLength - min length
      * @returns {StringSchema} schema
      */
-    public minLength(minLength: number): this {
+    public minLength(this: this, minLength: number): this {
         return this.clone({ minLength });
     }
 
@@ -196,10 +204,14 @@ export class StringSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.3.3}
      *
+     * @param {this} this - this instance
      * @param {string} pattern - regular expression pattern
      * @returns {StringSchema} schema
      */
-    public pattern<Constraint extends string>(pattern: string): StringSchema<StripString<Constraint & T>, N> {
+    public pattern<Constraint extends string>(
+        this: this,
+        pattern: string
+    ): StringSchema<StripString<Constraint & T>, N> {
         return this.clone({
             pattern: [...this.#patterns, pattern],
         }) as unknown as StringSchema<StripString<Constraint & T>, N>;
@@ -208,32 +220,41 @@ export class StringSchema<
     /**
      * Add a special case `pattern` that enforces a string occurs as the start.
      *
+     * @param {this} this - this instance
      * @param {string} start - string literal
      * @returns {StringSchema} schema
      */
-    public startsWith<Start extends string>(start: Start): StringSchema<StripString<`${Start}${string}` & T>, N> {
+    public startsWith<Start extends string>(
+        this: this,
+        start: Start
+    ): StringSchema<StripString<`${Start}${string}` & T>, N> {
         return this.pattern<`${Start}${string}`>(`^${escapeStringRegexp(start)}`);
     }
 
     /**
      * Add a special case `pattern` that enforces a string occurs as the end.
      *
+     * @param {this} this - this instance
      * @param {string} end - string literal
      * @returns {StringSchema} schema
      */
-    public endsWith<End extends string>(end: End): StringSchema<StripString<`${string}${End}` & T>, N> {
+    public endsWith<End extends string>(
+        this: this,
+        end: End
+    ): StringSchema<StripString<`${string}${End}` & T>, N> {
         return this.pattern<`${string}${End}`>(`${escapeStringRegexp(end)}$`);
     }
 
     /**
      * Add a special case `pattern` that enforces a string occurs somewhere in the string.
      *
+     * @param {this} this - this instance
      * @param {string} contain - string literal
      * @returns {StringSchema} schema
      */
     public contains<
         Contain extends string
-    >(contain: Contain): StringSchema<StripString<`${string}${Contain}${string}` & T>, N> {
+    >(this: this, contain: Contain): StringSchema<StripString<`${string}${Contain}${string}` & T>, N> {
         return this.pattern<`${string}${Contain}${string}`>(escapeStringRegexp(contain));
     }
 
@@ -246,10 +267,11 @@ export class StringSchema<
      *
      * @see {@link https://json-schema.org/understanding-json-schema/reference/non_json_data.html#contentencoding}
      *
+     * @param {this} this - this instance
      * @param {string|null} contentEncoding - content encoding
      * @returns {StringSchema} string schema
      */
-    public contentEncoding(contentEncoding: string | null): this {
+    public contentEncoding(this: this, contentEncoding: string | null): this {
         return this.clone({
             contentEncoding,
         });
@@ -264,10 +286,11 @@ export class StringSchema<
      *
      * @see {@link https://json-schema.org/understanding-json-schema/reference/non_json_data.html#contentmediatype}
      *
+     * @param {this} this - this instance
      * @param {string|null} contentMediaType - content media type
      * @returns {StringSchema} string schema
      */
-    public contentMediaType(contentMediaType: string | null): this {
+    public contentMediaType(this: this, contentMediaType: string | null): this {
         return this.clone({
             contentMediaType,
         });

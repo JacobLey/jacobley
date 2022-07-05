@@ -3,6 +3,7 @@ import type { ConditionalNullable, IsNever, Schema, SchemaType, ToBaseType } fro
 import {
     type ArrayParams,
     ArraySchema,
+    ArraySchemaOverride,
     type ArrayType,
     prefixItemsSym,
 } from './array.js';
@@ -14,6 +15,8 @@ interface TupleParams<
     M,
     N extends boolean
 > extends Omit<ArrayParams<T, P, C, M, N>, 'items' | 'maxItems' | 'minItems'> {}
+
+type AnyTupleSchema = TupleSchema<never, any[], any, unknown, boolean>;
 
 /**
  * Schema for defining strict `Tuple` types.
@@ -37,7 +40,7 @@ export class TupleSchema<
     M = unknown,
     // Nullable
     N extends boolean = false
-> extends ArraySchema<T, P, C, M, N> {
+> extends ArraySchemaOverride<T, P, C, M, N> {
 
     /**
      * Always `false`
@@ -52,7 +55,10 @@ export class TupleSchema<
 
     declare public allOf: <
         S extends TupleSchema<any, any[], any, unknown, boolean>
-    >(schema: S) => TupleSchema<
+    >(
+        this: AnyTupleSchema,
+        schema: S
+    ) => TupleSchema<
         T, P, C,
         M & NonNullable<SchemaType<S>>,
         null extends SchemaType<S> ? N : boolean
@@ -60,7 +66,10 @@ export class TupleSchema<
 
     declare public anyOf: <
         S extends TupleSchema<any, any[], any, unknown, boolean>
-    >(schemas: S[]) => TupleSchema<
+    >(
+        this: AnyTupleSchema,
+        schemas: S[]
+    ) => TupleSchema<
         T, P, C,
         M & NonNullable<SchemaType<S>>,
         null extends SchemaType<S> ? N : boolean
@@ -75,6 +84,7 @@ export class TupleSchema<
         Then extends Schema<unknown[] | null> = TupleSchema,
         Else extends Schema<unknown[] | null> = TupleSchema
     >(
+        this: AnyTupleSchema,
         schema: ArraySchema<IfT, IfP, IfC, IfM, IfN>,
         conditionals: ConditionalResult<
             Then,
@@ -97,14 +107,21 @@ export class TupleSchema<
     declare public not: <
         NotN extends boolean
     >(
-        schema: ArraySchema<any, any[], any, unknown, NotN>
+        this: AnyTupleSchema,
+        schema: ArraySchema<any, any[], any, unknown, NotN> |
+            TupleSchema<any, any[], any, unknown, NotN>
     ) => NotN extends true ? TupleSchema<T, P, C, unknown, boolean> : this;
 
-    declare public nullable: () => TupleSchema<T, P, C, M, boolean extends N ? boolean : true>;
+    declare public nullable: (
+        this: AnyTupleSchema
+    ) => TupleSchema<T, P, C, M, boolean extends N ? boolean : true>;
 
     declare public oneOf: <
         S extends TupleSchema<any, any[], any, unknown, boolean>
-    >(schemas: S[]) => TupleSchema<
+    >(
+        this: AnyTupleSchema,
+        schemas: S[]
+    ) => TupleSchema<
         T, P, C,
         M & NonNullable<SchemaType<S>>,
         null extends SchemaType<S> ? N : boolean
@@ -114,6 +131,7 @@ export class TupleSchema<
      * @override
      */
     declare public contains: <C2 extends ToBaseType<P[number]>>(
+        this: AnyTupleSchema,
         items: AbstractSchema<SchemaGenerics<C2>>,
         invalid: IsNever<C> extends true ? void : never
     ) => TupleSchema<T, P, C2, M, N>;
@@ -122,6 +140,7 @@ export class TupleSchema<
      * @override
      */
     declare public prefixItem: <NewP>(
+        this: AnyTupleSchema,
         schema: AbstractSchema<SchemaGenerics<NewP>>
     ) => TupleSchema<T, [...P, NewP], C, M, N>;
 
@@ -129,6 +148,7 @@ export class TupleSchema<
      * @override
      */
     declare public prependPrefixItem: <NewP>(
+        this: AnyTupleSchema,
         schema: AbstractSchema<SchemaGenerics<NewP>>
     ) => TupleSchema<T, [NewP, ...P], C, M, N>;
 

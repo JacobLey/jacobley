@@ -86,10 +86,11 @@ export class EnumSchema<T = never> extends AbstractSchema<EnumGenerics<T>> {
      *
      * Convenience method for calling `enums([val])`.
      *
+     * @param {this} this - this instance
      * @param {*} val - enum literal
      * @returns {Schema} schema
      */
-    public enum<EVal>(val: EVal): EnumSchema<EVal | T> {
+    public enum<EVal>(this: this, val: EVal): EnumSchema<EVal | T> {
         return this.enums([val]);
     }
 
@@ -98,10 +99,11 @@ export class EnumSchema<T = never> extends AbstractSchema<EnumGenerics<T>> {
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.1.2}
      *
+     * @param {this} this - this instance
      * @param {*[]} enums - enum literal array
      * @returns {Schema} schema
      */
-    public enums<EVal>(enums: readonly EVal[]): EnumSchema<EVal | T> {
+    public enums<EVal>(this: this, enums: readonly EVal[]): EnumSchema<EVal | T> {
         return this.clone({
             enum: [...this.#enum, ...enums] as T[],
         }) as EnumSchema<EVal | T>;

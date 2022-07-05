@@ -60,6 +60,8 @@ interface ArrayGenerics<
     params: ArrayParams<T, P, C, M, N>;
 }
 
+type AnyArraySchema = ArraySchema<any, any[], any, unknown, boolean>;
+
 /**
  * Schema for defining `array` types.
  *
@@ -110,7 +112,7 @@ export class ArraySchema<
 
     declare public allOf: <
         S extends ArraySchema<any, any[], any, unknown, boolean>
-    >(schema: S) => ArraySchema<
+    >(this: AnyArraySchema, schema: S) => ArraySchema<
         T, P, C,
         M & NonNullable<SchemaType<S>>,
         null extends SchemaType<S> ? N : boolean
@@ -118,7 +120,7 @@ export class ArraySchema<
 
     declare public anyOf: <
         S extends ArraySchema<any, any[], any, unknown, boolean>
-    >(schemas: S[]) => ArraySchema<
+    >(this: AnyArraySchema, schemas: S[]) => ArraySchema<
         T, P, C,
         M & NonNullable<SchemaType<S>>,
         null extends SchemaType<S> ? N : boolean
@@ -133,6 +135,7 @@ export class ArraySchema<
         Then extends Schema<unknown[] | null> = ArraySchema,
         Else extends Schema<unknown[] | null> = ArraySchema
     >(
+        this: AnyArraySchema,
         schema: ArraySchema<IfT, IfP, IfC, IfM, IfN>,
         conditionals: ConditionalResult<
             Then,
@@ -155,14 +158,17 @@ export class ArraySchema<
     declare public not: <
         NotN extends boolean
     >(
+        this: AnyArraySchema,
         schema: ArraySchema<any, any[], any, unknown, NotN>
     ) => NotN extends true ? ArraySchema<T, P, C, unknown, boolean> : this;
 
-    declare public nullable: () => ArraySchema<T, P, C, unknown, boolean extends N ? boolean : true>;
+    declare public nullable: (
+        this: AnyArraySchema
+    ) => ArraySchema<T, P, C, unknown, boolean extends N ? boolean : true>;
 
     declare public oneOf: <
         S extends ArraySchema<any, any[], any, unknown, boolean>
-    >(schemas: S[]) => ArraySchema<
+    >(this: AnyArraySchema, schemas: S[]) => ArraySchema<
         T, P, C,
         M & NonNullable<SchemaType<S>>,
         null extends SchemaType<S> ? N : boolean
@@ -229,17 +235,22 @@ export class ArraySchema<
      *
      * @see {@link https://json-schema.org/understanding-json-schema/reference/array.html#items}
      *
+     * @param {this} this - this instance
      * @param {Schema} items - items schema
      * @returns {ArraySchema} - newly typed array schema
      */
     public items<T2>(
+        this: this,
         items: AbstractSchema<SchemaGenerics<T2>>,
         invalid: IsAny<T> extends true ? void : never
     ): ArraySchema<T2, P, C, unknown, N>;
     /**
      * @inheritdoc
      */
-    public items<T2>(items: AbstractSchema<SchemaGenerics<T2>>): ArraySchema<T2, P, C, unknown, N> {
+    public items<T2>(
+        this: this,
+        items: AbstractSchema<SchemaGenerics<T2>>
+    ): ArraySchema<T2, P, C, unknown, N> {
         return (this as unknown as ArraySchema<T2, P, C, unknown, N>).clone({ items });
     }
 
@@ -252,10 +263,11 @@ export class ArraySchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.4.1}
      *
+     * @param {this} this - this instance
      * @param {number} maxItems - max items
      * @returns {ArraySchema} schema
      */
-    public maxItems(maxItems: number): this {
+    public maxItems(this: this, maxItems: number): this {
         return this.clone({ maxItems });
     }
 
@@ -268,10 +280,11 @@ export class ArraySchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.4.2}
      *
+     * @param {this} this - this instance
      * @param {number} minItems - min items
      * @returns {ArraySchema} schema
      */
-    public minItems(minItems: number): this {
+    public minItems(this: this, minItems: number): this {
         return this.clone({ minItems });
     }
 
@@ -284,10 +297,11 @@ export class ArraySchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.4.3}
      *
+     * @param {this} this - this instance
      * @param {boolean} uniqueItems - unique items
      * @returns {ArraySchema} schema
      */
-    public uniqueItems(uniqueItems: boolean): this {
+    public uniqueItems(this: this, uniqueItems: boolean): this {
         return this.clone({ uniqueItems });
     }
 
@@ -300,10 +314,12 @@ export class ArraySchema<
      *
      * @see {@link https://json-schema.org/understanding-json-schema/reference/array.html#contains}
      *
+     * @param {this} this - this instance
      * @param {Schema} contains - contains schema
      * @returns {ArraySchema} - array schema
      */
     public contains<C2 extends ToBaseType<P[number] | T>>(
+        this: this,
         items: AbstractSchema<SchemaGenerics<C2>>,
         invalid: IsNever<C> extends true ? void : never
     ): ArraySchema<T, P, C2, M, N>;
@@ -312,7 +328,7 @@ export class ArraySchema<
      */
     public contains<
         C2 extends ToBaseType<P[number] | T>
-    >(contains: AbstractSchema<SchemaGenerics<C2>>): ArraySchema<T, P, C2, M, N> {
+    >(this: this, contains: AbstractSchema<SchemaGenerics<C2>>): ArraySchema<T, P, C2, M, N> {
         return (this as unknown as ArraySchema<T, P, C2, M, N>).clone({
             [containsSym]: contains,
         });
@@ -327,10 +343,11 @@ export class ArraySchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.4.4}
      *
+     * @param {this} this - this instance
      * @param {number} maxContains - max contains
      * @returns {ArraySchema} schema
      */
-    public maxContains(maxContains: number): this {
+    public maxContains(this: this, maxContains: number): this {
         return this.clone({ maxContains });
     }
 
@@ -343,10 +360,11 @@ export class ArraySchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6.4.5}
      *
+     * @param {this} this - this instance
      * @param {number} minContains - min contains
      * @returns {ArraySchema} schema
      */
-    public minContains(minContains: number): this {
+    public minContains(this: this, minContains: number): this {
         return this.clone({ minContains });
     }
 
@@ -355,10 +373,12 @@ export class ArraySchema<
      *
      * __Not supported by OpenApi 3.0__.
      *
+     * @param {this} this - this instance
      * @param {Schema} schema - schema of tuple item
      * @returns {ArraySchema} array schema
      */
     public prefixItem<NewP>(
+        this: this,
         schema: AbstractSchema<SchemaGenerics<NewP>>
     ): ArraySchema<T, [...P, NewP], C, M, N> {
         return this.clone({
@@ -371,10 +391,12 @@ export class ArraySchema<
      *
      * __Not supported by OpenApi 3.0__.
      *
+     * @param {this} this - this instance
      * @param {Schema} schema - schema of tuple item
      * @returns {ArraySchema} array schema
      */
     public prependPrefixItem<NewP>(
+        this: this,
         schema: AbstractSchema<SchemaGenerics<NewP>>
     ): ArraySchema<T, [NewP, ...P], C, M, N> {
         return this.clone({
@@ -416,7 +438,10 @@ export class ArraySchema<
     /**
      * @override
      */
-    protected override toSchema(params: SerializationParams): JsonSchema<SchemaType<this>> {
+    protected override toSchema(
+        this: this,
+        params: SerializationParams
+    ): JsonSchema<SchemaType<this>> {
         const base = super.toSchema(params);
 
         if (this.#maxItems < Number.POSITIVE_INFINITY) {
@@ -482,3 +507,61 @@ export class ArraySchema<
         return base;
     }
 }
+
+/**
+ * Used by TupleSchema to allow overriding declarations.
+ */
+export declare class IArraySchemaOverride<
+    T,
+    P extends any[],
+    C extends P[number] | T,
+    M,
+    N extends boolean
+> extends ArraySchema<T, P, C, M, N> {
+
+    declare public static create: any;
+
+    declare public allOf: <
+        S extends ArraySchema<any, any[], any, unknown, boolean>
+    >(this: any, schema: S) => any;
+
+    declare public anyOf: <
+        S extends ArraySchema<any, any[], any, unknown, boolean>
+    >(this: any, schemas: S[]) => any;
+
+    declare public if: <
+        IfT,
+        IfP extends any[],
+        IfC extends IfP[number] | IfT,
+        IfM,
+        IfN extends boolean,
+        Then extends Schema<unknown[] | null> = ArraySchema,
+        Else extends Schema<unknown[] | null> = ArraySchema
+    >(
+        this: any,
+        schema: ArraySchema<IfT, IfP, IfC, IfM, IfN>,
+        conditionals: ConditionalResult<
+            Then,
+            Else
+        >
+    ) => any;
+
+    declare public not: any;
+
+    declare public nullable: (
+        this: any
+    ) => any;
+
+    declare public oneOf: <
+        S extends ArraySchema<any, any[], any, unknown, boolean>
+    >(this: any, schemas: S[]) => any;
+
+    declare public contains: any;
+
+    declare public prefixItem: any;
+
+    declare public prependPrefixItem: any;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export const ArraySchemaOverride = ArraySchema as typeof IArraySchemaOverride;

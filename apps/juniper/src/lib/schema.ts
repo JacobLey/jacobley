@@ -189,10 +189,11 @@ export abstract class AbstractSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.1}
      *
+     * @param {this} this - this instance
      * @param {string} title - title
      * @returns {AbstractSchema} schema
      */
-    public title(title: string | null): this {
+    public title(this: this, title: string | null): this {
         return this.clone({ title });
     }
 
@@ -205,10 +206,11 @@ export abstract class AbstractSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.1}
      *
+     * @param {this} this - this instance
      * @param {string} description - description
      * @returns {AbstractSchema} schema
      */
-    public description(description: string | null): this {
+    public description(this: this, description: string | null): this {
         return this.clone({ description });
     }
 
@@ -224,10 +226,11 @@ export abstract class AbstractSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.2}
      *
+     * @param {this} this - this instance
      * @param {*} [val] - default value of schema
      * @returns {AbstractSchema} schema
      */
-    public default(val?: T['type']): this {
+    public default(this: this, val?: T['type']): this {
         return this.clone({ default: val });
     }
 
@@ -236,10 +239,11 @@ export abstract class AbstractSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.3}
      *
+     * @param {this} this - this instance
      * @param {boolean} deprecated - deprecated
      * @returns {AbstractSchema} schema
      */
-    public deprecated(deprecated: boolean): this {
+    public deprecated(this: this, deprecated: boolean): this {
         return this.clone({ deprecated });
     }
 
@@ -248,10 +252,11 @@ export abstract class AbstractSchema<
      *
      * Convenience method for calling `examples([example])`.
      *
+     * @param {this} this - this instance
      * @param {*} example - example literal
      * @returns {AbstractSchema} schema
      */
-    public example(example: T['type']): this {
+    public example(this: this, example: T['type']): this {
         return this.examples([example]);
     }
 
@@ -262,10 +267,11 @@ export abstract class AbstractSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.5}
      *
+     * @param {this} this - this instance
      * @param {*[]} examples - example literal array
      * @returns {AbstractSchema} schema
      */
-    public examples(examples: T['type'][]): this {
+    public examples(this: this, examples: T['type'][]): this {
         return this.clone({
             [examplesSym]: [...this.#examples, ...examples],
         });
@@ -278,10 +284,11 @@ export abstract class AbstractSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.4}
      *
+     * @param {this} this - this instance
      * @param {boolean} readOnly - read only
      * @returns {AbstractSchema} schema
      */
-    public readOnly(readOnly: boolean): this {
+    public readOnly(this: this, readOnly: boolean): this {
         return this.clone({ readOnly });
     }
 
@@ -292,10 +299,11 @@ export abstract class AbstractSchema<
      *
      * @see {@link https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.4}
      *
+     * @param {this} this - this instance
      * @param {boolean} writeOnly - write only
      * @returns {AbstractSchema} schema
      */
-    public writeOnly(writeOnly: boolean): this {
+    public writeOnly(this: this, writeOnly: boolean): this {
         return this.clone({ writeOnly });
     }
 
@@ -314,10 +322,12 @@ export abstract class AbstractSchema<
      * This method _may_ be used for self-implement missing features
      * but such usage may be disabled at any time (via implementation).
      *
+     * @param {this} this - this instance
      * @param {object} meta - custom metadata
      * @returns {AbstractSchema} schema
      */
     public metadata<K extends string, V>(
+        this: this,
         ...meta: (K & ReservedWords extends never ? unknown[] : [never]) & ([K, V] | [Record<K, V>])
     ): this {
         const metadata = { ...this.#metadata };
@@ -343,12 +353,13 @@ export abstract class AbstractSchema<
      * expected to ignore any sibling properties.
      * Actual implementation is up to user (many `$ref` parsers will merge objects).
      *
+     * @param {this} this - this instance
      * @see {@link https://json-schema.org/understanding-json-schema/structuring.html#ref}
      *
      * @param {string} path - $ref path
      * @returns {AbstractSchema} schema
      */
-    public ref(path: string): this {
+    public ref(this: this, path: string): this {
         return this.clone({
             [refSym]: {
                 path,

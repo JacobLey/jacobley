@@ -1,6 +1,8 @@
 import { AbstractSchema, type SchemaGenerics, type SchemaParams } from '../lib/schema.js';
 import type { Nullable } from '../lib/types.js';
 
+type AnyBooleanSchema = BooleanSchema<boolean>;
+
 /**
  * Schema for defining boolean type.
  */
@@ -36,7 +38,7 @@ export class BooleanSchema<
      */
     declare public not: never;
 
-    declare public nullable: () => BooleanSchema<true>;
+    declare public nullable: (this: AnyBooleanSchema) => BooleanSchema<true>;
 
     /**
      * Create a new instance of BooleanSchema.

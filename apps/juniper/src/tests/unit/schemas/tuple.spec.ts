@@ -201,7 +201,9 @@ export const TupleSchemaSpec = {
             new Ajv({ strict: true }).compile(stillNullableSchema.toJSON());
             new Ajv({ strict: true }).compile(stillNullableSchema.toJSON({ openApi30: true }));
 
-            const notNullableSchema = stillNullableSchema.not(arraySchema().items(stringSchema()).nullable());
+            const notNullableSchema = stillNullableSchema
+                .not(arraySchema().items(stringSchema()).nullable())
+                .not(tupleSchema().prefixItem(stringSchema().startsWith('abc')).nullable());
             expectTypeOf<SchemaType<typeof notNullableSchema>>().toEqualTypeOf<[]>();
 
             expect(notNullableSchema.toJSON()).to.deep.equal({
@@ -226,6 +228,19 @@ export const TupleSchemaSpec = {
                             },
                         },
                     },
+                    {
+                        not: {
+                            items: false,
+                            maxItems: 1,
+                            minItems: 1,
+                            prefixItems: [
+                                {
+                                    type: 'string',
+                                    pattern: '^abc',
+                                },
+                            ],
+                        },
+                    },
                 ],
             });
             expect(notNullableSchema.toJSON({ openApi30: true })).to.deep.equal({
@@ -244,6 +259,16 @@ export const TupleSchemaSpec = {
                         not: {
                             items: {
                                 type: 'string',
+                            },
+                        },
+                    },
+                    {
+                        not: {
+                            maxItems: 1,
+                            minItems: 1,
+                            items: {
+                                type: 'string',
+                                pattern: '^abc',
                             },
                         },
                     },
