@@ -496,7 +496,7 @@ export abstract class AbstractSchema<
         schema: AbstractSchema<SchemaGenerics<T2>>,
         { openApi30 }: SerializationParams
     ): JsonSchema<T2> {
-        return this._getChildSchema(schema, { openApi30 });
+        return AbstractSchema.#getChildSchema.bind(this.constructor)(schema, { openApi30 });
     }
 
     /**
@@ -508,7 +508,7 @@ export abstract class AbstractSchema<
      * @param {object} params - serialization params
      * @returns {object} JSON Schema
      */
-    private static _getChildSchema<T2>(
+    static #getChildSchema<T2>(
         schema: AbstractSchema<SchemaGenerics<T2>>,
         params: SerializationParams
     ): JsonSchema<T2> {
@@ -538,7 +538,7 @@ export abstract class AbstractSchema<
         this: AbstractSchema<SchemaGenerics<T2>>,
         params: SerializationParams
     ): JsonSchema<T2> {
-        return (this.constructor as typeof AbstractSchema)._getChildSchema(this, params);
+        return AbstractSchema.#getChildSchema.bind(this.constructor)(this, params);
     }
 
     /**
@@ -621,26 +621,26 @@ export abstract class AbstractSchema<
      * @param {object} params - serialization params
      * @returns {boolean} nullable
      */
-    private _getNullable(params: SerializationParams): boolean {
+    #getNullable(params: SerializationParams): boolean {
         if (
             params.composition?.type &&
             !params.composition.nullable
         ) {
-            return this.#ref?.schema._getNullable({
+            return this.#ref ? this.#ref.schema.#getNullable({
                 openApi30: params.openApi30,
-            }) === true;
+            }) : false;
         }
         return this.#nullable &&
             this.#conditionals.every(predicate => {
-                if (predicate.if._getNullable(params)) {
-                    return predicate.then?._getNullable(params) ?? true;
+                if (predicate.if.#getNullable(params)) {
+                    return predicate.then ? predicate.then.#getNullable(params) : true;
                 }
-                return predicate.else?._getNullable(params) ?? true;
+                return predicate.else ? predicate.else.#getNullable(params) : true;
             }) &&
-            this.#nots.every(not => !not._getNullable(params)) &&
-            this.#allOf.every(allOf => allOf._getNullable(params)) &&
-            this.#anyOf.every(anyOf => anyOf.some(any => any._getNullable(params))) &&
-            this.#oneOf.every(oneOf => oneOf.filter(one => one._getNullable(params)).length === 1);
+            this.#nots.every(not => !not.#getNullable(params)) &&
+            this.#allOf.every(allOf => allOf.#getNullable(params)) &&
+            this.#anyOf.every(anyOf => anyOf.some(any => any.#getNullable(params))) &&
+            this.#oneOf.every(oneOf => oneOf.filter(one => one.#getNullable(params)).length === 1);
     }
 
     /**
@@ -653,19 +653,19 @@ export abstract class AbstractSchema<
      * @param {object} params - serialization params
      * @returns {boolean} is optimizable
      */
-    private _canOptimizeInteger(params: SerializationParams): boolean {
+    #canOptimizeInteger(params: SerializationParams): boolean {
         return (
             params.composition?.type === 'integer' ||
             this.#conditionals.some(predicate => (
-                predicate.if._getSchemaType(params) === 'integer' ||
-                predicate.then?._getSchemaType(params) === 'integer'
-            ) && predicate.else?._getSchemaType(params) === 'integer') ||
-            this.#allOf.some(allOf => allOf._getSchemaType(params) === 'integer') ||
+                predicate.if.#getSchemaType(params) === 'integer' ||
+                (predicate.then ? predicate.then.#getSchemaType(params) === 'integer' : false)
+            ) && (predicate.else ? predicate.else.#getSchemaType(params) === 'integer' : false)) ||
+            this.#allOf.some(allOf => allOf.#getSchemaType(params) === 'integer') ||
             this.#anyOf.some(
-                anyOf => anyOf.length > 0 && anyOf.every(any => any._getSchemaType(params) === 'integer')
+                anyOf => anyOf.length > 0 && anyOf.every(any => any.#getSchemaType(params) === 'integer')
             ) ||
             this.#oneOf.some(
-                oneOf => oneOf.length > 0 && oneOf.every(one => one._getSchemaType(params) === 'integer')
+                oneOf => oneOf.length > 0 && oneOf.every(one => one.#getSchemaType(params) === 'integer')
             )
         );
     }
@@ -681,17 +681,20 @@ export abstract class AbstractSchema<
      * @param {object} params - serialization params
      * @returns {string|null} schema type
      */
-    private _getSchemaType(params: SerializationParams): string | null {
+    #getSchemaType(params: SerializationParams): string | null {
 
         const { schemaType } = this;
 
         if (
             (schemaType === 'integer' || schemaType === 'number') &&
-            this._canOptimizeInteger(params) &&
-            // Ensure $ref (if exists) is also integer, or else this optimization is worse.
-            this.#ref?.schema._getSchemaType({
-                openApi30: params.openApi30,
-            }) !== 'number'
+            this.#canOptimizeInteger(params) &&
+            (
+                // Ensure $ref (if exists) is also integer, or else this optimization is worse.
+                !this.#ref ||
+                this.#ref.schema.#getSchemaType({
+                    openApi30: params.openApi30,
+                }) !== 'number'
+            )
         ) {
             return 'integer';
         }
@@ -711,8 +714,8 @@ export abstract class AbstractSchema<
     protected toSchema(params: SerializationParams): JsonSchema<SchemaType<this>> {
         const base: JsonSchema<SchemaType<this>> = { ...this.#metadata };
 
-        const nullable = this._getNullable(params);
-        const schemaType = this._getSchemaType(params);
+        const nullable = this.#getNullable(params);
+        const schemaType = this.#getSchemaType(params);
 
         if (schemaType) {
             if (params.composition && !this.#ref) {
