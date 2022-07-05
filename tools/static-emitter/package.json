@@ -31,10 +31,53 @@
   "exports": {
     ".": {
       "types": [
+        "./src/index.ts",
+        "./dist/index.d.ts"
+      ],
+      "default": "./dist/index.js"
+    },
+    "./static-emitter": {
+      "types": [
         "./src/static-emitter.ts",
         "./dist/static-emitter.d.ts"
       ],
       "default": "./dist/static-emitter.js"
+    },
+    "./typed-event-target": {
+      "types": [
+        "./src/typed-event-target.ts",
+        "./dist/typed-event-target.d.ts"
+      ],
+      "default": "./dist/typed-event-target.js"
+    }
+  },
+  "imports": {
+    "#custom-event": {
+      "types": [
+        "./src/lib/custom-event/node.ts",
+        "./dist/lib/custom-event/node.d.ts"
+      ],
+      "node": {
+        "nyc-static-emitter": "./nyc/lib/custom-event/node.js",
+        "default": "./dist/lib/custom-event/node.js"
+      },
+      "default": "./dist/lib/custom-event/browser.js"
+    },
+    "#typed-event": {
+      "types": [
+        "./src/lib/typed-event/type.ts",
+        "./dist/lib/typed-event/type.d.ts"
+      ],
+      "nyc-static-emitter": "./nyc/lib/typed-event/typed-event.js",
+      "default": "./dist/lib/typed-event/typed-event.js"
+    },
+    "#typed-event-target": {
+      "types": [
+        "./src/lib/typed-event-target/type.ts",
+        "./dist/lib/typed-event-target/type.d.ts"
+      ],
+      "nyc-static-emitter": "./nyc/lib/typed-event-target/typed-event-target.js",
+      "default": "./dist/lib/typed-event-target/typed-event-target.js"
     }
   },
   "devDependencies": {

@@ -1,28 +1,13 @@
-import { EventEmitter } from 'node:events';
-
-export declare const events: unique symbol;
-
-interface IEmitter {
-    [events]: Record<string | symbol, unknown[]>;
-}
-
-type EventList<
-    Emitter extends IEmitter
-> = Exclude<keyof Emitter[typeof events], number>;
-
-type Listener <
-    Emitter extends IEmitter,
-    EventName extends EventList<Emitter>
-> = (...args: Emitter[typeof events][EventName]) => void;
+import CustomEvent from '#custom-event';
+import { TypedEventTarget } from '#typed-event-target';
+import type * as Types from './lib/types.js';
 
 /**
- * Type-only wrapper around EventEmitter to provide static typing to events
- * rather than the dreaded `any[]`.
+ * Wrapper around EventTarget to provide static typing to events
+ * rather than the dreaded `any[]`. Types override native `addListener`/`dispatch` methods,
+ * as well as implement strongly typed `on`/`emit` methods similar to NodeJS.
  *
- * Class is _declared_ so does not actually exist. Raw `EventEmitter` is
- * exported, unchanged but re-typed.
- *
- * Declare events via `events` symbol (also type-only) in format `{ eventName: [args] }`
+ * Declare events via `events` symbol (type-only) in format `{ eventName: [args] }`
  *
  * @example
  * import { type events, StaticEmitter } from 'static-emitter';
@@ -36,74 +21,184 @@ type Listener <
  *
  * const myEmitter = new MyEmitter();
  * myEmitter.on('foo', (bool, nums) => {
- *     console.log(bool); // typed as boolean!
- *     console.log(nums); // typed as number!
+ *     console.log(bool); // typed as `boolean`
+ *     console.log(nums); // typed as `number`
  * });
  * myEmitter.emit('foo', true, [123]); // success!
  *
  * myEmitter.emit('bar', { wrong: null }); // Typescript error!
  */
-export declare class IStaticEmitter extends EventEmitter implements IEmitter {
+export class StaticEmitter<
+    InterfaceEvents extends Types.EventDict = Types.EmptyObject
+> extends TypedEventTarget<InterfaceEvents> {
+
+    #eventNameId = 0;
+    readonly #wrappedListeners = new WeakMap<
+        Types.CustomEventListener<this, Types.CustomEventList<this>>,
+        Types.EventTargetListener<Types.IEmitter, string>
+    >();
+    readonly #eventMap = new Map<
+        Types.CustomEventList<this>,
+        string
+    >();
+
+    // Alias for custom methods, attached via prototype.
 
     /**
-     * Child classes _should_ declare types using this property.
+     * Alias for `on()`.
      */
-    declare public [events]: Record<string | symbol, unknown[]>;
+    declare public addListener: this['on'];
 
-    declare public on: <K extends EventList<this>>(
+    /**
+     * Alias for `off()`.
+     */
+    declare public removeListener: this['off'];
+
+    // Custom methods, mirroring EventEmitter syntax + simplifying CustomEvent + allowing symbols.
+
+    /**
+     * Mirror EventEmitter syntax. Wraps event data in CustomEvent.
+     *
+     * @param {string|symbol} eventName - event name
+     * @param {Function} listener - callback that is called on event
+     * @returns {this} static emitter
+     */
+    public on<K extends Types.CustomEventList<this>>(
         eventName: K,
-        listener: Listener<this, K>
-    ) => this;
-    declare public addListener: <K extends EventList<this>>(
+        listener: Types.CustomEventListener<this, K>
+    ): this {
+        this.addEventListener(
+            this.#getEventName(eventName) as Types.EventList<this>,
+            this.#getListener(listener)
+        );
+        return this;
+    }
+
+    /**
+     * Mirror EventEmitter syntax. Wraps event data in CustomEvent.
+     *
+     * Will remove listener after first invocation.
+     *
+     * @param {string|symbol} eventName - event name
+     * @param {Function} listener - callback that is called on event
+     * @returns {this} static emitter
+     */
+    public once<K extends Types.CustomEventList<this>>(
         eventName: K,
-        listener: Listener<this, K>
-    ) => this;
-    declare public prependListener: <K extends EventList<this>>(
+        listener: Types.CustomEventListener<this, K>
+    ): this {
+        this.addEventListener(
+            this.#getEventName(eventName) as Types.EventList<this>,
+            this.#getListener(listener),
+            { once: true }
+        );
+        return this;
+    }
+
+    /**
+     * Mirror EventEmitter syntax.
+     *
+     * Removes listener from emitter. Allows both "native" listeners and static emitter wrappers.
+     *
+     * @param {string|symbol} eventName - event name
+     * @param {Function} listener - callback to remove
+     * @returns {this} static emitter
+     */
+    public off<K extends Types.CustomEventList<this> | Types.EventList<this>>(
         eventName: K,
-        listener: Listener<this, K>
-    ) => this;
-    declare public once: <K extends EventList<this>>(
+        listener: (K extends Types.CustomEventList<this> ? Types.CustomEventListener<this, K> : never) |
+            (K extends Types.EventList<this> ? Types.EventTargetListener<this, K> : never)
+    ): this {
+        this.removeEventListener(
+            this.#getEventName(eventName as Types.CustomEventList<this>) as Types.EventList<this>,
+            this.#wrappedListeners.get(
+                listener as Types.CustomEventListener<this, Types.CustomEventList<this>>
+            ) ?? listener as Types.NullishEventTargetListener<this, Types.EventList<this>>
+        );
+        return this;
+    }
+
+    /**
+     * Mirror EventEmitter syntax.
+     *
+     * Emit event + detail.
+     *
+     * @param {string|symbol} eventName - event name
+     * @param {*} detail - event data
+     * @returns {this} static emitter
+     */
+    public emit<K extends Types.CustomEventList<this>>(
         eventName: K,
-        listener: Listener<this, K>
-    ) => this;
-    declare public prependOnceListener: <K extends EventList<this>>(
-        eventName: K,
-        listener: Listener<this, K>
-    ) => this;
+        detail: Types.GetEventDetail<this, K>
+    ): this {
+        this.dispatchEvent(
+            new CustomEvent(
+                this.#getEventName(eventName),
+                { detail } as { detail: unknown }
+            ) as Types.EventListenerParam<this, Types.EventList<this>>
+        );
+        return this;
+    }
 
-    declare public removeListener: <K extends EventList<this>>(
-        eventName: K,
-        listener: Listener<this, K>
-    ) => this;
-    declare public off: <K extends EventList<this>>(
-        eventName: K,
-        listener: Listener<this, K>
-    ) => this;
+    /**
+     * Maps `symbol` and `number` events to a random string for native support.
+     * Caches mapping for future consistency.
+     *
+     * @param {number|string|symbol} eventName - event name
+     * @returns {string} EventTarget compliant event name
+     */
+    #getEventName<K extends Types.CustomEventList<this>>(
+        eventName: K
+    ): string {
+        if (typeof eventName === 'string') {
+            return eventName;
+        }
+        const existingName = this.#eventMap.get(eventName);
+        if (existingName) {
+            return existingName;
+        }
+        const randomName = `STATIC-EMITTER-${Math.random()}-${this.#eventNameId++}`;
+        this.#eventMap.set(eventName, randomName);
+        return randomName;
+    }
 
-    declare public removeAllListeners: (event?: EventList<this>) => this;
+    /**
+     * Wraps a listener method provided by client with an EventTarget compatible
+     * emitter using CustomEvent.
+     *
+     * Caches result in a WeakMap for future references and automatic cleanup.
+     *
+     * @param {Function} listener - user provided listener
+     * @returns {Function} EventTarget listener
+     */
+    #getListener<K extends Types.CustomEventList<this>>(
+        listener: Types.CustomEventListener<this, K>
+    ): Types.EventTargetListener<Types.IEmitter, string> {
 
-    declare public listeners: <K extends EventList<this>>(
-        event: K
-    ) => Listener<this, K>[];
+        const existingWrapped = this.#wrappedListeners.get(
+            listener as unknown as Types.CustomEventListener<this, Types.CustomEventList<this>>
+        );
 
-    declare public rawListeners: <
-        K extends EventList<this>,
-        L extends Listener<this, K> = Listener<this, K>
-    >(
-        event: K
-    ) => (L & { listener?: L })[];
+        if (existingWrapped) {
+            return existingWrapped;
+        }
 
-    declare public emit: <K extends EventList<this>>(
-        event: K,
-        ...args: this[typeof events][K]
-    ) => boolean;
+        const wrapped = (customEvent: Types.EventType<K, Types.GetEventDetail<this, K>>): void => {
 
-    declare public listenerCount: (
-        event: EventList<this>
-    ) => number;
-
-    declare public eventNames: () => EventList<this>[];
+            listener(
+                (customEvent as CustomEvent<string, Types.GetEventDetail<this, K>>).detail,
+                customEvent
+            );
+        };
+        this.#wrappedListeners.set(
+            listener as unknown as Types.CustomEventListener<this, Types.CustomEventList<this>>,
+            wrapped as Types.EventTargetListener<Types.IEmitter, string>
+        );
+        return wrapped as Types.EventTargetListener<Types.IEmitter, string>;
+    }
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export const StaticEmitter = EventEmitter as typeof IStaticEmitter;
+// eslint-disable-next-line @typescript-eslint/unbound-method
+StaticEmitter.prototype.addListener = StaticEmitter.prototype.on;
+// eslint-disable-next-line @typescript-eslint/unbound-method
+StaticEmitter.prototype.removeListener = StaticEmitter.prototype.off;

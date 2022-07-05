@@ -1,225 +1,143 @@
-import { EventEmitter } from 'node:events';
 import { expect } from 'chai';
 import { expectTypeOf } from 'expect-type';
-import { type events, StaticEmitter } from '../../static-emitter.js';
-import { CustomEmitter, eventSymbol } from '../data/custom-emitter.js';
+import { CustomEvent, type events, StaticEmitter } from '../../index.js';
+import { CustomEmitter, eventSym } from '../data/custom-emitter.js';
+import { ServerEvent } from '../data/server-event.js';
 
 export const StaticEmitterSpec = {
 
     success: {
 
-        'Exports EventEmitter'() {
-            expect(StaticEmitter).to.eq(EventEmitter);
+        'Extends EventTarget'() {
+            expect(new StaticEmitter()).to.be.an.instanceOf(EventTarget);
         },
 
-        'Extend existing'() {
+        'Declare event types': {
 
-            /**
-             * @override
-             */
-            class ExtendEmitter extends CustomEmitter {
-                declare public [events]: CustomEmitter[typeof events] & {
-                    bing: [null];
-                };
-            }
+            'Generic parameter'() {
 
-            const extendEmitter = new ExtendEmitter();
-            extendEmitter.on('foo', (bool, nums) => {
-                expectTypeOf(bool).toEqualTypeOf<boolean>();
-                expectTypeOf(nums).toEqualTypeOf<number[]>();
-            });
-            extendEmitter.on('bing', nil => {
-                expectTypeOf(nil).toBeNull();
-            });
-        },
-
-        'Add listeners'() {
-
-            const customEmitter = new CustomEmitter();
-            customEmitter.on('foo', (bool, nums) => {
-                expectTypeOf(bool).toEqualTypeOf<boolean>();
-                expectTypeOf(nums).toEqualTypeOf<number[]>();
-            });
-            customEmitter.addListener('bar', str => {
-                expectTypeOf(str).toEqualTypeOf<string>();
-            });
-            customEmitter.prependListener(eventSymbol, (...data) => {
-                expectTypeOf(data).toEqualTypeOf<{
-                    data: number;
-                }[] | [Set<number>]>();
-            });
-
-            customEmitter.once('foo', (bool, nums) => {
-                expectTypeOf(bool).toEqualTypeOf<boolean>();
-                expectTypeOf(nums).toEqualTypeOf<number[]>();
-            });
-            customEmitter.prependOnceListener('bar', str => {
-                expectTypeOf(str).toEqualTypeOf<string>();
-            });
-        },
-
-        'Emit events'() {
-
-            const customEmitter = new CustomEmitter();
-            customEmitter.emit('foo', true, [123]);
-        },
-
-        'Remove listeners'() {
-
-            const customEmitter = new CustomEmitter();
-
-            customEmitter.removeListener('foo', (bool, nums) => {
-                expectTypeOf(bool).toEqualTypeOf<boolean>();
-                expectTypeOf(nums).toEqualTypeOf<number[]>();
-            });
-            customEmitter.removeAllListeners('bar');
-            customEmitter.removeAllListeners();
-        },
-
-        'List listeners'() {
-
-            const customEmitter = new CustomEmitter();
-
-            expectTypeOf(
-                customEmitter.listeners('foo')
-            ).toEqualTypeOf<
-                ((bool: boolean, nums: number[]) => void)[]
-            >();
-
-            expectTypeOf(
-                customEmitter.rawListeners('bar')
-            ).toEqualTypeOf<
-                ({ listener?: (str: string) => void } & ((str: string) => void))[]
-            >();
-
-            expectTypeOf(
-                customEmitter.listenerCount(eventSymbol)
-            ).toEqualTypeOf<number>();
-
-            expectTypeOf(
-                customEmitter.eventNames()
-            ).toEqualTypeOf<
-                ('bar' | 'foo' | typeof eventSymbol)[]
-            >();
-        },
-    },
-
-    failure: {
-
-        'Improper event declarations'() {
-
-            /**
-             * @override
-             */
-            class BadEmitter extends StaticEmitter {
+                const customEmitter = new CustomEmitter();
+                customEmitter.on('foo', (...args) => {
+                    expectTypeOf(args).toEqualTypeOf<[123, CustomEvent<'foo', 123>]>();
+                });
+                customEmitter.addListener('foo', (...args) => {
+                    expectTypeOf(args).toEqualTypeOf<[123, CustomEvent<'foo', 123>]>();
+                });
                 // @ts-expect-error
-                declare public [events]: {
-                    foo: 123;
-                };
-            }
-            const badEmitter = new BadEmitter();
-            // @ts-expect-error
-            badEmitter.on('foo', data => {
-                expectTypeOf(data).toBeUnknown();
-            });
-        },
+                customEmitter.on('bar', () => {});
 
-        'Improper extension'() {
-
-            /**
-             * @override
-             */
-            class BadExtend extends CustomEmitter {
+                customEmitter.emit('foo', 123);
+                customEmitter.emit(eventSym, { myData: '<my-data>' });
                 // @ts-expect-error
-                declare public [events]: {
-                    bing: [null];
-                };
-            }
-            const badExtend = new BadExtend();
-            // @ts-expect-error
-            badExtend.on('foo', data => {
-                expectTypeOf(data).toBeNull();
-            });
+                customEmitter.emit('bar', new ServerEvent('bar', '<server-data>'));
+
+                customEmitter.off('foo', (detail: 123) => {
+                    expectTypeOf(detail).toEqualTypeOf<123>();
+                });
+                // @ts-expect-error
+                customEmitter.off('foo', (detail: 124) => {
+                    expectTypeOf(detail).toEqualTypeOf<124>();
+                });
+                customEmitter.off('foo', {
+                    handleEvent: detail => {
+                        expectTypeOf(detail).toEqualTypeOf<CustomEvent<'foo', 123>>();
+                    },
+                });
+                customEmitter.off('bar', event => {
+                    expectTypeOf(event).toEqualTypeOf<ServerEvent<'bar'>>();
+                });
+                customEmitter.off('bar', event => {
+                    expectTypeOf(event).toEqualTypeOf<ServerEvent<'bar'>>();
+                });
+                customEmitter.removeListener(eventSym, (...args) => {
+                    expectTypeOf(args).toEqualTypeOf<[
+                        { myData: string },
+                        CustomEvent<string, { myData: string }>,
+                    ]>();
+                });
+            },
+
+            'Explicit event declaration'() {
+
+                /**
+                 * @override
+                 */
+                class CustomEmitterDeclare extends StaticEmitter {
+                    declare public [events]: {
+                        foo: 123;
+                        bar: ServerEvent<'bar'>;
+                        [eventSym]: { myData: string };
+                    };
+                }
+
+                expectTypeOf(CustomEmitterDeclare).toEqualTypeOf(CustomEmitter);
+            },
+
+            'Both generics and event param'() {
+
+                /**
+                 * @override
+                 */
+                class CustomEmitterCombo extends StaticEmitter<{
+                    foo: 123 | 456;
+                    bar: ServerEvent<'bar'>;
+                }> {
+                    declare public [events]: StaticEmitter<{
+                        foo: 123 | 456;
+                        bar: ServerEvent<'bar'>;
+                    }>[typeof events] & {
+                        foo: 123 | 789;
+                        [eventSym]: { myData: string };
+                    };
+                }
+
+                expectTypeOf(CustomEmitterCombo).toEqualTypeOf(CustomEmitter);
+            },
         },
 
-        'Invalid listeners'() {
+        'Wrap custom event listeners'() {
+
+            let order = 0;
+
             const customEmitter = new CustomEmitter();
-            const invalidListener = (event: { myData: number }): void => {
-                // Noop
-                expectTypeOf(event);
+
+            const listener = (detail: number, event: CustomEvent<string, number>): void => {
+                expect(++order).to.equal(1);
+                expect(detail).to.equal(123);
+                expect(event).to.be.an.instanceOf(CustomEvent);
+                expect(event.type).to.equal('foo');
+                expect(event.detail).to.equal(123);
             };
+            customEmitter.once('foo', listener);
+            // Ignored
+            customEmitter.once('foo', listener);
+            customEmitter.emit('foo', 123);
 
-            customEmitter.on(
-                'foo',
-                // @ts-expect-error
-                invalidListener
-            );
-            customEmitter.addListener(
-                'bar',
-                // @ts-expect-error
-                invalidListener
-            );
-            customEmitter.prependListener(
-                eventSymbol,
-                // @ts-expect-error
-                invalidListener
-            );
-
-            customEmitter.once(
-                'foo',
-                // @ts-expect-error
-                invalidListener
-            );
-            customEmitter.prependOnceListener(
-                'bar',
-                // @ts-expect-error
-                invalidListener
-            );
-        },
-
-        'Invalid events'() {
-            const customEmitter = new CustomEmitter();
-
-            // @ts-expect-error
-            customEmitter.emit('foo', true);
-        },
-
-        'Invalid removal'() {
-
-            const customEmitter = new CustomEmitter();
-            const invalidListener = (event: { myData: number }): void => {
-                // Noop
-                expectTypeOf(event);
+            const handler = {
+                handleEvent: (event: CustomEvent<'foo', 123>): void => {
+                    expect(++order).to.equal(2);
+                    expect(event).to.be.an.instanceOf(CustomEvent);
+                    expect(event.type).to.equal('foo');
+                    expect(event.detail).to.equal(123);
+                },
             };
+            customEmitter.addEventListener('foo', handler);
+            customEmitter.emit('foo', 123);
 
-            customEmitter.removeListener(
-                'foo',
-                // @ts-expect-error
-                invalidListener
-            );
-            customEmitter.removeAllListeners(
-                // @ts-expect-error
-                Symbol('invalid')
-            );
-        },
+            customEmitter.off('foo', handler);
+            customEmitter.emit('foo', 123);
 
-        'Invalid lists'() {
+            customEmitter.addListener(eventSym, (detail, event) => {
+                expect(++order).to.equal(3);
+                expect(detail).to.deep.equal({ myData: '<my-data>' });
+                expect(event).to.be.an.instanceOf(CustomEvent);
+                expect(event.detail).to.deep.equal({ myData: '<my-data>' });
+            });
+            customEmitter.emit(eventSym, { myData: '<my-data>' });
 
-            const customEmitter = new CustomEmitter();
+            customEmitter.off(eventSym, () => {});
 
-            customEmitter.listeners(
-                // @ts-expect-error
-                'invalid'
-            );
-            customEmitter.rawListeners(
-                // @ts-expect-error
-                Symbol('invalid')
-            );
-
-            customEmitter.listenerCount(
-                // @ts-expect-error
-                'foobar'
-            );
+            expect(++order).to.equal(4);
         },
     },
 };

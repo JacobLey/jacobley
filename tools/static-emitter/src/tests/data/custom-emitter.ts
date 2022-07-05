@@ -1,15 +1,13 @@
-import { type events, StaticEmitter } from '../../static-emitter.js';
+import { StaticEmitter } from '../../index.js';
+import type { ServerEvent } from './server-event.js';
 
-export const eventSymbol = Symbol('eventSymbol');
+export const eventSym = Symbol('eventSymbol');
 
 /**
  * @override
  */
-export class CustomEmitter extends StaticEmitter {
-
-    declare public [events]: {
-        foo: [boolean, number[]];
-        bar: [string];
-        [eventSymbol]: { data: number }[] | [Set<number>];
-    };
-}
+export class CustomEmitter extends StaticEmitter<{
+    foo: 123;
+    bar: ServerEvent<'bar'>;
+    [eventSym]: { myData: string };
+}> {}
