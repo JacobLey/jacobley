@@ -3,7 +3,7 @@
   "version": "1.1.5",
   "description": "Auto-generate TS barrel files.",
   "engines": {
-    "node": ">=14"
+    "node": ">=14.5"
   },
   "type": "module",
   "author": "jacobley",
