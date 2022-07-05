@@ -1,6 +1,6 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
-  // When updating this, be sure to update `packages-list` dependency on `rush-lib` to match
+
   "rushVersion": "5.74.0",
 
   "pnpmVersion": "7.5.0",
