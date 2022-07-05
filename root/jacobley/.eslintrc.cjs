@@ -173,7 +173,14 @@ module.exports = {
         'lines-around-comment': 'off',
         'max-classes-per-file': 'off',
         'max-depth': 'off',
-        'max-len': ['error', { code: 120, ignoreUrls: true }],
+        'max-len': [
+            'error',
+            {
+                code: 120,
+                ignoreUrls: true,
+                ignorePattern: '^// eslint-disable-next-line ',
+            },
+        ],
         'max-lines': 'off',
         'max-lines-per-function': 'off',
         'max-params': 'off',
