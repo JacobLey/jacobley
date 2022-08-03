@@ -87,6 +87,7 @@
       "description": "Runs `test` in package.",
       "safeForSimultaneousRushProcesses": true,
       "enableParallelism": true,
+      "ignoreMissingScript": true,
       "ignoreDependencyOrder": true
     },
     {
@@ -96,6 +97,7 @@
       "description": "Runs `unit-test` in package.",
       "safeForSimultaneousRushProcesses": true,
       "enableParallelism": true,
+      "ignoreMissingScript": true,
       "ignoreDependencyOrder": true
     },
 

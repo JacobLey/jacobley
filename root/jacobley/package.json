@@ -21,7 +21,6 @@
     "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
     "lint": "rush lint-package",
     "rivendell": "rivendell",
-    "test": "echo NO TESTS YET",
     "unit-test": "mocha ./dist/tests/unit"
   },
   "devDependencies": {
@@ -37,7 +36,7 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jsdoc": "^39.3.2",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-sonarjs": "^0.13.0",
+    "eslint-plugin-sonarjs": "^0.14.0",
     "eslint-plugin-unicorn": "^43.0.0",
     "named-patch": "workspace:^",
     "packages-list": "workspace:^",
