@@ -5,6 +5,7 @@ export interface PackageJson {
     name: string;
     version: string;
     private?: boolean;
+    scripts?: Record<string, string>;
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
     optionalDependencies?: Record<string, string>;
