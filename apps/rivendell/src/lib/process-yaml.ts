@@ -36,6 +36,9 @@ const parseRivendellExpression = (
         if (key === 'private') {
             return (dependency.packageMeta.packageJson.private ?? false) === (val === 'true');
         }
+        if (key === 'script') {
+            return val in (dependency.packageMeta.packageJson.scripts ?? {});
+        }
         return false;
     });
 

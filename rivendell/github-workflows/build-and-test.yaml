@@ -176,7 +176,7 @@ jobs:
 
   # Split tests into stages, so a build's test will start immediately following build stage.
   # Tests only run when package has changed, else optimistically ends early (skips actual test)
-  package-test-${{{ rivendell.stage?parallel=true }}}:
+  package-test-${{{ rivendell.stage?parallel=true&script=test }}}:
     needs:
       - package-build-${{{ rivendell.stage }}}
       - package-lint
@@ -221,7 +221,7 @@ jobs:
       - root-test
       # Ensures all packages are individually tested first
       # which implicitly requires all packages built
-      - package-test-${{{ rivendell.max-stage?parallel=true }}}
+      - package-test-${{{ rivendell.max-stage?parallel=true&script=test }}}
     runs-on: ubuntu-latest
     strategy:
       matrix:
