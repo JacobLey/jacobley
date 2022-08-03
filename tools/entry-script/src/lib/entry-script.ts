@@ -41,6 +41,33 @@ export class EntryScript extends StaticEmitter<{
      * Extendable to provide any custom logic.
      */
     public async finish(): Promise<void> {}
+
+    /**
+     * Create and execute script lifecycle.
+     *
+     * Called implicitly by default-exported classes, but can be called explicitly
+     * as necessary.
+     */
+    public static async run(): Promise<void> {
+        const script = await this.create();
+        await script.run();
+    }
+
+    /**
+     * Execute lifecycle of script.
+     *
+     * Called implicitly by static `run()` but can be called explicitly as necessary.
+     */
+    public async run(): Promise<void> {
+        try {
+            await this.start();
+        } catch (err) {
+            (this as EntryScript).emit(runtimeError, err);
+            throw err;
+        } finally {
+            await this.finish();
+        }
+    }
 }
 
 /**
@@ -56,18 +83,10 @@ export class EntryScript extends StaticEmitter<{
 export const runAsMain = async (url?: string): Promise<void> => {
     if (url) {
         const rawEntryScript = await import(url).catch(() => {}) as typeof EntryScript;
-        const entryScript = defaultImport(rawEntryScript);
+        const script = defaultImport(rawEntryScript);
 
-        if (Object.prototype.isPrototypeOf.call(EntryScript, entryScript)) {
-            const app = await entryScript.create();
-            try {
-                await app.start();
-            } catch (err) {
-                app.emit(runtimeError, err);
-                throw err;
-            } finally {
-                await app.finish();
-            }
+        if (Object.prototype.isPrototypeOf.call(EntryScript, script)) {
+            await script.run();
         }
     }
 };
