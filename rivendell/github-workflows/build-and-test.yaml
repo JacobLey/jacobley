@@ -1,8 +1,5 @@
 name: Build and Test
 
-env:
-  RUSH_GLOBAL_FOLDER: ${{ github.workspace}}/.rush
-
 on:
   workflow_call:
     inputs:
@@ -16,6 +13,9 @@ on:
       head-ref:
         type: string
         required: false
+
+env:
+  RUSH_GLOBAL_FOLDER: ${{ github.workspace}}/.rush
 
 jobs:
 

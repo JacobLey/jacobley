@@ -6,10 +6,50 @@
     {
       "commandKind": "global",
       "name": "clean",
-      "summary": "Delete built files in each project",
-      "description": "Similar to purge, but removes all non-tracked files.",
+      "summary": "Delete all non-git files in each project",
+      "description": "Similar to purge, but removes all non-tracked files in each project.",
       "safeForSimultaneousRushProcesses": false,
-      "shellCommand": "rm -r */*/.nyc_output */*/.nyc-cache */*/.rush */*/coverage */*/dist */*/node_modules */*/nyc */*/*.log"
+      "shellCommand": "rush clean:build && rush clean:publish && rush clean:rush"
+    },
+    {
+      "commandKind": "global",
+      "name": "clean:build",
+      "summary": "Delete all non-git built files in each project",
+      "description": "Similar to purge, removes any files that are \"built\" in each project and not checked into git. (e.g. /dist)",
+      "safeForSimultaneousRushProcesses": false,
+      "shellCommand": "rm -r */*/.nyc_output */*/.nyc-cache */*/coverage */*/dist */*/nyc"
+    },
+    {
+      "commandKind": "global",
+      "name": "clean:publish",
+      "summary": "Delete publish-specific files in each project",
+      "description": "Similar to purge, removes any files that are copied into each project prior to publishing. (e.g. LICENSE)",
+      "safeForSimultaneousRushProcesses": false,
+      "shellCommand": "rm -r */*/.npmignore */*/LICENSE || true"
+    },
+    {
+      "commandKind": "global",
+      "name": "clean:rush",
+      "summary": "Delete all non-git rush files in each project",
+      "description": "Similar to purge, removes any rush-populated in each project that are not check into git. (e.g. /.rush)",
+      "safeForSimultaneousRushProcesses": false,
+      "shellCommand": "rm -r */*/.rush */*/node_modules */*/*.log"
+    },
+
+    // Initializing
+    {
+      "commandKind": "global",
+      "name": "write-symlinks",
+      "summary": "Write generic config files to each project via symlinks",
+      "safeForSimultaneousRushProcesses": false,
+      "shellCommand": "./common/scripts/write-symlinks.mjs"
+    },
+    {
+      "commandKind": "global",
+      "name": "write-publish",
+      "summary": "Write publish-specific files to each project",
+      "safeForSimultaneousRushProcesses": false,
+      "shellCommand": "./common/scripts/write-publish.mjs"
     },
 
     // Linting
