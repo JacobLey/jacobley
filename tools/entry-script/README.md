@@ -136,6 +136,29 @@ The `EntryScript` itself extends [StaticEmitter](https://www.npmjs.com/package/s
 
 Extendable class that control logic flow of an entry point. Will not perform any execution if the entry point for nodejs does not export a child class of EntryScript as `default`.
 
+#### run
+
+Available on both the class and instance. Controls script lifecycle.
+
+In general this method should not be called directly, as it is called implicitly by the internal EntryScript lifecycle.
+
+May be called manually when the script is not exposed as the top-level default export.
+
+```ts
+class MyScript extends EntryScript {
+    public start() {
+        // Do stuff...
+    }
+}
+
+// Creates the script and executes
+await MyScript.run();
+
+// Create the script manually and execute.
+const myScript = await MyScript.create();
+await myScript.run();
+```
+
 #### Methods to override
 
 Each method can call `super.<method>()` as desired, but the base methods are very basic, often NOOP, logic.
