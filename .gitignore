@@ -5,17 +5,12 @@
 **/.nyc_output/**
 **/node_modules/**
 
-/apps/*/coverage/**
-/apps/*/dist/**
-/apps/*/nyc/**
+/*/*/coverage/**
+/*/*/dist/**
+/*/*/nyc/**
 
-/root/*/coverage/**
-/root/*/dist/**
-/root/*/nyc/**
-
-/tools/*/coverage/**
-/tools/*/dist/**
-/tools/*/nyc/**
+/*/*/LICENSE
+/*/*/.npmignore
 
 # Rush temporary files
 **/.rush/temp/**
