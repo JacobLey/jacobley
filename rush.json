@@ -67,6 +67,12 @@
 
     // Tools, alphabetical order
     {
+      "packageName": "normalized-react-query",
+      "projectFolder": "tools/normalized-react-query",
+      "shouldPublish": true,
+      "tags": ["tools"]
+    },
+    {
       "packageName": "default-import",
       "projectFolder": "tools/default-import",
       "shouldPublish": true,

@@ -1,0 +1,58 @@
+{
+  "name": "normalized-react-query",
+  "version": "0.0.0",
+  "description": "Wrapper around React Query to enforce type-safe, consistent key-query mappings.",
+  "engines": {
+    "node": ">=14"
+  },
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/JacobLey/jacobley/tree/main/tools/consistent-react-query#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "keywords": [
+    "react-query",
+    "map",
+    "consistent",
+    "normalizr"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc",
+    "coverage": "rushx instrument && nyc mocha ./nyc/tests/unit",
+    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
+    "lint": "rush lint-package",
+    "test": "rushx coverage",
+    "unit-test": "mocha ./dist/tests/unit"
+  },
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": [
+        "./src/index.ts",
+        "./dist/index.d.ts"
+      ],
+      "default": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "@tanstack/react-query": "^4.0.10",
+    "@types/chai": "^4.3.1",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.0.0",
+    "chai": "^4.3.6",
+    "expect-type": "^0.13.0",
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0",
+    "react": "^18.2.0",
+    "typescript": "^4.7.2",
+    "@types/react": "^18.0.17"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^4.0.10",
+    "react": "^18.2.0"
+  }
+}
