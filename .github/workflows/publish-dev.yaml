@@ -28,6 +28,9 @@ jobs:
           - name: named-patch
             safe-name: named-patch
             path: tools/named-patch
+          - name: normalized-react-query
+            safe-name: normalized-react-query
+            path: tools/normalized-react-query
           - name: parse-cwd
             safe-name: parse-cwd
             path: tools/parse-cwd
