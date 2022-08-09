@@ -5,9 +5,12 @@
 require('@rushstack/eslint-patch/modern-module-resolution');
 
 const Path = require('node:path');
+const NextPlugin = require('@next/eslint-plugin-next');
 const ImportPlugin = require('eslint-plugin-import');
 const JsDocPlugin = require('eslint-plugin-jsdoc');
+const JsxAllyPlugin = require('eslint-plugin-jsx-a11y');
 const NodePlugin = require('eslint-plugin-node');
+const ReactHooksPlugin = require('eslint-plugin-react-hooks');
 const SonarPlugin = require('eslint-plugin-sonarjs');
 const rushJson = require('../../common/scripts/rush-json.cjs');
 
@@ -90,6 +93,7 @@ module.exports = {
     extends: [
         'eslint:all',
         'plugin:@typescript-eslint/all',
+        'plugin:react/all',
         'plugin:unicorn/all',
     ],
 
@@ -102,10 +106,14 @@ module.exports = {
 
     parser: '@typescript-eslint/parser',
     plugins: [
+        '@next/next',
         '@typescript-eslint',
         'import',
         'jsdoc',
+        'jsx-a11y',
         'node',
+        'react',
+        'react-hooks',
         'sonarjs',
         'unicorn',
     ],
@@ -115,6 +123,13 @@ module.exports = {
         sourceType: 'module',
         project: Path.resolve(__dirname, '../../tsconfig.eslint.json'),
         extraFileExtensions: ['.cts', '.cjs', '.mts', '.mjs'],
+    },
+
+    settings: {
+        linkComponents: [{ name: 'Link', linkAttribute: 'to' }],
+        react: {
+            version: '18.2.0',
+        },
     },
 
     rules: {
@@ -278,6 +293,9 @@ module.exports = {
         ],
         'vars-on-top': 'off',
         'wrap-regex': 'off',
+
+        // NextJS
+        ...nonDeprecatedRules('@next/next', NextPlugin),
 
         // Typescript
         '@typescript-eslint/ban-ts-comment': [
@@ -623,6 +641,16 @@ module.exports = {
             },
         ],
 
+        // JSX a11y
+        ...nonDeprecatedRules('jsx-a11y', JsxAllyPlugin),
+        'jsx-a11y/click-events-have-key-events': 'off',
+        'jsx-a11y/anchor-is-valid': [
+            'error', {
+                components: ['Link'],
+                aspects: ['invalidHref', 'preferButton'],
+            },
+        ],
+
         // Node
         ...nonDeprecatedRules('node', NodePlugin),
         'node/no-unsupported-features/es-syntax': [
@@ -638,6 +666,116 @@ module.exports = {
         'node/no-sync': ['error', { allowAtRootLevel: true }],
         'node/no-unpublished-import': 'off',
         'node/no-unpublished-require': 'off',
+
+        // React
+        'react/boolean-prop-naming': ['error', { validateNested: true }],
+        'react/destructuring-assignment': 'off',
+        'react/display-name': 'off',
+        'react/forbid-dom-props': 'off',
+        'react/forbid-elements': 'off',
+        'react/function-component-definition': [
+            'error',
+            {
+                namedComponents: 'arrow-function',
+                unnamedComponents: 'arrow-function',
+            },
+        ],
+        'react/hook-use-state': 'off',
+        'react/jsx-curly-spacing': [
+            'error',
+            {
+                when: 'never',
+                allowMultiline: true,
+                children: true,
+            },
+        ],
+        'react/jsx-filename-extension': ['error', { extensions: ['.tsx'] }],
+        'react/jsx-first-prop-new-line': ['error', 'multiline'],
+        'react/jsx-indent': ['error', 4, { checkAttributes: true, indentLogicalExpressions: true }],
+        'react/jsx-key': ['error', { checkFragmentShorthand: true }],
+        'react/jsx-max-depth': 'off',
+        'react/jsx-max-props-per-line': ['error', { maximum: 2, when: 'always' }],
+        'react/jsx-newline': ['error', { prevent: true }],
+        'react/jsx-no-literals': 'off',
+        'react/jsx-no-target-blank': ['error', { allowReferrer: false, enforceDynamicLinks: 'always' }],
+        'react/jsx-one-expression-per-line': 'off',
+        'react/jsx-props-no-spreading': ['error', { exceptions: ['App', 'Component'] }],
+        'react/jsx-sort-props': [
+            'error',
+            {
+                callbacksLast: true,
+                ignoreCase: true,
+                noSortAlphabetically: false,
+                reservedFirst: true,
+                shorthandFirst: true,
+            },
+        ],
+        'react/jsx-tag-spacing': [
+            'error',
+            {
+                closingSlash: 'never',
+                beforeSelfClosing: 'never',
+                afterOpening: 'never',
+                beforeClosing: 'never',
+            },
+        ],
+        'react/no-multi-comp': ['error', { ignoreStateless: true }],
+        'react/no-unescaped-entities': [
+            'error',
+            {
+                forbid: [
+                    {
+                        char: '<',
+                        alternatives: ['&lt;'],
+                    },
+                    {
+                        char: '>',
+                        alternatives: ['&gt;'],
+                    },
+                    {
+                        char: '\'',
+                        alternatives: ['&apos;', '&lsquo;', '&rsquo;'],
+                    },
+                    {
+                        char: '‘',
+                        alternatives: ['&lsquo;'],
+                    },
+                    {
+                        char: '’',
+                        alternatives: ['&rsquo;'],
+                    },
+                    {
+                        char: '"',
+                        alternatives: ['&quot;', '&ldquo;', '&rdquo;'],
+                    },
+                    {
+                        char: '“',
+                        alternatives: ['&ldquo;'],
+                    },
+                    {
+                        char: '”',
+                        alternatives: ['&rdquo;'],
+                    },
+                    {
+                        char: '{',
+                        alternatives: ['&#123;'],
+                    },
+                    {
+                        char: '}',
+                        alternatives: ['&#125;'],
+                    },
+                ],
+            },
+        ],
+        'react/no-unsafe': ['error', { checkAliases: true }],
+        'react/no-will-update-set-state': ['error', 'disallow-in-func'],
+        'react/prop-types': 'off',
+        'react/react-in-jsx-scope': 'off',
+        'react/require-default-props': 'off',
+        'react/static-property-placement': ['error', 'static public field'],
+
+        // React Hooks
+        ...nonDeprecatedRules('react-hooks', ReactHooksPlugin),
 
         // SonarJS
         ...nonDeprecatedRules('sonarjs', SonarPlugin),

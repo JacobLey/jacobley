@@ -12,6 +12,7 @@
         "importsNotUsedAsValues": "remove",
         "incremental": true,
         "isolatedModules": false,
+        "jsx": "react-jsx",
         "lib": [
             "DOM",
             "ESNext"
