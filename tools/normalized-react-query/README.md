@@ -81,7 +81,7 @@ npm i normalized-react-query
 
 ```ts
 import type { QueryKey } from '@tanstack/react-query';
-import { userState } from 'react';
+import { useState } from 'react';
 import {
     Paginated,
     type QueryData,
