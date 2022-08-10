@@ -296,6 +296,7 @@ module.exports = {
 
         // NextJS
         ...nonDeprecatedRules('@next/next', NextPlugin),
+        '@next/next/no-html-link-for-pages': 'off',
 
         // Typescript
         '@typescript-eslint/ban-ts-comment': [
