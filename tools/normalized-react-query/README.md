@@ -15,7 +15,6 @@
 - [Example](#example)
 - [Usage](#usage)
 - [API](#api)
-- [Related Issues](#related-issues)
 
 <a name="Introduction"></a>
 ## Introduction
