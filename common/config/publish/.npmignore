@@ -4,3 +4,6 @@
 /dist/tests
 /dist/**/*.map
 /dist/.tsbuildinfo
+
+# Required for local usage, but not when publishing
+cli.mjs
