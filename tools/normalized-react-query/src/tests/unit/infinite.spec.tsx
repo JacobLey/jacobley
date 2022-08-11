@@ -1,13 +1,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, type WrapperComponent } from '@testing-library/react-hooks';
 import { expect } from 'chai';
+import type { Context } from 'mocha';
 import type { ReactNode } from 'react';
 import Sinon from 'sinon';
 import { infinite } from '../../infinite.js';
 import type * as Types from '../../types.js';
 import * as Api from '../data/api.js';
 
-interface InfiniteTest extends Mocha.Context {
+interface InfiniteTest extends Context {
     client: QueryClient;
     wrapper: WrapperComponent<{
         id: string;

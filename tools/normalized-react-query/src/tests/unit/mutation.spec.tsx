@@ -1,12 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, type WrapperComponent } from '@testing-library/react-hooks';
 import { expect } from 'chai';
+import type { Context } from 'mocha';
 import type { ReactNode } from 'react';
 import Sinon from 'sinon';
 import { mutation } from '../../mutation.js';
 import * as Api from '../data/api.js';
 
-interface MutationTest extends Mocha.Context {
+interface MutationTest extends Context {
     client: QueryClient;
     wrapper: WrapperComponent<{
         id: string;
