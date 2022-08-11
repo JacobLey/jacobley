@@ -1,6 +1,6 @@
 {
   "name": "static-emitter",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Statically typed event emitter.",
   "engines": {
     "node": ">=14.5"
@@ -27,69 +27,29 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/static-emitter.js",
+  "main": "./dist/index.js",
   "exports": {
-    ".": {
-      "types": [
-        "./src/index.ts",
-        "./dist/index.d.ts"
-      ],
-      "default": "./dist/index.js"
-    },
-    "./custom-event": {
-      "types": [
-        "./src/custom-event.ts",
-        "./dist/custom-event.d.ts"
-      ],
-      "default": "./dist/custom-event.js"
-    },
-    "./static-emitter": {
-      "types": [
-        "./src/static-emitter.ts",
-        "./dist/static-emitter.d.ts"
-      ],
-      "default": "./dist/static-emitter.js"
-    },
-    "./static-event-target": {
-      "types": [
-        "./src/static-event-target.ts",
-        "./dist/static-event-target.d.ts"
-      ],
-      "default": "./dist/static-event-target.js"
-    },
-    "./typed-event": {
-      "types": [
-        "./src/typed-event.ts",
-        "./dist/typed-event.d.ts"
-      ],
-      "default": "./dist/typed-event.js"
-    }
+    ".": "./dist/index.js",
+    "./custom-event": "./dist/custom-event.js",
+    "./static-emitter": "./dist/static-emitter.js",
+    "./static-event-target": "./dist/static-event-target.js",
+    "./typed-event": "./dist/typed-event.js"
   },
   "imports": {
     "#custom-event": {
-      "types": [
-        "./src/lib/custom-event/node.ts",
-        "./dist/lib/custom-event/node.d.ts"
-      ],
-      "node": {
+      "browser": "./dist/lib/custom-event/browser.js",
+      "default": {
         "nyc-static-emitter": "./nyc/lib/custom-event/node.js",
         "default": "./dist/lib/custom-event/node.js"
-      },
-      "default": "./dist/lib/custom-event/browser.js"
+      }
     },
     "#typed-event": {
-      "types": [
-        "./src/lib/typed-event/type.ts",
-        "./dist/lib/typed-event/type.d.ts"
-      ],
+      "types":  "./dist/lib/typed-event/type.d.ts",
       "nyc-static-emitter": "./nyc/lib/typed-event/typed-event.js",
       "default": "./dist/lib/typed-event/typed-event.js"
     },
     "#static-event-target": {
-      "types": [
-        "./src/lib/static-event-target/type.ts",
-        "./dist/lib/static-event-target/type.d.ts"
-      ],
+      "types": "./dist/lib/static-event-target/type.d.ts",
       "nyc-static-emitter": "./nyc/lib/static-event-target/static-event-target.js",
       "default": "./dist/lib/static-event-target/static-event-target.js"
     }

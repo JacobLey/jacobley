@@ -1,6 +1,6 @@
 {
   "name": "rivendell",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Preprocessor for monorepo CI configs.",
   "engines": {
     "node": ">=16.15"
@@ -32,11 +32,7 @@
   "main": "./dist/rivendell.js",
   "exports": {
     ".": {
-      "types": [
-        "./src/rivendell.ts",
-        "./dist/rivendell.d.ts"
-      ],
-      "default": "./dist/rivendell.js"
+      "node": "./dist/rivendell.js"
     }
   },
   "bin": {

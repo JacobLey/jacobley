@@ -1,6 +1,6 @@
 {
   "name": "entry-script",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Modular control for entry script execution.",
   "engines": {
     "node": ">=14.5"
@@ -29,13 +29,7 @@
   },
   "main": "./dist/index.js",
   "exports": {
-    ".": {
-      "types": [
-        "./src/index.ts",
-        "./dist/index.d.ts"
-      ],
-      "default": "./dist/index.js"
-    }
+    ".": "./dist/index.js"
   },
   "dependencies": {
     "default-import": "workspace:^",

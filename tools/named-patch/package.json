@@ -1,6 +1,6 @@
 {
   "name": "named-patch",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Higher order function for patching named export functions.",
   "engines": {
     "node": ">=14"
@@ -31,10 +31,7 @@
   "main": "./dist/patch.js",
   "exports": {
     ".": {
-      "types": [
-        "./src/patch.ts",
-        "./dist/patch.d.ts"
-      ],
+      "types": "./dist/patch.d.ts",
       "patchable": "./dist/patch.js",
       "default": "./dist/noop.js"
     }

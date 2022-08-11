@@ -1,6 +1,6 @@
 {
   "name": "barrelify",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Auto-generate TS barrel files.",
   "engines": {
     "node": ">=14.5"
@@ -28,13 +28,7 @@
   },
   "main": "./dist/barrelify.js",
   "exports": {
-    ".": {
-      "types": [
-        "./src/barrelify.ts",
-        "./dist/barrelify.d.ts"
-      ],
-      "default": "./dist/barrelify.js"
-    }
+    ".": "./dist/barrelify.js"
   },
   "bin": {
     "barrel-local": "./cli.mjs",

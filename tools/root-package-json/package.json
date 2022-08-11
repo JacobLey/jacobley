@@ -1,6 +1,6 @@
 {
   "name": "root-package-json",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Find the root package.json from an npm workspace.",
   "engines": {
     "node": ">=14"
@@ -30,10 +30,6 @@
   "main": "./dist/root-package-json.js",
   "exports": {
     ".": {
-      "types": [
-        "./src/root-package-json.ts",
-        "./dist/root-package-json.d.ts"
-      ],
       "node": "./dist/root-package-json.js"
     }
   },

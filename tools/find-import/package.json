@@ -1,6 +1,6 @@
 {
   "name": "find-import",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Find and load first instance of js/json in parent directories.",
   "engines": {
     "node": ">=14"
@@ -29,13 +29,7 @@
   },
   "main": "./dist/find-import.js",
   "exports": {
-    ".": {
-      "types": [
-        "./src/find-import.ts",
-        "./dist/find-import.d.ts"
-      ],
-      "default": "./dist/find-import.js"
-    }
+    ".": "./dist/find-import.js"
   },
   "dependencies": {
     "parse-cwd": "workspace:^"

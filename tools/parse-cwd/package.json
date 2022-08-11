@@ -1,6 +1,6 @@
 {
   "name": "parse-cwd",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Convert relative path or URL to full path",
   "engines": {
     "node": ">=14"
@@ -30,10 +30,6 @@
   "main": "./dist/parse-cwd.js",
   "exports": {
     ".": {
-      "types": [
-        "./src/parse-cwd.ts",
-        "./dist/parse-cwd.d.ts"
-      ],
       "node": "./dist/parse-cwd.js"
     }
   },

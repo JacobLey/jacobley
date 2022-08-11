@@ -1,6 +1,6 @@
 {
   "name": "punycode-esm",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Typescript + ESM version of punycode.js",
   "engines": {
     "node": ">=14"
@@ -30,13 +30,7 @@
   },
   "main": "./dist/punycode.js",
   "exports": {
-    ".": {
-      "types": [
-        "./src/punycode.ts",
-        "./dist/punycode.d.ts"
-      ],
-      "default": "./dist/punycode.js"
-    }
+    ".": "./dist/punycode.js"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
