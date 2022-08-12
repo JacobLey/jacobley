@@ -9,15 +9,15 @@
   "author": "jacobley",
   "license": "MIT",
   "repository": "jacobley/jacobley",
-  "homepage": "https://github.com/JacobLey/jacobley/tree/main/tools/named-patch#readme",
+  "homepage": "https://github.com/JacobLey/jacobley/tree/main/tools/iso-crypto#readme",
   "bugs": {
     "url": "https://github.com/jacobley/jacobley/issues"
   },
   "keywords": [
-    "higher order function",
-    "named export",
-    "patch",
-    "stub"
+    "cryptography",
+    "isomorphic",
+    "ecdh",
+    "encryption"
   ],
   "sideEffects": false,
   "scripts": {
