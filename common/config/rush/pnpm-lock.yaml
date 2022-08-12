@@ -308,12 +308,9 @@ importers:
       chai: ^4.3.6
       expect-type: ^0.13.0
       mocha: ^10.0.0
-      named-patch: workspace:^
       nyc: ^15.1.0
       sinon: ^14.0.0
       typescript: ^4.7.2
-    dependencies:
-      named-patch: link:../named-patch
     devDependencies:
       '@types/chai': 4.3.3
       '@types/mocha': 9.1.1
