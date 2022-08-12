@@ -25,6 +25,9 @@ jobs:
           - name: enum-to-array
             safe-name: enum-to-array
             path: tools/enum-to-array
+          - name: iso-crypto
+            safe-name: iso-crypto
+            path: tools/iso-crypto
           - name: named-patch
             safe-name: named-patch
             path: tools/named-patch
@@ -46,9 +49,6 @@ jobs:
           - name: find-import
             safe-name: find-import
             path: tools/find-import
-          - name: iso-crypto
-            safe-name: iso-crypto
-            path: tools/iso-crypto
           - name: juniper
             safe-name: juniper
             path: apps/juniper
