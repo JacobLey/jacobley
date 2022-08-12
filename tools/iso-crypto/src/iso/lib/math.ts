@@ -12,7 +12,7 @@
 // Given the single use case of this library, combined with built-in validations, this module only
 // implements the bare minimum logic. Validating inputs or handling special cases like Infinity are ignored.
 
-interface Point {
+export interface Point {
     readonly x: bigint;
     readonly y: bigint;
 }

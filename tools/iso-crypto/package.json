@@ -28,27 +28,59 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/node.js",
+  "main": "./dist/index.js",
   "exports": {
-    ".": {
-      "types": [
-        "./src/node.ts",
-        "./dist/node.d.ts"
-      ],
-      "browser": "./dist/browser.js",
-      "default": "./dist/node.js"
-    }
+    ".": "./dist/index.js"
   },
   "imports": {
     "#base64": {
-      "types": "./src/lib/base64/browser.ts",
-      "browser": "./dist/lib/base64/browser.js",
-      "default": "./dist/lib/base64/node.js"
+      "node": {
+        "nyc-iso-crypto": "./nyc/iso/base64/node.js",
+        "default": "./dist/iso/base64/node.js"
+      },
+      "default": "./dist/iso/base64/browser.js"
     },
     "#crypto": {
-      "types": "./src/lib/crypto/browser.ts",
-      "browser": "./dist/lib/crypto/browser.js",
-      "default": "./dist/lib/crypto/node.js"
+      "browser": "./dist/iso/crypto/browser.js",
+      "default": {
+        "nyc-iso-crypto": "./nyc/iso/crypto/node.js",
+        "default": "./dist/iso/crypto/node.js"
+      }
+    },
+    "#ecc": {
+      "browser": "./dist/iso/ecc/browser.js",
+      "default": {
+        "nyc-iso-crypto": "./nyc/iso/ecc/node.js",
+        "default": "./dist/iso/ecc/node.js"
+      }
+    },
+    "#encode": {
+      "browser": "./dist/iso/encode/browser.js",
+      "default": {
+        "nyc-iso-crypto": "./nyc/iso/encode/node.js",
+        "default": "./dist/iso/encode/node.js"
+      }
+    },
+    "#hash": {
+      "browser": "./dist/iso/hash/browser.js",
+      "default": {
+        "nyc-iso-crypto": "./nyc/iso/hash/node.js",
+        "default": "./dist/iso/hash/node.js"
+      }
+    },
+    "#random": {
+      "browser": "./dist/iso/random/browser.js",
+      "default": {
+        "nyc-iso-crypto": "./nyc/iso/random/node.js",
+        "default": "./dist/iso/random/node.js"
+      }
+    },
+    "#sync-encrypt": {
+      "browser": "./dist/iso/sync-encrypt/browser.js",
+      "default": {
+        "nyc-iso-crypto": "./nyc/iso/sync-encrypt/node.js",
+        "default": "./dist/iso/sync-encrypt/node.js"
+      }
     }
   },
   "dependencies": {
