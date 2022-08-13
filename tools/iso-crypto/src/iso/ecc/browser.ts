@@ -1,6 +1,6 @@
 import crypto from '#crypto';
 import { decode, encode } from '#encode';
-import { hashedDecrypt, hashedEncrypt } from '#sym-encrypt';
+import { decrypt, encrypt } from '../../encrypt.js';
 import { padBytes } from '../lib/bytes-length.js';
 import { derivePublicKey, p256, type Point } from '../lib/math.js';
 import { defaultEncryption, type InputText, type Methods } from '../lib/types.js';
@@ -119,11 +119,10 @@ export const eccEncrypt: Methods['eccEncrypt'] = async ({
         encrypted,
         jwk,
     ] = await Promise.all([
-        hashedEncrypt(
-            decode(data),
-            secretKey.secret,
-            encryption
-        ),
+        encrypt({
+            data,
+            secret: secretKey.secret,
+        }, { encryption, hash: 'raw' }),
         crypto.subtle.exportKey('jwk', secretKey.privateEc),
     ]);
 
@@ -152,10 +151,9 @@ export const eccDecrypt: Methods['eccDecrypt'] = async ({
 
     const { secret } = await eccSecret({ privateKey, publicKey });
 
-    return hashedDecrypt(
-        decode(encrypted),
-        decode(iv),
+    return decrypt({
+        encrypted,
+        iv,
         secret,
-        encryption
-    );
+    }, { encryption, hash: 'raw' });
 };

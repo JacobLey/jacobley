@@ -49,19 +49,29 @@ export interface Methods {
         secret: InputText,
         algorithm?: Hash | undefined
     ) => Promise<Uint8Array>;
-    hashedEncrypt: (
-        data: Uint8Array,
-        secret: Promise<Uint8Array> | Uint8Array,
-        encryption: Encryption
+    encrypt: (
+        params: {
+            data: InputText;
+            secret: InputText;
+        },
+        options?: {
+            encryption?: Encryption | undefined;
+            hash?: Hash | undefined;
+        }
     ) => Promise<{
         encrypted: Uint8Array;
         iv: Uint8Array;
     }>;
-    hashedDecrypt: (
-        encrypted: Uint8Array,
-        iv: Uint8Array,
-        secret: Uint8Array,
-        encryption: Encryption
+    decrypt: (
+        params: {
+            encrypted: InputText;
+            iv: InputText;
+            secret: InputText;
+        },
+        options?: {
+            encryption?: Encryption | undefined;
+            hash?: Hash | undefined;
+        }
     ) => Promise<Uint8Array>;
     generateEccPrivateKey: () => Promise<Uint8Array>;
     generateEccPublicKey: (privateKey: InputText) => Uint8Array;

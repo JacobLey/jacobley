@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 import { expectTypeOf } from 'expect-type';
 import type { Context } from 'mocha';
-import * as Encrypt from '../../../encrypt.js';
+import type * as Encrypt from '../../../encrypt.js';
 import * as IsoCrypto from '../../../index.js';
-import * as BrowserSymEncrypt from '../../../iso/sym-encrypt/browser.js';
-import { symEncrypt } from '../../../iso/sym-encrypt/encrypt.js';
-import * as NodeSymEncrypt from '../../../iso/sym-encrypt/node.js';
+import * as BrowserEncrypt from '../../../iso/encrypt/browser.js';
+import * as NodeEncrypt from '../../../iso/encrypt/node.js';
 
 interface EncryptTest extends Context {
     source: typeof Encrypt;
@@ -15,20 +14,20 @@ interface EncryptTest extends Context {
 export const EncryptSpec = {
 
     types() {
-        expectTypeOf(BrowserSymEncrypt).toEqualTypeOf(NodeSymEncrypt);
-        expectTypeOf(IsoCrypto).toMatchTypeOf(Encrypt);
+        expectTypeOf(BrowserEncrypt).toEqualTypeOf(NodeEncrypt);
+        expectTypeOf(IsoCrypto).toMatchTypeOf(NodeEncrypt);
     },
 
     'From Browser': {
 
         beforeEach(this: EncryptTest) {
-            this.source = symEncrypt(BrowserSymEncrypt);
+            this.source = BrowserEncrypt;
         },
 
         'To Browser': {
 
             beforeEach(this: EncryptTest) {
-                this.target = symEncrypt(BrowserSymEncrypt);
+                this.target = BrowserEncrypt;
             },
 
             async success(this: EncryptTest) {
@@ -91,7 +90,7 @@ export const EncryptSpec = {
         'To Node': {
 
             beforeEach(this: EncryptTest) {
-                this.target = symEncrypt(NodeSymEncrypt);
+                this.target = NodeEncrypt;
             },
 
             async success(this: EncryptTest) {
@@ -153,13 +152,13 @@ export const EncryptSpec = {
     'From Node': {
 
         beforeEach(this: EncryptTest) {
-            this.source = symEncrypt(NodeSymEncrypt);
+            this.source = NodeEncrypt;
         },
 
         'To Browser': {
 
             beforeEach(this: EncryptTest) {
-                this.target = symEncrypt(BrowserSymEncrypt);
+                this.target = BrowserEncrypt;
             },
 
             async success(this: EncryptTest) {
@@ -170,7 +169,7 @@ export const EncryptSpec = {
         'To Node': {
 
             beforeEach(this: EncryptTest) {
-                this.target = symEncrypt(NodeSymEncrypt);
+                this.target = NodeEncrypt;
             },
 
             async success(this: EncryptTest) {

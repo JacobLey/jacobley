@@ -67,6 +67,13 @@
         "default": "./dist/iso/encode/node.js"
       }
     },
+    "#encrypt": {
+      "browser": "./dist/iso/encrypt/browser.js",
+      "default": {
+        "nyc-iso-crypto": "./nyc/iso/encrypt/node.js",
+        "default": "./dist/iso/encrypt/node.js"
+      }
+    },
     "#hash": {
       "browser": "./dist/iso/hash/browser.js",
       "default": {
@@ -79,13 +86,6 @@
       "default": {
         "nyc-iso-crypto": "./nyc/iso/random/node.js",
         "default": "./dist/iso/random/node.js"
-      }
-    },
-    "#sym-encrypt": {
-      "browser": "./dist/iso/sym-encrypt/browser.js",
-      "default": {
-        "nyc-iso-crypto": "./nyc/iso/sym-encrypt/node.js",
-        "default": "./dist/iso/sym-encrypt/node.js"
       }
     }
   },

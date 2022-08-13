@@ -1,8 +1,10 @@
 import crypto from '#crypto';
+import { decode } from '#encode';
+import { hash } from '#hash';
 import { randomBytes } from '#random';
 import { fixBytes } from '../lib/bytes-length.js';
 import { encryptionMeta } from '../lib/size-meta.js';
-import { type Encryption, type Methods } from '../lib/types.js';
+import { defaultEncryption, defaultHash, type Encryption, type Methods } from '../lib/types.js';
 
 const encryptionToAlgorithm = (
     encryption: Encryption
@@ -11,22 +13,28 @@ const encryptionToAlgorithm = (
     length: encryption.size / 2,
 });
 
-export const hashedEncrypt: Methods['hashedEncrypt'] = async (
-    data,
-    secretPromise,
-    encryption
+export const encrypt: Methods['encrypt'] = async (
+    {
+        data,
+        secret,
+    },
+    {
+        encryption = defaultEncryption,
+        hash: hashAlgorithm = defaultHash,
+    } = {}
 ) => {
 
     const sizes = encryptionMeta(encryption);
-    const [iv, secret] = await Promise.all([
-        randomBytes(sizes.iv),
-        secretPromise,
-    ]);
     const algorithm = encryptionToAlgorithm(encryption);
+
+    const [iv, secretHash] = await Promise.all([
+        randomBytes(sizes.iv),
+        hash(secret, hashAlgorithm),
+    ]);
 
     const key = await crypto.subtle.importKey(
         'raw',
-        fixBytes(secret, sizes.secret),
+        fixBytes(secretHash, sizes.secret),
         algorithm.name,
         false,
         ['encrypt']
@@ -39,7 +47,7 @@ export const hashedEncrypt: Methods['hashedEncrypt'] = async (
             iv,
         },
         key,
-        data
+        decode(data)
     );
 
     return {
@@ -47,32 +55,41 @@ export const hashedEncrypt: Methods['hashedEncrypt'] = async (
         iv,
     };
 };
-export const hashedDecrypt: Methods['hashedDecrypt'] = async (
-    encrypted,
-    iv,
-    secret,
-    encryption
+export const decrypt: Methods['decrypt'] = async (
+    {
+        encrypted,
+        iv,
+        secret,
+    },
+    {
+        encryption = defaultEncryption,
+        hash: hashAlgorithm = defaultHash,
+    } = {}
 ) => {
 
     const sizes = encryptionMeta(encryption);
     const algorithm = encryptionToAlgorithm(encryption);
 
+    const hashedSecret = await hash(secret, hashAlgorithm);
+
     const key = await crypto.subtle.importKey(
         'raw',
-        fixBytes(secret, sizes.secret),
+        fixBytes(hashedSecret, sizes.secret),
         algorithm.name,
         false,
         ['decrypt']
     );
 
+    const decodedIv = decode(iv);
+
     const decrypted = await crypto.subtle.decrypt(
         {
             ...algorithm,
-            counter: iv,
-            iv,
+            counter: decodedIv,
+            iv: decodedIv,
         },
         key,
-        encrypted
+        decode(encrypted)
     );
 
     return new Uint8Array(decrypted);
