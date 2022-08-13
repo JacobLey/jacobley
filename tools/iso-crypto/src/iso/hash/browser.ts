@@ -1,5 +1,5 @@
 import crypto from '#crypto';
-import { encode } from '#encode';
+import { decode } from '#encode';
 import { defaultHash, type HashAlgorithm, type Methods } from '../lib/types.js';
 
 const hashAlgorithm = ({
@@ -17,15 +17,15 @@ export const hash: Methods['hash'] = async (
     algorithm = defaultHash
 ) => {
 
-    const encoded = encode(secret);
+    const decoded = decode(secret);
 
     if (algorithm === 'raw') {
-        return encoded;
+        return decoded;
     }
 
     const buffer = await crypto.subtle.digest(
         hashAlgorithm(algorithm),
-        encoded
+        decoded
     );
     return new Uint8Array(buffer);
 };

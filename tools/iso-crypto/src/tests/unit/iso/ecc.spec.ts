@@ -72,7 +72,7 @@ export const EccSpec = {
                         privateKey: targetPrivateKey,
                     }, options);
 
-                    expect(IsoCrypto.decode(decrypted)).to.equal(data);
+                    expect(IsoCrypto.encode(decrypted)).to.equal(data);
                 }
             },
         },
@@ -126,13 +126,13 @@ export const EccSpec = {
                 },
             ] as const) {
 
-                const decrypted = await this.source.eccDecrypt(IsoCrypto.encodeObject({
+                const decrypted = await this.source.eccDecrypt(IsoCrypto.decodeObject({
                     encrypted,
                     iv,
                     privateKey,
                     publicKey,
                 }, 'hex'), { encryption });
-                expect(IsoCrypto.decode(decrypted)).to.equal(output);
+                expect(IsoCrypto.encode(decrypted)).to.equal(output);
             }
         },
     },

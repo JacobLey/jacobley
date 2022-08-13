@@ -39,8 +39,8 @@ export type InputText = string | Uint8Array | {
 };
 
 export interface Methods {
-    encode: (input: InputText) => Uint8Array;
-    decode: (
+    decode: (input: InputText) => Uint8Array;
+    encode: (
         input: InputText,
         encoding?: Encoding | undefined
     ) => string;

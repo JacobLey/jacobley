@@ -42,7 +42,7 @@ const fromHex = (str: string): Uint8Array => {
     );
 };
 
-export const encode: Methods['encode'] = input => {
+export const decode: Methods['decode'] = input => {
 
     const { encoding, text } = inputToEncoding(input);
 
@@ -59,12 +59,12 @@ export const encode: Methods['encode'] = input => {
     return fromBase64(text);
 };
 
-export const decode: Methods['decode'] = (
+export const encode: Methods['encode'] = (
     input,
     encoding = defaultEncoding
 ) => {
 
-    const buffer = encode(input);
+    const buffer = decode(input);
 
     if (encoding === 'utf8') {
         return decoder.decode(buffer);

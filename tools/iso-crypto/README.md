@@ -63,8 +63,8 @@ npm i iso-crypto
 ```ts
 import { decode, encode } from 'iso-crypto';
 
-const buffer: Uint8Array = encode('This is my text');
-const decoded = decode(buffer); // 'This is my text'
+const buffer: Uint8Array = decode('This is my text');
+const encoded = encode(buffer); // 'This is my text'
 ```
 
 ### Random
@@ -94,7 +94,7 @@ const customHashed: Uint8Array = await hash(
 ### Symmetric Encryption
 
 ```ts
-import { decode, decrypt, encrypt } from 'iso-crypto';
+import { decrypt, encode, encrypt } from 'iso-crypto';
 
 const secret = 'Super duper secret password';
 
@@ -102,7 +102,7 @@ const encrypted = await encrypt({
     data: 'This is my message',
     secret,
 });
-const decrypted = decode(await decrypt({
+const decrypted = encode(await decrypt({
     ...encrypted,
     secret,
 })); // 'This is my message'
@@ -121,7 +121,7 @@ const customAlgEncrypted = await encrypt(
         },
     }
 );
-const customAlgDecrypted = decode(await decrypt(
+const customAlgDecrypted = encode(await decrypt(
     {
         ...customAlgDecrypted,
         secret,
@@ -140,7 +140,7 @@ const customAlgDecrypted = decode(await decrypt(
 ### ECC
 
 ```ts
-import { decode, eccDecrypt, eccEncrypt, generateEccPrivateKey, generateEccPublicKey } from 'iso-crypto';
+import { eccDecrypt, eccEncrypt, encode, generateEccPrivateKey, generateEccPublicKey } from 'iso-crypto';
 
 const anne: Uint8Array = await generateEccPrivateKey();
 const bob: Uint8Array = await generateEccPrivateKey();
@@ -150,7 +150,7 @@ const fromAnneEncrypted = await eccEncrypt({
     privateKey: anne,
     publicKey: generateEccPublicKey(bob),
 });
-const fromAnneDecrypted = decode(await eccDecrypt({
+const fromAnneDecrypted = encode(await eccDecrypt({
     ...fromAnneEncrypted,
     privateKey: bob,
 })); // 'Hello, would you like a cup to tea?'
@@ -169,7 +169,7 @@ const fromBobEncrypted = await eccEncrypt(
         },
     }
 );
-const fromBobDecrypted = decode(await eccDecrypt(
+const fromBobDecrypted = encode(await eccDecrypt(
     {
         ...fromBobEncrypted,
         privateKey: anne,
@@ -189,7 +189,7 @@ const fromBobDecrypted = decode(await eccDecrypt(
 
 iso-crypto is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { eccEncrypt } = await import('iso-crypto');`.
 
-Most cryptographic methods return instances of [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array), instead of strings. Those can decoded as text via the `decode` method. In NodeJS the response is often actually a [`Buffer`](https://nodejs.org/api/buffer.html) which extends `Uint8Array`.
+Most cryptographic methods return instances of [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array), instead of strings. Those can encoded as text via the `encode` method. In NodeJS the response is often actually a [`Buffer`](https://nodejs.org/api/buffer.html) which extends `Uint8Array`.
 
 Any method that takes input "text" allows 3 formats:
 * string - inferred as `UTF8` encoding
@@ -286,7 +286,7 @@ Type used to represent allowed text/data input.
 
 `string | Uint8Array | { text: string; encoding: string }`.
 
-To verify the "buffer" input, pass the text to `encode` (which is done internally).
+To verify the "buffer" input, pass the text to `decode` (which is done internally).
 
 A plain string is inferred to be `UTF8` encoded.
 
@@ -308,39 +308,39 @@ Type used to represent a specific symmetric encryption algorithm.
 
 [See MDN Docs](https://developer.mozilla.org/en-US/docs/Web/API/atob).
 
-Direct usage is generally discouraged (see `encode`) but has been isomorphically implemented internally, and exposed for potential convenience.
+Direct usage is generally discouraged (see `decode`) but has been isomorphically implemented internally, and exposed for potential convenience.
 
 ### btoa
 
 [See MDN Docs](https://developer.mozilla.org/en-US/docs/Web/API/btoa).
 
-Direct usage is generally discouraged (see `decode`) but has been isomorphically implemented internally, and exposed for potential convenience.
+Direct usage is generally discouraged (see `encode`) but has been isomorphically implemented internally, and exposed for potential convenience.
 
 ### randomBytes(size: number)
 
 Produces a promise of Uint8Array of length `size` filled with random bytes.
 
-### encode(input: InputText)
+### decode(input: InputText)
 
-Encodes any input as Uint8Array, given the provided encoding (see `InputText`).
+Decodes any input as Uint8Array, given the provided encoding (see `InputText`).
 
-### decode(input: InputText, outputEncoding?: string)
+### encode(input: InputText, outputEncoding?: string)
 
-Decodes any input (ideally as Uint8Array, but potentially as a differently encoded text) as the desired encoding.
+Encodes any input (ideally as Uint8Array, but potentially as a differently encoded text) as the desired encoding.
 
 Defaults to `UTF8`.
 
-### encodeObject(input: Record<string, string>)
+### decodeObject(input: Record<string, string>)
 
-Encodes each attribute in an object to `Uint8Array`. Convenience method around manually calling `encode`.
+Decodes each attribute in an object to `Uint8Array`. Convenience method around manually calling `decode` for each attribute.
 
-Potentially useful for converting serialized text (e.g. JSON containing hex-encoded data) to usable buffers.
+Potentially useful for converting serialized text (e.g. JSON containing hex-decoded data) to usable buffers.
 
-### decodeObject(input: Record<string, Uint8Array>)
+### encodeObject(input: Record<string, Uint8Array>)
 
-Encodes each attribute in an object to string. Convenience method around manually calling `decode`.
+Encodes each attribute in an object to string. Convenience method around manually calling `encode` for each attribute.
 
-Potentially useful for serializing encoded text.
+Potentially useful for serializing decoded text (JSON does not like raw Uint8Array).
 
 ### hash(input: InputText, algorithm?: Algorithm)
 

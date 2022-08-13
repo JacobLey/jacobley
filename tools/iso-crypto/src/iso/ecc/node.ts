@@ -1,5 +1,5 @@
 import { createECDH, type ECDH, type ECDHKeyFormat } from 'node:crypto';
-import { encode } from '#encode';
+import { decode } from '#encode';
 import { hashedDecrypt, hashedEncrypt } from '#sym-encrypt';
 import { padBytes } from '../lib/bytes-length.js';
 import { defaultEncryption, type Methods } from '../lib/types.js';
@@ -16,7 +16,7 @@ export const generateEccPrivateKey: Methods['generateEccPrivateKey'] = async ():
 };
 export const generateEccPublicKey: Methods['generateEccPublicKey'] = privateKey => {
     const ecdh = createECDH('prime256v1');
-    ecdh.setPrivateKey(encode(privateKey));
+    ecdh.setPrivateKey(decode(privateKey));
     return getCompressedPublicKey(ecdh);
 };
 
@@ -27,11 +27,11 @@ export const eccEncrypt: Methods['eccEncrypt'] = async ({
 }, { encryption = defaultEncryption } = {}) => {
 
     const ecdh = createECDH('prime256v1');
-    ecdh.setPrivateKey(encode(privateKey));
+    ecdh.setPrivateKey(decode(privateKey));
 
     const encrypted = await hashedEncrypt(
-        encode(data),
-        ecdh.computeSecret(encode(publicKey)),
+        decode(data),
+        ecdh.computeSecret(decode(publicKey)),
         encryption
     );
 
@@ -48,12 +48,12 @@ export const eccDecrypt: Methods['eccDecrypt'] = async ({
 }, { encryption = defaultEncryption } = {}) => {
 
     const ecdh = createECDH('prime256v1');
-    ecdh.setPrivateKey(encode(privateKey));
+    ecdh.setPrivateKey(decode(privateKey));
 
     return hashedDecrypt(
-        encode(encrypted),
-        encode(iv),
-        ecdh.computeSecret(encode(publicKey)),
+        decode(encrypted),
+        decode(iv),
+        ecdh.computeSecret(decode(publicKey)),
         encryption
     );
 };

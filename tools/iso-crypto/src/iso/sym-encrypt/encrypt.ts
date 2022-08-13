@@ -1,4 +1,4 @@
-import { encode } from '#encode';
+import { decode } from '#encode';
 import { hash } from '#hash';
 import type * as SymEncrypt from '#sym-encrypt';
 import { defaultEncryption, type Encryption, type Hash, type InputText } from '../lib/types.js';
@@ -46,7 +46,7 @@ export const symEncrypt = (mod: typeof SymEncrypt): Encrypt => ({
         },
         options = {}
     ) => mod.hashedEncrypt(
-        encode(data),
+        decode(data),
         hash(secret, options.hash),
         options.encryption ?? defaultEncryption
     ),
@@ -58,8 +58,8 @@ export const symEncrypt = (mod: typeof SymEncrypt): Encrypt => ({
         },
         options = {}
     ) => mod.hashedDecrypt(
-        encode(encrypted),
-        encode(iv),
+        decode(encrypted),
+        decode(iv),
         await hash(secret, options.hash),
         options.encryption ?? defaultEncryption
     ),

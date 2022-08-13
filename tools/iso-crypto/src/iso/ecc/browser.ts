@@ -15,12 +15,12 @@ export const generateEccPrivateKey: Methods['generateEccPrivateKey'] = async () 
         ['deriveKey']
     );
     const key = await crypto.subtle.exportKey('jwk', ecdh.privateKey);
-    return encode({ text: key.d!, encoding: 'base64url' });
+    return decode({ text: key.d!, encoding: 'base64url' });
 };
 
 const deriveP256PublicKey = (privateKey: InputText): Point => {
 
-    const hex = decode(encode(privateKey), 'hex');
+    const hex = encode(decode(privateKey), 'hex');
 
     return derivePublicKey(
         BigInt(`0x${hex}`),
@@ -30,8 +30,8 @@ const deriveP256PublicKey = (privateKey: InputText): Point => {
 const deriveP256PublicKeyBase64 = (privateKey: InputText): { x: string; y: string } => {
     const { x, y } = deriveP256PublicKey(privateKey);
     return {
-        x: decode(padBytes(encode({ text: x.toString(16), encoding: 'hex' }), 32), 'base64url'),
-        y: decode(padBytes(encode({ text: y.toString(16), encoding: 'hex' }), 32), 'base64url'),
+        x: encode(padBytes(decode({ text: x.toString(16), encoding: 'hex' }), 32), 'base64url'),
+        y: encode(padBytes(decode({ text: y.toString(16), encoding: 'hex' }), 32), 'base64url'),
     };
 };
 
@@ -41,7 +41,7 @@ export const generateEccPublicKey: Methods['generateEccPublicKey'] = privateKey 
 
     // eslint-disable-next-line no-bitwise
     const hex = (2n + (y & 1n)).toString(4) + x.toString(16).padStart(64, '0');
-    return padBytes(encode({ text: hex, encoding: 'hex' }), 33);
+    return padBytes(decode({ text: hex, encoding: 'hex' }), 33);
 };
 
 const eccSecret = async ({ privateKey, publicKey }: {
@@ -52,7 +52,7 @@ const eccSecret = async ({ privateKey, publicKey }: {
     privateEc: CryptoKey;
 }> => {
 
-    const bufferPrivateKey = encode(privateKey);
+    const bufferPrivateKey = decode(privateKey);
 
     const [
         privateEc,
@@ -63,7 +63,7 @@ const eccSecret = async ({ privateKey, publicKey }: {
             {
                 crv: 'P-256',
                 kty: 'EC',
-                d: decode(bufferPrivateKey, 'base64url'),
+                d: encode(bufferPrivateKey, 'base64url'),
                 ...deriveP256PublicKeyBase64(bufferPrivateKey),
             },
             {
@@ -75,7 +75,7 @@ const eccSecret = async ({ privateKey, publicKey }: {
         ),
         crypto.subtle.importKey(
             'raw',
-            encode(publicKey),
+            decode(publicKey),
             {
                 name: 'ECDH',
                 namedCurve: 'P-256',
@@ -120,7 +120,7 @@ export const eccEncrypt: Methods['eccEncrypt'] = async ({
         jwk,
     ] = await Promise.all([
         hashedEncrypt(
-            encode(data),
+            decode(data),
             secretKey.secret,
             encryption
         ),
@@ -128,14 +128,14 @@ export const eccEncrypt: Methods['eccEncrypt'] = async ({
     ]);
 
     // eslint-disable-next-line no-bitwise
-    const odd = encode({ text: jwk.y!, encoding: 'base64url' }).reverse()[0]! & 1;
+    const odd = decode({ text: jwk.y!, encoding: 'base64url' }).reverse()[0]! & 1;
 
-    const hexPublic = decode(encode({ text: jwk.x!, encoding: 'base64url' }), 'hex');
+    const hexPublic = encode(decode({ text: jwk.x!, encoding: 'base64url' }), 'hex');
 
     return {
         ...encrypted,
         publicKey: padBytes(
-            encode({
+            decode({
                 text: (2 + odd).toString(4) + hexPublic,
                 encoding: 'hex',
             }),
@@ -153,8 +153,8 @@ export const eccDecrypt: Methods['eccDecrypt'] = async ({
     const { secret } = await eccSecret({ privateKey, publicKey });
 
     return hashedDecrypt(
-        encode(encrypted),
-        encode(iv),
+        decode(encrypted),
+        decode(iv),
         secret,
         encryption
     );

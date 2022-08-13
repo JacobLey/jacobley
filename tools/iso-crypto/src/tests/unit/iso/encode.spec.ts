@@ -17,7 +17,7 @@ export const EncodeSpec = {
         expectTypeOf(IsoCrypto).toMatchTypeOf(NodeEncode);
     },
 
-    encode: {
+    decode: {
 
         browser: {
 
@@ -77,7 +77,7 @@ export const EncodeSpec = {
                             output: [],
                         },
                     ]) {
-                        const buf = this.encode.encode({
+                        const buf = this.encode.decode({
                             text: input,
                             encoding,
                         });
@@ -111,7 +111,7 @@ export const EncodeSpec = {
                     },
                 ]) {
                     expect([
-                        ...this.encode.encode({
+                        ...this.encode.decode({
                             text: input,
                             encoding: 'hex',
                         }),
@@ -134,9 +134,9 @@ export const EncodeSpec = {
                         output: [0, 1, 50, 227, 145, 150],
                     },
                 ]) {
-                    const withDefault = this.encode.encode(input);
+                    const withDefault = this.encode.decode(input);
                     expect([...withDefault]).to.deep.equal(output);
-                    expect(withDefault).to.deep.equal(this.encode.encode({
+                    expect(withDefault).to.deep.equal(this.encode.decode({
                         text: input,
                         encoding: 'utf8',
                     }));
@@ -151,8 +151,8 @@ export const EncodeSpec = {
                     [],
                 ]) {
                     const buf = Buffer.from(arr);
-                    expect(this.encode.encode(buf)).to.eq(buf);
-                    expect(this.encode.encode({ text: buf, encoding: 'raw' })).to.eq(buf);
+                    expect(this.encode.decode(buf)).to.eq(buf);
+                    expect(this.encode.decode({ text: buf, encoding: 'raw' })).to.eq(buf);
                 }
             },
         },
@@ -164,20 +164,20 @@ export const EncodeSpec = {
             },
 
             base64(this: EncodeTest) {
-                EncodeSpec.encode.browser.base64.call(this);
+                EncodeSpec.decode.browser.base64.call(this);
             },
 
             hex(this: EncodeTest) {
-                EncodeSpec.encode.browser.hex.call(this);
+                EncodeSpec.decode.browser.hex.call(this);
             },
 
             utf8(this: EncodeTest) {
-                EncodeSpec.encode.browser.utf8.call(this);
+                EncodeSpec.decode.browser.utf8.call(this);
             },
         },
     },
 
-    decode: {
+    encode: {
 
         browser: {
 
@@ -221,7 +221,7 @@ export const EncodeSpec = {
                     },
                 ]) {
                     expect(
-                        this.encode.decode(Buffer.from(input), 'base64')
+                        this.encode.encode(Buffer.from(input), 'base64')
                     ).to.equal(output);
                 }
             },
@@ -262,7 +262,7 @@ export const EncodeSpec = {
                     },
                 ]) {
                     expect(
-                        this.encode.decode(Buffer.from(input), 'base64url')
+                        this.encode.encode(Buffer.from(input), 'base64url')
                     ).to.equal(output);
                 }
             },
@@ -287,7 +287,7 @@ export const EncodeSpec = {
                     },
                 ]) {
                     expect(
-                        this.encode.decode(Buffer.from(input), 'hex')
+                        this.encode.encode(Buffer.from(input), 'hex')
                     ).to.equal(output);
                 }
             },
@@ -308,9 +308,9 @@ export const EncodeSpec = {
                     },
                 ]) {
                     const bufInput = Buffer.from(input);
-                    const withDefault = this.encode.decode(bufInput);
+                    const withDefault = this.encode.encode(bufInput);
                     expect(withDefault).to.equal(output);
-                    expect(withDefault).to.equal(this.encode.decode(bufInput, 'utf8'));
+                    expect(withDefault).to.equal(this.encode.encode(bufInput, 'utf8'));
                 }
             },
         },
@@ -322,19 +322,19 @@ export const EncodeSpec = {
             },
 
             base64(this: EncodeTest) {
-                EncodeSpec.decode.browser.base64.call(this);
+                EncodeSpec.encode.browser.base64.call(this);
             },
 
             base64url(this: EncodeTest) {
-                EncodeSpec.decode.browser.base64url.call(this);
+                EncodeSpec.encode.browser.base64url.call(this);
             },
 
             hex(this: EncodeTest) {
-                EncodeSpec.decode.browser.hex.call(this);
+                EncodeSpec.encode.browser.hex.call(this);
             },
 
             utf8(this: EncodeTest) {
-                EncodeSpec.decode.browser.utf8.call(this);
+                EncodeSpec.encode.browser.utf8.call(this);
             },
         },
     },

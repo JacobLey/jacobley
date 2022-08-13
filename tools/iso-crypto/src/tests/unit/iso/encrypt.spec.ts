@@ -83,7 +83,7 @@ export const EncryptSpec = {
                         secret,
                     }, options);
 
-                    expect(IsoCrypto.decode(decrypted)).to.equal(data);
+                    expect(IsoCrypto.encode(decrypted)).to.equal(data);
                 }
             },
         },
@@ -145,7 +145,7 @@ export const EncryptSpec = {
                     iv: { text: iv, encoding: 'hex' },
                     secret,
                 }, { encryption, hash });
-                expect(IsoCrypto.decode(decrypted)).to.equal(output);
+                expect(IsoCrypto.encode(decrypted)).to.equal(output);
             }
         },
     },
