@@ -51,12 +51,12 @@ console.log(await parseCwd({ cwd: 'foo/bar/my-file.js' })); // /path/to/cwd/foo/
 await parseCwd('does/not/exist');
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 `parse-cwd` is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { parseCwd } = await import('parse-cwd');`.
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### parseCwd(cwd)

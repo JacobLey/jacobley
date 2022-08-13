@@ -90,7 +90,7 @@ rand[patchKey] = () => '<custom>';
 rand(['foo', 'bar']); // '<custom>'
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 `named-patch` is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { patch } = await import('named-patch');`.
@@ -106,7 +106,7 @@ Conditions may be set a number of ways:
 * `NODE_OPTIONS='--conditions=patchable' node ./my-script.js`
     * Frameworks like `mocha` provide setting these conditions via config's [`node-option`](https://mochajs.org/#-node-option-name-n-name).
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### patch(fn)

@@ -33,14 +33,14 @@ Juniper primarily supports [Draft 2020-12](https://json-schema.org/draft/2020-12
 
 Juniper does not provide any JSON Schema validation. Please use a validation library such as [Ajv](https://www.npmjs.com/package/ajv) for any validation. All examples in this documentation will use Ajv.
 
-<a name="Install"></a>
+<a name="install"></a>
 ## Install
 
 ```sh
 npm i juniper
 ```
 
-<a name="Example"></a>
+<a name="example"></a>
 ## Example
 
 ```ts
@@ -97,7 +97,7 @@ if (validator(unknownUserInput)) {
 }
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 Juniper is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { stringSchema } = await import('juniper');`.
@@ -183,7 +183,7 @@ Schemas come with a couple caveats:
 * `CustomSchema` is used to break out of the Juniper environment. It's usage is discouraged, but may be the best solution when dealing with instances where some JSON Schemas + typings already exist, and for gradual adoption of Juniper.
 * There is no `any` schema, as `any` is discouraged in favor of `unknown` (`MergeSchema`). If `any` is truly required, `CustomSchema` may be used (default output is "always valid" empty JSON Schema)
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### Helper Types

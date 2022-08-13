@@ -74,7 +74,7 @@ console.log(defaultImport(dynamicA)) // 123
 console.log(defaultImport(dynamicA.default)) // 123
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 `default-import` is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { defaultImport } = await import('default-import');`.
@@ -83,7 +83,7 @@ console.log(defaultImport(dynamicA.default)) // 123
 
 It is best used when the runtime/source is not entirely in control, such as NextJS (ESM on server, "commonjs" on browser).
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### defaultImport(*)

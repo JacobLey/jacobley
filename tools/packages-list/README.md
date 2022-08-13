@@ -84,12 +84,12 @@ console.log(packages);
 // ]
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 `packages-list` is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { listPackages } = await import('packages-list');`.
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### listPackages(options?)

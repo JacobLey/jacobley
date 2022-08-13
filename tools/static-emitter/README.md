@@ -61,7 +61,7 @@ myEmitter.emit('foo', [123]); // success!
 myEmitter.emit('bar', { wrong: null }); // Typescript error!
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 static-emitter is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { StaticEmitter, StaticEventTarget } = await import('static-emitter');`.
@@ -70,7 +70,7 @@ The `StaticEventTarget` is a type-cast of [EventTarget](https://developer.mozill
 
 The `StaticEmitter` is an extension of `StaticEventTarget`. It includes support for symbol events, non-event bodies, and EventEmitter-esque syntax.
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### TypedEvent

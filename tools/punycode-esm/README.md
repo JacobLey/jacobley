@@ -49,12 +49,12 @@ toUnicode('xn--maana-pta.com'); // 'mañana.com'
 toUnicode('xn----dqo34k.com'); // '☃-⌘.com'
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 `punycode-esm` is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { encode } = await import('punycode-esm');`.
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### `decode(string)`

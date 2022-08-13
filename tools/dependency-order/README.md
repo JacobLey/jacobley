@@ -76,7 +76,7 @@ console.log(order);
 // ]
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 `dependency-order` is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { dependencyOrder } = await import('dependency-order');`.
@@ -96,7 +96,7 @@ would fail because the package at `bar` is assumed to be named as such.
 
 This library is also not capable of handling circular dependencies and will throw.
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### dependencyOrder(options?)

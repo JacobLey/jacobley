@@ -120,7 +120,7 @@ Now executing `node ./my-app.js` will start the server as expected!
 
 But `import MyApp from './my-app.js';` will return the app class that is ripe for unit/integration testing!
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 `entry-script` is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { EntryScript } = await import('entry-script');`.
@@ -129,7 +129,7 @@ Any class that extends `EntryScript` must export itself as the `default` export.
 
 The `EntryScript` itself extends [StaticEmitter](https://www.npmjs.com/package/static-emitter) for event emitting convenience.
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### EntryScript

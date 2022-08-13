@@ -142,7 +142,7 @@ const useExample = () => {
 };
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 `normalized-react-query` is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { Resource } = await import('normalized-react-query');`.
@@ -189,7 +189,7 @@ const getUser = resource<User, string>(
 );
 ```
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ## Resource

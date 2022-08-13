@@ -75,12 +75,12 @@ found = await findImport(['my-file.cjs', 'my-file.json'], {
 found.filePath // /root/my-package/my-file.cjs
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 `find-import` is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { findImport } = await import('find-import');`.
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### findImport(fileNames, options?)

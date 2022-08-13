@@ -63,12 +63,12 @@ console.log(rootPackage);
 // }
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 `root-package-json` is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { rootPackageJson } = await import('root-package-json');`.
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 ### rootPackageJson(options?)

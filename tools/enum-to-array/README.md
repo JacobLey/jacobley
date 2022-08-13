@@ -44,7 +44,7 @@ console.log(enumToArray(MyEnum));
 // [{ key: 'FOO', value: 'BAR' }, { key: 'ABC', value: 123 }]
 ```
 
-<a name="usage"></a>
+<a name="Usage"></a>
 ## Usage
 
 enum-to-array is an ESM module. That means it _must_ be `import`ed. To load from a CJS module, use dynamic import `const { enumToArray } = await import('enum-to-array');`.
@@ -53,7 +53,7 @@ Due to the nature of `const enum`s, those are not usable with this library as th
 
 This can be partially resolved by using [preserveConstEnums](https://www.typescriptlang.org/tsconfig#preserveConstEnums).
 
-<a name="api"></a>
+<a name="Api"></a>
 ## API
 
 enum-to-array exports three functions:
