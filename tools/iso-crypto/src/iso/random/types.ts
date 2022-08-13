@@ -1,7 +1,3 @@
-import { randomBytes as randomBytesCb } from 'node:crypto';
-import { promisify } from 'node:util';
-import type * as Random from './types.js';
-
 /**
  * Generate a random array of bytes with provided length.
  *
@@ -12,4 +8,4 @@ import type * as Random from './types.js';
  * @param {number} size - number of bytes to generate
  * @returns {Promise<Uint8Array>} random bytes
  */
-export const randomBytes: typeof Random['randomBytes'] = promisify(randomBytesCb);
+export declare const randomBytes: (size: number) => Promise<Uint8Array>;

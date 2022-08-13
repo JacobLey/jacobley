@@ -1,6 +1,7 @@
 import { atob, btoa } from '#base64';
 import { inputToEncoding } from '../lib/input-to-encoding.js';
-import { defaultEncoding, type Methods } from '../lib/types.js';
+import { defaultEncoding } from '../lib/types.js';
+import type * as Encode from './types.js';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -42,7 +43,7 @@ const fromHex = (str: string): Uint8Array => {
     );
 };
 
-export const decode: Methods['decode'] = input => {
+export const decode: typeof Encode['decode'] = input => {
 
     const { encoding, text } = inputToEncoding(input);
 
@@ -59,7 +60,7 @@ export const decode: Methods['decode'] = input => {
     return fromBase64(text);
 };
 
-export const encode: Methods['encode'] = (
+export const encode: typeof Encode['encode'] = (
     input,
     encoding = defaultEncoding
 ) => {

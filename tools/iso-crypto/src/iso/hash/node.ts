@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { decode } from '#encode';
-import { defaultHash, type HashAlgorithm, type Methods } from '../lib/types.js';
+import { defaultHash, type HashAlgorithm } from '../lib/types.js';
+import type * as HashMethods from './types.js';
 
 const hashAlgorithm = ({
     algorithm,
@@ -12,7 +13,7 @@ const hashAlgorithm = ({
     return `sha${size}`;
 };
 
-export const hash: Methods['hash'] = async (
+export const hash: typeof HashMethods['hash'] = async (
     input,
     algorithm = defaultHash
 ) => {

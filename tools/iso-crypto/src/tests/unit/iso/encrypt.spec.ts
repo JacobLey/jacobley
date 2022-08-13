@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { expectTypeOf } from 'expect-type';
 import type { Context } from 'mocha';
-import type * as Encrypt from '../../../encrypt.js';
+import type * as Encrypt from '#encrypt';
 import * as IsoCrypto from '../../../index.js';
 import * as BrowserEncrypt from '../../../iso/encrypt/browser.js';
 import * as NodeEncrypt from '../../../iso/encrypt/node.js';

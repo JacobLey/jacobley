@@ -9,6 +9,15 @@ type Replace<From, To, T extends Record<string, From>> = {
 type Encoded<T extends Record<string, string>> = Replace<string, Uint8Array, T>;
 type Decoded<T extends Record<string, Uint8Array>> = Replace<Uint8Array, string, T>;
 
+/**
+ * Decode every attribute in an object.
+ *
+ * Convenience method when de-serializing encoded input (e.g. hex encoded text from JSON).
+ *
+ * @param {object} obj - map of key to string
+ * @param {string} [encoding] - encoding of strings, defaults to UTF8
+ * @returns {object} same interface as input, with Uint8Array
+ */
 export const decodeObject = <T extends Record<string, string>>(
     obj: T,
     encoding: Encoding = defaultEncoding
@@ -21,6 +30,15 @@ export const decodeObject = <T extends Record<string, string>>(
     return result as Encoded<T>;
 };
 
+/**
+ * Encode every attribute in an object.
+ *
+ * Convenience method when serializing decoded content (e.g. hex encoding prior to `JSON.stringify`).
+ *
+ * @param {object} obj - map of key to Uint8Array
+ * @param {string} [encoding] - encoding to use, defaults to UTF8
+ * @returns {object} same interface as input, with strings
+ */
 export const encodeObject = <T extends Record<string, Uint8Array>>(
     obj: T,
     encoding?: Encoding

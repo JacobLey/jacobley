@@ -1,7 +1,8 @@
 import { inputToEncoding } from '../lib/input-to-encoding.js';
-import { defaultEncoding, type Methods } from '../lib/types.js';
+import { defaultEncoding } from '../lib/types.js';
+import type * as Encode from './types.js';
 
-export const decode: Methods['decode'] = input => {
+export const decode: typeof Encode['decode'] = input => {
     const { encoding, text } = inputToEncoding(input);
     if (encoding === 'raw') {
         return text;
@@ -10,7 +11,7 @@ export const decode: Methods['decode'] = input => {
     return Buffer.from(normalized, encoding);
 };
 
-export const encode: Methods['encode'] = (
+export const encode: typeof Encode['encode'] = (
     buffer,
     encoding = defaultEncoding
 ) => Buffer.from(decode(buffer)).toString(encoding);

@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { expectTypeOf } from 'expect-type';
 import type { Context } from 'mocha';
-import type * as Encode from '../../../encode.js';
+import type * as Encode from '#encode';
 import * as IsoCrypto from '../../../index.js';
 import * as BrowserEncode from '../../../iso/encode/browser.js';
 import * as NodeEncode from '../../../iso/encode/node.js';
 
 interface EncodeTest extends Context {
-    encode: Pick<typeof Encode, 'decode' | 'encode'>;
+    encode: typeof Encode;
 }
 
 export const EncodeSpec = {

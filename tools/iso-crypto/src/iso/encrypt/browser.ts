@@ -4,7 +4,8 @@ import { hash } from '#hash';
 import { randomBytes } from '#random';
 import { fixBytes } from '../lib/bytes-length.js';
 import { encryptionMeta } from '../lib/size-meta.js';
-import { defaultEncryption, defaultHash, type Encryption, type Methods } from '../lib/types.js';
+import { defaultEncryption, defaultHash, type Encryption } from '../lib/types.js';
+import type * as Encrypt from './types.js';
 
 const encryptionToAlgorithm = (
     encryption: Encryption
@@ -13,7 +14,7 @@ const encryptionToAlgorithm = (
     length: encryption.size / 2,
 });
 
-export const encrypt: Methods['encrypt'] = async (
+export const encrypt: typeof Encrypt['encrypt'] = async (
     {
         data,
         secret,
@@ -55,7 +56,7 @@ export const encrypt: Methods['encrypt'] = async (
         iv,
     };
 };
-export const decrypt: Methods['decrypt'] = async (
+export const decrypt: typeof Encrypt['decrypt'] = async (
     {
         encrypted,
         iv,

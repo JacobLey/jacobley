@@ -1,12 +1,13 @@
 import { expect } from 'chai';
 import { expectTypeOf } from 'expect-type';
 import type { Context } from 'mocha';
+import type * as Random from '#random';
 import * as IsoCrypto from '../../../index.js';
 import * as BrowserRandom from '../../../iso/random/browser.js';
 import * as NodeRandom from '../../../iso/random/node.js';
 
 interface RandomTest extends Context {
-    random: typeof BrowserRandom;
+    random: typeof Random;
 }
 
 export const EncodeSpec = {

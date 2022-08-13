@@ -1,11 +1,12 @@
 import crypto from '#crypto';
 import { decode, encode } from '#encode';
-import { decrypt, encrypt } from '../../encrypt.js';
+import { decrypt, encrypt } from '#encrypt';
 import { padBytes } from '../lib/bytes-length.js';
 import { derivePublicKey, p256, type Point } from '../lib/math.js';
-import { defaultEncryption, type InputText, type Methods } from '../lib/types.js';
+import { defaultEncryption, type InputText } from '../lib/types.js';
+import type * as Ecc from './types.js';
 
-export const generateEccPrivateKey: Methods['generateEccPrivateKey'] = async () => {
+export const generateEccPrivateKey: typeof Ecc['generateEccPrivateKey'] = async () => {
     const ecdh = await crypto.subtle.generateKey(
         {
             name: 'ECDH',
@@ -35,7 +36,7 @@ const deriveP256PublicKeyBase64 = (privateKey: InputText): { x: string; y: strin
     };
 };
 
-export const generateEccPublicKey: Methods['generateEccPublicKey'] = privateKey => {
+export const generateEccPublicKey: typeof Ecc['generateEccPublicKey'] = privateKey => {
 
     const { x, y } = deriveP256PublicKey(privateKey);
 
@@ -107,7 +108,7 @@ const eccSecret = async ({ privateKey, publicKey }: {
     };
 };
 
-export const eccEncrypt: Methods['eccEncrypt'] = async ({
+export const eccEncrypt: typeof Ecc['eccEncrypt'] = async ({
     data,
     publicKey,
     privateKey,
@@ -142,7 +143,7 @@ export const eccEncrypt: Methods['eccEncrypt'] = async ({
         ),
     };
 };
-export const eccDecrypt: Methods['eccDecrypt'] = async ({
+export const eccDecrypt: typeof Ecc['eccDecrypt'] = async ({
     encrypted,
     iv,
     publicKey,

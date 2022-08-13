@@ -1,6 +1,7 @@
 import crypto from '#crypto';
 import { decode } from '#encode';
-import { defaultHash, type HashAlgorithm, type Methods } from '../lib/types.js';
+import { defaultHash, type HashAlgorithm } from '../lib/types.js';
+import type * as HashMethods from './types.js';
 
 const hashAlgorithm = ({
     algorithm,
@@ -12,12 +13,12 @@ const hashAlgorithm = ({
     return `SHA-${size}`;
 };
 
-export const hash: Methods['hash'] = async (
-    secret,
+export const hash: typeof HashMethods['hash'] = async (
+    input,
     algorithm = defaultHash
 ) => {
 
-    const decoded = decode(secret);
+    const decoded = decode(input);
 
     if (algorithm === 'raw') {
         return decoded;

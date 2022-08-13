@@ -1,26 +1,27 @@
 import { createECDH, type ECDH, type ECDHKeyFormat } from 'node:crypto';
 import { decode } from '#encode';
-import { decrypt, encrypt } from '../../encrypt.js';
+import { decrypt, encrypt } from '#encrypt';
 import { padBytes } from '../lib/bytes-length.js';
-import { defaultEncryption, type Methods } from '../lib/types.js';
+import { defaultEncryption } from '../lib/types.js';
+import type * as Ecc from './types.js';
 
 const getCompressedPublicKey = (ecdh: ECDH): Buffer => (
     // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/61667
     ecdh.getPublicKey as (encoding?: null, format?: ECDHKeyFormat) => Buffer
 )(null, 'compressed');
 
-export const generateEccPrivateKey: Methods['generateEccPrivateKey'] = async (): Promise<Uint8Array> => {
+export const generateEccPrivateKey: typeof Ecc['generateEccPrivateKey'] = async (): Promise<Uint8Array> => {
     const ecdh = createECDH('prime256v1');
     ecdh.generateKeys();
     return padBytes(ecdh.getPrivateKey(), 32);
 };
-export const generateEccPublicKey: Methods['generateEccPublicKey'] = privateKey => {
+export const generateEccPublicKey: typeof Ecc['generateEccPublicKey'] = privateKey => {
     const ecdh = createECDH('prime256v1');
     ecdh.setPrivateKey(decode(privateKey));
     return getCompressedPublicKey(ecdh);
 };
 
-export const eccEncrypt: Methods['eccEncrypt'] = async ({
+export const eccEncrypt: typeof Ecc['eccEncrypt'] = async ({
     data,
     publicKey,
     privateKey,
@@ -39,7 +40,7 @@ export const eccEncrypt: Methods['eccEncrypt'] = async ({
         publicKey: getCompressedPublicKey(ecdh),
     };
 };
-export const eccDecrypt: Methods['eccDecrypt'] = async ({
+export const eccDecrypt: typeof Ecc['eccDecrypt'] = async ({
     encrypted,
     iv,
     publicKey,

@@ -54,6 +54,7 @@
       }
     },
     "#ecc": {
+      "types": "./dist/iso/ecc/types.js",
       "browser": "./dist/iso/ecc/browser.js",
       "default": {
         "nyc-iso-crypto": "./nyc/iso/ecc/node.js",
@@ -61,6 +62,7 @@
       }
     },
     "#encode": {
+      "types": "./dist/iso/encode/types.js",
       "browser": "./dist/iso/encode/browser.js",
       "default": {
         "nyc-iso-crypto": "./nyc/iso/encode/node.js",
@@ -68,6 +70,7 @@
       }
     },
     "#encrypt": {
+      "types": "./dist/iso/encrypt/types.js",
       "browser": "./dist/iso/encrypt/browser.js",
       "default": {
         "nyc-iso-crypto": "./nyc/iso/encrypt/node.js",
@@ -75,6 +78,7 @@
       }
     },
     "#hash": {
+      "types": "./dist/iso/hash/types.js",
       "browser": "./dist/iso/hash/browser.js",
       "default": {
         "nyc-iso-crypto": "./nyc/iso/hash/node.js",
@@ -82,6 +86,7 @@
       }
     },
     "#random": {
+      "types": "./dist/iso/random/types.js",
       "browser": "./dist/iso/random/browser.js",
       "default": {
         "nyc-iso-crypto": "./nyc/iso/random/node.js",

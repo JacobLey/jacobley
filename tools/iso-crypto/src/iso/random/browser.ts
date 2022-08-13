@@ -1,4 +1,4 @@
 import crypto from '#crypto';
-import type { Methods } from '../lib/types.js';
+import type * as Random from './types.js';
 
-export const randomBytes: Methods['randomBytes'] = async size => crypto.getRandomValues(new Uint8Array(size));
+export const randomBytes: typeof Random['randomBytes'] = async size => crypto.getRandomValues(new Uint8Array(size));
