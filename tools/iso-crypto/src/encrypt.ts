@@ -1,7 +1,9 @@
-import * as SyncEncrypt from '#sync-encrypt';
-import { syncEncrypt } from './iso/sync-encrypt/encrypt.js';
+import * as SymEncrypt from '#sym-encrypt';
+import { symEncrypt } from './iso/sym-encrypt/encrypt.js';
+
+export type { Encryption } from './iso/lib/types.js';
 
 export const {
     encrypt,
     decrypt,
-} = syncEncrypt(SyncEncrypt);
+} = symEncrypt(SymEncrypt);

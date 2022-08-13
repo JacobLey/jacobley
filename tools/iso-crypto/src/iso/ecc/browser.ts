@@ -1,6 +1,6 @@
 import crypto from '#crypto';
 import { decode, encode } from '#encode';
-import { hashedDecrypt, hashedEncrypt } from '#sync-encrypt';
+import { hashedDecrypt, hashedEncrypt } from '#sym-encrypt';
 import { padBytes } from '../lib/bytes-length.js';
 import { derivePublicKey, p256, type Point } from '../lib/math.js';
 import { defaultEncryption, type InputText, type Methods } from '../lib/types.js';

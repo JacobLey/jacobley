@@ -78,11 +78,11 @@
         "default": "./dist/iso/random/node.js"
       }
     },
-    "#sync-encrypt": {
-      "browser": "./dist/iso/sync-encrypt/browser.js",
+    "#sym-encrypt": {
+      "browser": "./dist/iso/sym-encrypt/browser.js",
       "default": {
-        "nyc-iso-crypto": "./nyc/iso/sync-encrypt/node.js",
-        "default": "./dist/iso/sync-encrypt/node.js"
+        "nyc-iso-crypto": "./nyc/iso/sym-encrypt/node.js",
+        "default": "./dist/iso/sym-encrypt/node.js"
       }
     }
   },

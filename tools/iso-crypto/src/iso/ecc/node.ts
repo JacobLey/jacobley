@@ -1,6 +1,6 @@
 import { createECDH, type ECDH, type ECDHKeyFormat } from 'node:crypto';
 import { encode } from '#encode';
-import { hashedDecrypt, hashedEncrypt } from '#sync-encrypt';
+import { hashedDecrypt, hashedEncrypt } from '#sym-encrypt';
 import { padBytes } from '../lib/bytes-length.js';
 import { defaultEncryption, type Methods } from '../lib/types.js';
 

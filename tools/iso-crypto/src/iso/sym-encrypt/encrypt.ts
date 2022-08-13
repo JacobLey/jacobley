@@ -1,6 +1,6 @@
 import { encode } from '#encode';
 import { hash } from '#hash';
-import type * as SyncEncrypt from '#sync-encrypt';
+import type * as SymEncrypt from '#sym-encrypt';
 import { defaultEncryption, type Encryption, type Hash, type InputText } from '../lib/types.js';
 
 interface Encrypt {
@@ -35,10 +35,10 @@ interface Encrypt {
  *
  * Browser version works in node, just generally more complicated and less performant.
  *
- * @param {object} mod - #sync-encrypt module
+ * @param {object} mod - #sym-encrypt module
  * @returns {object} encrypt + decrypt methods using correct module for environment
  */
-export const syncEncrypt = (mod: typeof SyncEncrypt): Encrypt => ({
+export const symEncrypt = (mod: typeof SymEncrypt): Encrypt => ({
     encrypt: async (
         {
             data,
