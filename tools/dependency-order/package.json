@@ -29,10 +29,17 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/dependency-order.js",
   "exports": {
     ".": {
+      "types": "./src/dependency-order.ts",
       "node": "./dist/dependency-order.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "node": "./dist/dependency-order.js"
+      }
     }
   },
   "dependencies": {

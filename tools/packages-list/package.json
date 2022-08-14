@@ -27,10 +27,17 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/packages-list.js",
   "exports": {
     ".": {
+      "types": "./src/packages-list.ts",
       "node": "./dist/packages-list.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "node": "./dist/packages-list.js"
+      }
     }
   },
   "dependencies": {

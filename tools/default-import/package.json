@@ -29,9 +29,16 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/default-import.js",
   "exports": {
-    ".": "./dist/default-import.js"
+    ".": {
+      "types": "./src/default-import.ts",
+      "default": "./dist/default-import.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/default-import.js"
+    }
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",

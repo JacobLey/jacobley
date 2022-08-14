@@ -27,10 +27,17 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/root-package-json.js",
   "exports": {
     ".": {
+      "types": "./src/root-package-json.ts",
       "node": "./dist/root-package-json.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "node": "./dist/root-package-json.js"
+      }
     }
   },
   "dependencies": {

@@ -29,9 +29,9 @@
     "test": "echo NO TESTS YET",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/rivendell.js",
   "exports": {
     ".": {
+      "types": "./src/rivendell.ts",
       "node": "./dist/rivendell.js"
     }
   },
@@ -41,6 +41,11 @@
   "publishConfig": {
     "bin": {
       "rivendell": "./dist/cli.js"
+    },
+    "exports": {
+      ".": {
+        "node": "./dist/rivendell.js"
+      }
     }
   },
   "dependencies": {

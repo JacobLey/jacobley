@@ -28,9 +28,16 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/punycode.js",
   "exports": {
-    ".": "./dist/punycode.js"
+    ".": {
+      "types": "./src/punycode.ts",
+      "default": "./dist/punycode.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/punycode.js"
+    }
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",

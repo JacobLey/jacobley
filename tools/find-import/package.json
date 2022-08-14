@@ -27,9 +27,16 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/find-import.js",
   "exports": {
-    ".": "./dist/find-import.js"
+    ".": {
+      "types": "./src/find-import.ts",
+      "default": "./dist/find-import.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/find-import.js"
+    }
   },
   "dependencies": {
     "parse-cwd": "workspace:^"

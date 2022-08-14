@@ -28,12 +28,20 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/patch.js",
   "exports": {
     ".": {
-      "types": "./dist/patch.js",
+      "types": "./src/patch.ts",
       "patchable": "./dist/patch.js",
       "default": "./dist/noop.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/patch.js",
+        "patchable": "./dist/patch.js",
+        "default": "./dist/noop.js"
+      }
     }
   },
   "devDependencies": {

@@ -27,10 +27,17 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/parse-cwd.js",
   "exports": {
     ".": {
+      "types": "./src/parse-cwd.ts",
       "node": "./dist/parse-cwd.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "node": "./dist/parse-cwd.js"
+      }
     }
   },
   "devDependencies": {

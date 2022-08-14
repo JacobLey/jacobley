@@ -11,6 +11,7 @@ const parseRivendellExpression = (
 ): {
     all: boolean;
     max: boolean;
+    previous: boolean;
     series: boolean;
     include: (dependency: PackageDependency) => boolean;
 } | null => {
@@ -43,10 +44,11 @@ const parseRivendellExpression = (
     });
 
     if (kind === 'stage') {
-        if (['max-stage', 'stage'].includes(keyword)) {
+        if (['max-stage', 'previous-stage', 'stage'].includes(keyword)) {
             return {
                 all: false,
                 max: keyword.startsWith('max'),
+                previous: keyword.startsWith('previous'),
                 series: searchParams.get('parallel') !== 'true',
                 include,
             };
@@ -55,6 +57,7 @@ const parseRivendellExpression = (
         return {
             all: keyword.startsWith('all'),
             max: false,
+            previous: false,
             series: true,
             include,
         };
@@ -107,7 +110,7 @@ const processJob = ({
     }
 
     if (Yaml.isSeq<Yaml.Scalar<string>>(needs)) {
-        for (const need of needs.items) {
+        for (const [index, need] of needs.items.entries()) {
             const stageMatch = parseRivendellExpression(need.value, 'stage');
             if (stageMatch) {
                 if (stageMatch.max) {
@@ -129,6 +132,16 @@ const processJob = ({
                         rivendellRegExp,
                         '0'
                     );
+                } else if (stageMatch.previous) {
+                    const prevStage = stage!.stage - 1;
+                    if (prevStage >= 0) {
+                        need.value = need.value.replace(
+                            rivendellRegExp,
+                            prevStage.toString(10)
+                        );
+                    } else {
+                        needs.delete(index);
+                    }
                 } else {
                     need.value = need.value.replace(
                         rivendellRegExp,

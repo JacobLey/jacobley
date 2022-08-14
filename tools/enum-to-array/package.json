@@ -27,9 +27,16 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/enum-to-array.js",
   "exports": {
-    ".": "./dist/enum-to-array.js"
+    ".": {
+      "types": "./src/enum-to-array.ts",
+      "default": "./dist/enum-to-array.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/enum-to-array.js"
+    }
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",

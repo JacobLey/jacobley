@@ -26,9 +26,11 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/barrelify.js",
   "exports": {
-    ".": "./dist/barrelify.js"
+    ".": {
+      "types": "./src/barrelify.ts",
+      "default": "./dist/barrelify.js"
+    }
   },
   "bin": {
     "barrel-local": "./cli.mjs",
@@ -38,6 +40,9 @@
     "bin": {
       "barrel": "./dist/cli.js",
       "barrelify": "./dist/cli.js"
+    },
+    "exports": {
+      ".": "./dist/barrelify.js"
     }
   },
   "dependencies": {

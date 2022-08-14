@@ -27,16 +27,31 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
-  "main": "./dist/index.js",
   "exports": {
-    ".": "./dist/index.js",
-    "./custom-event": "./dist/custom-event.js",
-    "./static-emitter": "./dist/static-emitter.js",
-    "./static-event-target": "./dist/static-event-target.js",
-    "./typed-event": "./dist/typed-event.js"
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./custom-event": {
+      "types": "./src/custom-event.ts",
+      "default": "./dist/custom-event.js"
+    },
+    "./static-emitter": {
+      "types": "./src/static-emitter.ts",
+      "default": "./dist/static-emitter.js"
+    },
+    "./static-event-target": {
+      "types": "./src/static-event-target.ts",
+      "default": "./dist/static-event-target.js"
+    },
+    "./typed-event": {
+      "types": "./src/typed-event.ts",
+      "default": "./dist/typed-event.js"
+    }
   },
   "imports": {
     "#custom-event": {
+      "types": "./src/lib/custom-event/node.ts",
       "browser": "./dist/lib/custom-event/browser.js",
       "default": {
         "nyc-static-emitter": "./nyc/lib/custom-event/node.js",
@@ -44,14 +59,37 @@
       }
     },
     "#typed-event": {
-      "types":  "./dist/lib/typed-event/type.js",
+      "types":  "./src/lib/typed-event/type.ts",
       "nyc-static-emitter": "./nyc/lib/typed-event/typed-event.js",
       "default": "./dist/lib/typed-event/typed-event.js"
     },
     "#static-event-target": {
-      "types": "./dist/lib/static-event-target/type.js",
+      "types": "./src/lib/static-event-target/type.ts",
       "nyc-static-emitter": "./nyc/lib/static-event-target/static-event-target.js",
       "default": "./dist/lib/static-event-target/static-event-target.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./custom-event": "./dist/custom-event.js",
+      "./static-emitter": "./dist/static-emitter.js",
+      "./static-event-target": "./dist/static-event-target.js",
+      "./typed-event": "./dist/typed-event.js"
+    },
+    "imports": {
+      "#custom-event": {
+        "browser": "./dist/lib/custom-event/browser.js",
+        "default": "./dist/lib/custom-event/node.js"
+      },
+      "#typed-event": {
+        "types":  "./dist/lib/typed-event/type.js",
+        "default": "./dist/lib/typed-event/typed-event.js"
+      },
+      "#static-event-target": {
+        "types": "./dist/lib/static-event-target/type.js",
+        "default": "./dist/lib/static-event-target/static-event-target.js"
+      }
     }
   },
   "devDependencies": {
