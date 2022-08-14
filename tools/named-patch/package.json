@@ -31,7 +31,7 @@
   "main": "./dist/patch.js",
   "exports": {
     ".": {
-      "types": "./dist/patch.d.ts",
+      "types": "./dist/patch.js",
       "patchable": "./dist/patch.js",
       "default": "./dist/noop.js"
     }

@@ -44,12 +44,12 @@
       }
     },
     "#typed-event": {
-      "types":  "./dist/lib/typed-event/type.d.ts",
+      "types":  "./dist/lib/typed-event/type.js",
       "nyc-static-emitter": "./nyc/lib/typed-event/typed-event.js",
       "default": "./dist/lib/typed-event/typed-event.js"
     },
     "#static-event-target": {
-      "types": "./dist/lib/static-event-target/type.d.ts",
+      "types": "./dist/lib/static-event-target/type.js",
       "nyc-static-emitter": "./nyc/lib/static-event-target/static-event-target.js",
       "default": "./dist/lib/static-event-target/static-event-target.js"
     }
