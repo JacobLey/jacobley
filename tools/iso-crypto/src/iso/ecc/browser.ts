@@ -17,7 +17,7 @@ export const generateEccPrivateKey: typeof Ecc['generateEccPrivateKey'] = async 
         ['deriveKey']
     );
     const key = await crypto.subtle.exportKey('jwk', ecdh.privateKey);
-    return decode({ text: key.d!, encoding: 'base64url' });
+    return padBytes(decode({ text: key.d!, encoding: 'base64url' }), 32);
 };
 
 const deriveP256PublicKey = (privateKey: InputText): Point => {
@@ -29,11 +29,18 @@ const deriveP256PublicKey = (privateKey: InputText): Point => {
         p256
     );
 };
+const bigIntToBase64Url = (x: bigint): string => encode(
+    padBytes(
+        decode({ text: x.toString(16), encoding: 'hex' }),
+        32
+    ),
+    'base64url'
+);
 const deriveP256PublicKeyBase64 = (privateKey: InputText): { x: string; y: string } => {
     const { x, y } = deriveP256PublicKey(privateKey);
     return {
-        x: encode(padBytes(decode({ text: x.toString(16), encoding: 'hex' }), 32), 'base64url'),
-        y: encode(padBytes(decode({ text: y.toString(16), encoding: 'hex' }), 32), 'base64url'),
+        x: bigIntToBase64Url(x),
+        y: bigIntToBase64Url(y),
     };
 };
 

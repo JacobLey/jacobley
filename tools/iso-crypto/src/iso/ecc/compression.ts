@@ -1,4 +1,5 @@
 import { decode, encode } from '#encode';
+import { padBytes } from '../lib/bytes-length.js';
 import { deriveYCoordinate, p256 } from '../lib/math.js';
 import type { InputText } from '../lib/types.js';
 
@@ -39,7 +40,7 @@ export const decompressEccPublicKey = (publicKey: InputText): Uint8Array => {
     if (decoded.length > 33) {
         return decoded;
     }
-    const x = decoded.slice(1, 33);
+    const x = decoded.slice(1);
     // eslint-disable-next-line no-bitwise
     const odd = !!(decoded[0]! & 1);
 
@@ -52,6 +53,6 @@ export const decompressEccPublicKey = (publicKey: InputText): Uint8Array => {
     return new Uint8Array([
         4,
         ...x,
-        ...decode({ text: y.toString(16), encoding: 'hex' }),
+        ...padBytes(decode({ text: y.toString(16), encoding: 'hex' }), 32),
     ]);
 };
