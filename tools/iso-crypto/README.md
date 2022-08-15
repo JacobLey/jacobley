@@ -78,9 +78,10 @@ const rand: Uint8Array = await randomBytes(10);
 ### Hash
 
 ```ts
-import { hash } from 'iso-crypto';
+import { encode, hash } from 'iso-crypto';
 
 const hashed: Uint8Array = await hash('This is my text');
+encode(hashed, 'hex'); // 04405de6b2dcefcd85a03503cefad765a88c8083c5fede2eb7e4354e5643e2df
 
 const customHashed: Uint8Array = await hash(
     { text: 'abc123', encoding: 'hex' },
@@ -89,6 +90,7 @@ const customHashed: Uint8Array = await hash(
         size: 512,
     }
 );
+encode(customHashed, 'base64'); // 8ff0IFBTdySF86lYF23zbCfmerD9ieLgid5Ak+5pRwffOgSY8yQ78HifX0lxZ0hKHZP4uZ0Nfr9dcwZmo5Mkfw==
 ```
 
 ### Symmetric Encryption
@@ -123,7 +125,7 @@ const customAlgEncrypted = await encrypt(
 );
 const customAlgDecrypted = encode(await decrypt(
     {
-        ...customAlgDecrypted,
+        ...customAlgEncrypted,
         secret,
     },
     {
@@ -224,6 +226,8 @@ Ideally any cryptographic output should have statistically uniform distribution 
 
 As such, if you intend to combine encryption with compression, it is important to apply compression _before_ encryption, to take advantage of repeated and common patterns in the input.
 
+Many methods in this module deal with "private" or "secret" values. Proper handling of those values are not explicitly covered by this module. Make sure you understand how to securely transfer and access these values before deploying encryption in production, as improper handling and data leaks can effectively render even the most secure encryption algorithms moot.
+
 <a name="Implementation Details"></a>
 ## Implementation Details
 
@@ -263,9 +267,9 @@ For example `P1 * 10` can be simplified as `P1 * ((8 * 1) + (4 * 0) + (2 * 1) + 
 
 Given the complication of multiplication, there is no known "divide" operator in ECC. As such, an algorithm can agree on an original point on a curve. Then the "private key" is simply a random number between the curves "domain" (`prime256v1` domain is between 0 and 2^256). The "public key" is the resulting point on the curve after multiplication.
 
-A public key technically represents a point on a curve (both X and Y coordinates). However, since the equation for the curve is known, it is possible to provide _only_ the X coordinate, and a single byte indicating whether the associated Y coordinate is positive or negative. This is known as the "compressed" form of a public key.
+A public key technically represents a point on a curve (both X and Y coordinates). However, since the equation for the curve is known, it is possible to provide _only_ the X coordinate, and a single byte indicating whether the associated Y coordinate is odd or even. This is known as the "compressed" form of a public key.
 
-Given one parties public key (a point), and another's private key (an integer), these can _again_ be multiplied to produce a "shared secret". Due to the communicative properties of addition/multiplication, either combination of PublicA * PrivateB OR PrivateA * PublicB produces the _same_ shared secret.
+Given one parties public key (a point), and another's private key (an integer), these can _again_ be multiplied to produce a "shared secret". Due to the communicative properties of addition/multiplication, both combinations of PublicA * PrivateB AND PrivateA * PublicB produces the _same_ shared secret.
 
 #### Implementation
 
