@@ -273,7 +273,7 @@ This module focuses on the point mathematics required by ECC (relying on native 
 
 Since the secret is determined by the private key + public key combination, it can be used directly without any need for hashing. As such, no hash algorithm is used with ECC encryption.
 
-Any public keys referenced by this module will use the compressed form of a public key.
+Any public keys returned by this module will use the compressed form of a public key by default, however both forms are accepted as input.
 
 <a name="Api"></a>
 ## API
@@ -373,6 +373,20 @@ Asynchronously generates an ECC private key as a Uint8Array.
 ### generateEccPublicKey(privateKey: InputText)
 
 Generates the corresponding public key for the provided private key.
+
+### compressEccPublicKey(publicKey: InputText)
+
+Calculates the corresponding compressed public key for the provided public key.
+
+NOOP if public key is already compressed (idempotent).
+
+Generally available for convenience. All public keys outputted by ecc methods are compressed by default, and accept both forms as input.
+
+### decompressEccPublicKey(publicKey: InputText)
+
+Calculate the corresponding uncompressed public key for the provided public key.
+
+NOOP if public key is already uncompressed (idempotent).
 
 ### eccEncrypt(params: { data: InputText; privateKey: InputText; publicKey: InputText }, options?: { encryption?: Encryption })
 
