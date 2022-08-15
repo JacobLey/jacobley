@@ -29,6 +29,7 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
+  "types": "./dist/default-import.js",
   "exports": {
     ".": {
       "types": "./src/default-import.ts",

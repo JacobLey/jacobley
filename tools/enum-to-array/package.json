@@ -27,6 +27,7 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
+  "types": "./dist/enum-to-array.js",
   "exports": {
     ".": {
       "types": "./src/enum-to-array.ts",

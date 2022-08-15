@@ -29,6 +29,7 @@
     "test": "echo NO TESTS YET",
     "unit-test": "mocha ./dist/tests/unit"
   },
+  "types": "./dist/rivendell.js",
   "exports": {
     ".": {
       "types": "./src/rivendell.ts",

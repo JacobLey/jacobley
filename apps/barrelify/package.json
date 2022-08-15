@@ -26,6 +26,7 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
+  "types": "./dist/barrelify.js",
   "exports": {
     ".": {
       "types": "./src/barrelify.ts",

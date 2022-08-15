@@ -28,6 +28,7 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
+  "types": "./dist/punycode.js",
   "exports": {
     ".": {
       "types": "./src/punycode.ts",

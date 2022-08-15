@@ -29,6 +29,7 @@
     "test": "rushx coverage",
     "unit-test": "mocha ./dist/tests/unit"
   },
+  "types": "./dist/dependency-order.js",
   "exports": {
     ".": {
       "types": "./src/dependency-order.ts",
