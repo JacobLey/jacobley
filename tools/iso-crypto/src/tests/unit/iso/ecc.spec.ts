@@ -32,6 +32,8 @@ export const EccSpec = {
 
             async success(this: EccTest) {
 
+                this.timeout(10_000);
+
                 for (const encryption of [
                     null,
                     undefined,
