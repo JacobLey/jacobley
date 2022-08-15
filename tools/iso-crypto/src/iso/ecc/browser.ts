@@ -41,8 +41,12 @@ export const generateEccPublicKey: typeof Ecc['generateEccPublicKey'] = privateK
     const { x, y } = deriveP256PublicKey(privateKey);
 
     // eslint-disable-next-line no-bitwise
-    const hex = (2n + (y & 1n)).toString(4) + x.toString(16).padStart(64, '0');
-    return padBytes(decode({ text: hex, encoding: 'hex' }), 33);
+    const odd = 2n + (y & 1n);
+
+    return new Uint8Array([
+        Number(odd),
+        ...padBytes(decode({ text: x.toString(16), encoding: 'hex' }), 32),
+    ]);
 };
 
 const eccSecret = async ({ privateKey, publicKey }: {
@@ -130,17 +134,14 @@ export const eccEncrypt: typeof Ecc['eccEncrypt'] = async ({
     // eslint-disable-next-line no-bitwise
     const odd = decode({ text: jwk.y!, encoding: 'base64url' }).reverse()[0]! & 1;
 
-    const hexPublic = encode(decode({ text: jwk.x!, encoding: 'base64url' }), 'hex');
+    const publicX = decode({ text: jwk.x!, encoding: 'base64url' });
 
     return {
         ...encrypted,
-        publicKey: padBytes(
-            decode({
-                text: (2 + odd).toString(4) + hexPublic,
-                encoding: 'hex',
-            }),
-            33
-        ),
+        publicKey: new Uint8Array([
+            2 + odd,
+            ...padBytes(publicX, 32),
+        ]),
     };
 };
 export const eccDecrypt: typeof Ecc['eccDecrypt'] = async ({
