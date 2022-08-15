@@ -8,13 +8,11 @@ importers:
   ../../apps/barrelify:
     specifiers:
       '@types/chai': ^4.3.1
-      '@types/dedent': ^0.7.0
       '@types/mocha': ^9.1.1
       '@types/node': ^18.0.0
       '@types/sinon': ^10.0.11
       '@types/yargs': ^17.0.10
       chai: ^4.3.6
-      dedent: ^0.7.0
       default-import: workspace:^
       entry-script: workspace:^
       expect-type: ^0.13.0
@@ -25,6 +23,7 @@ importers:
       nyc: ^15.1.0
       parse-cwd: workspace:^
       sinon: ^14.0.0
+      ts-dedent: ^2.2.0
       typescript: ^4.7.2
       yargs: ^17.4.1
     dependencies:
@@ -37,17 +36,16 @@ importers:
       yargs: 17.5.1
     devDependencies:
       '@types/chai': 4.3.3
-      '@types/dedent': 0.7.0
       '@types/mocha': 9.1.1
       '@types/node': 18.7.3
       '@types/sinon': 10.0.13
       '@types/yargs': 17.0.11
       chai: 4.3.6
-      dedent: 0.7.0
       expect-type: 0.13.0
       mocha: 10.0.0
       nyc: 15.1.0
       sinon: 14.0.0
+      ts-dedent: 2.2.0
       typescript: 4.7.4
 
   ../../apps/juniper:
@@ -1294,10 +1292,6 @@ packages:
     resolution: {integrity: sha512-hC7OMnszpxhZPduX+m+nrx+uFoLkWOMiR4oa/AZF3MuSETYTZmFfJAHqZEM8MVlvfG7BEUcgvtwoCTxBp6hm3g==}
     dev: true
 
-  /@types/dedent/0.7.0:
-    resolution: {integrity: sha512-EGlKlgMhnLt/cM4DbUSafFdrkeJoC9Mvnj0PUCU7tFmTjMjNRT957kXCx0wYm3JuEq4o4ZsS5vG+NlkM2DMd2A==}
-    dev: true
-
   /@types/json-schema/7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
     dev: true
@@ -2061,10 +2055,6 @@ packages:
   /decamelize/4.0.0:
     resolution: {integrity: sha512-9iE1PgSik9HeIIw2JO94IidnE3eBoQrFJ3w7sFuzSX4DpmZ3v5sZpUiV5Swcf6mQEF+Y0ru8Neo+p+nyh2J+hQ==}
     engines: {node: '>=10'}
-    dev: true
-
-  /dedent/0.7.0:
-    resolution: {integrity: sha512-Q6fKUPqnAHAyhiUgFU7BUzLiv0kd8saH9al7tnu5Q/okj6dnupxyTgFIBjVzJATdfIAm9NAsvXNzjaKa+bxVyA==}
     dev: true
 
   /deep-eql/3.0.1:
@@ -4711,6 +4701,11 @@ packages:
 
   /true-case-path/2.2.1:
     resolution: {integrity: sha512-0z3j8R7MCjy10kc/g+qg7Ln3alJTodw9aDuVWZa3uiWqfuBMKeAeP2ocWcxoyM3D73yz3Jt/Pu4qPr4wHSdB/Q==}
+    dev: true
+
+  /ts-dedent/2.2.0:
+    resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
+    engines: {node: '>=6.10'}
     dev: true
 
   /tsconfig-paths/3.14.1:

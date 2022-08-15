@@ -2,13 +2,10 @@ import { writeFile } from 'node:fs/promises';
 import Path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect } from 'chai';
-import { defaultImport } from 'default-import';
 import { patch, patchKey } from 'named-patch';
 import Sinon from 'sinon';
+import { dedent } from 'ts-dedent';
 import { barrelify } from '../../barrelify.js';
-import defaultDedent from '../re-export/dedent.cjs';
-
-const dedent = defaultImport(defaultDedent);
 
 const testDir = Path.join(
     fileURLToPath(import.meta.url),
