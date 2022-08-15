@@ -126,13 +126,65 @@ export const EccSpec = {
                 },
             ] as const) {
 
-                const decrypted = await this.source.eccDecrypt(IsoCrypto.decodeObject({
-                    encrypted,
-                    iv,
-                    privateKey,
-                    publicKey,
-                }, 'hex'), { encryption });
-                expect(IsoCrypto.encode(decrypted)).to.equal(output);
+                for (const compressed of [true, false]) {
+
+                    const decrypted = await this.source.eccDecrypt({
+                        ...IsoCrypto.decodeObject({
+                            encrypted,
+                            iv,
+                            privateKey,
+                        }, 'hex'),
+                        publicKey: compressed ?
+                            { text: publicKey, encoding: 'hex' } :
+                            IsoCrypto.decompressEccPublicKey({ text: publicKey, encoding: 'hex' }),
+                    }, { encryption });
+                    expect(IsoCrypto.encode(decrypted)).to.equal(output);
+                }
+            }
+        },
+
+        compression(this: EccTest) {
+
+            for (const { privateKey, compressedPublicKey, decompressedPublicKey } of [
+                {
+                    privateKey: '6b86a3d180945159e8411b6ccd36050deda274452fa6349b3447df91a867d954',
+                    compressedPublicKey: '02b23df7dcbfb6e250065a44a721aa273c49d006121a351bedbf3bdcb02c4e2995',
+                    decompressedPublicKey: '04b23df7dcbfb6e250065a44a721aa273c49d006121a351bedbf3bdcb02c4e2995' +
+                        'a32a6539d683575ed084be3251eca7bfc6e97b640a5de3ddab36536ae2d34868',
+                },
+                {
+                    privateKey: 'b2ddf1f3b903800c757afff4e32c0d760437732a509fbc9d280d5bc8b09f98a2',
+                    compressedPublicKey: '02bb83fa7e732c35e90a495f54168b2aada58355d294367e0e2c254595eb67a394',
+                    decompressedPublicKey: '04bb83fa7e732c35e90a495f54168b2aada58355d294367e0e2c254595eb67a394' +
+                        '739670b47dd2f4a6ee14820ef3e6972a7c1af5a1facda1c1882e5f1b9e96e74a',
+                },
+                {
+                    privateKey: 'ca0000feee709ad7ea6dff241403252bcde6180a3d1731d30d0b2aa5652a2ffa',
+                    compressedPublicKey: '036cc84e22a80c706f40180c06863f6c5cf59d3ae642cce63573b413b126bc769b',
+                    decompressedPublicKey: '046cc84e22a80c706f40180c06863f6c5cf59d3ae642cce63573b413b126bc769b' +
+                        'fb9fb8bac6df6e6793a85092e01dcc3f699b845255539add0222afec65c2b3fb',
+                },
+            ] as const) {
+
+                const publicKey = this.source.generateEccPublicKey({
+                    text: privateKey,
+                    encoding: 'hex',
+                });
+
+                expect(IsoCrypto.encode(publicKey, 'hex')).to.equal(compressedPublicKey);
+                expect(
+                    IsoCrypto.compressEccPublicKey(publicKey)
+                ).to.deep.equal(publicKey);
+
+                const decompressed = IsoCrypto.decompressEccPublicKey(publicKey);
+                expect(IsoCrypto.encode(decompressed, 'hex')).to.equal(decompressedPublicKey);
+                expect(
+                    IsoCrypto.decompressEccPublicKey(decompressed)
+                ).to.deep.equal(decompressed);
+
+                expect(
+                    IsoCrypto.compressEccPublicKey(decompressed)
+                ).to.deep.equal(publicKey);
             }
         },
     },
@@ -167,6 +219,10 @@ export const EccSpec = {
 
         async eccDecrypt(this: EccTest) {
             return EccSpec['From Browser'].eccDecrypt.call(this);
+        },
+
+        async compression(this: EccTest) {
+            EccSpec['From Browser'].compression.call(this);
         },
     },
 };

@@ -34,6 +34,10 @@ interface Curve {
      */
     readonly a: bigint;
     /**
+     * `b` in equation
+     */
+    readonly b: bigint;
+    /**
      * Base Point, lies on curve. Public Key given a Private Key of 1.
      */
     readonly g: Point;
@@ -45,6 +49,7 @@ interface Curve {
 export const p256 = {
     p: 0xFFFFFFFF_00000001_00000000_00000000_00000000_FFFFFFFF_FFFFFFFF_FFFFFFFFn,
     a: 0xFFFFFFFF_00000001_00000000_00000000_00000000_FFFFFFFF_FFFFFFFF_FFFFFFFCn,
+    b: 0x5AC635D8_AA3A93E7_B3EBBD55_769886BC_651D06B0_CC53B0F6_3BCE3C3E_27D2604Bn,
     g: {
         x: 0x6B17D1F2_E12C4247_F8BCE6E5_63A440F2_77037D81_2DEB33A0_F4A13945_D898C296n,
         y: 0x4FE342E2_FE1A7F9B_8EE7EB4A_7C0F9E16_2BCE3357_6B315ECE_CBB64068_37BF51F5n,
@@ -182,4 +187,95 @@ export const derivePublicKey = (privateKey: bigint, curve: Curve): Point => {
         }
     }
     return sum!;
+};
+
+/**
+ * Perform exponent math for BigInt.
+ *
+ * power(x, y, p) == (x ^ y) % p
+ *
+ * Exponents are supported natively, but in cases of _large_ exponents, it is not possible.
+ * (Either very slow, or hits max BigInt).
+ *
+ * @param {bigint} x - x in equation. "Base x"
+ * @param {bigint} y - y in equation. "Power y"
+ * @param {bigint} p - p in equation. Prime modulus.
+ * @returns {bigint} result of (x ^ y) % p
+ */
+const power = (x: bigint, y: bigint, p: bigint): bigint => {
+    let res = 1n;
+    let x2 = x;
+    const bits = [...y.toString(2)].reverse();
+
+    for (const bit of bits) {
+        if (bit === '1') {
+            res = (res * x2) % p;
+        }
+        x2 = (x2 * x2) % p;
+    }
+    return res;
+};
+
+/**
+ * Tonelli–Shanks algorithm.
+ *
+ * @see {@link https://en.wikipedia.org/wiki/Tonelli%E2%80%93Shanks_algorithm}
+ *
+ * y^2 = n % p
+ * Solves for y.
+ *
+ * Implementation translated from [python](https://github.com/fabiomainardi/Tonelli-Shanks/blob/master/tonelli_shanks.py).
+ *
+ * @param {bigint} n - "quadratic residue" mod p
+ * @param {bigint} p - prime modulus
+ * @returns {bigint} y
+ */
+const modSqrt = (n: bigint, p: bigint): bigint => {
+
+    let s = 1n;
+
+    while ((p - 1n) % (2n ** s) === 0n) {
+        ++s;
+    }
+    --s;
+
+    const q = (p - 1n) / (2n ** s);
+
+    let z = 1n;
+    let res = power(z, (p - 1n) / 2n, p);
+
+    while (res !== p - 1n) {
+        ++z;
+        res = power(z, (p - 1n) / 2n, p);
+    }
+
+    let c = power(z, q, p);
+    let r = power(n, (q + 1n) / 2n, p);
+    let t = power(n, q, p);
+    let m = s;
+
+    while (t !== 1n) {
+        let i = 1n;
+        let t2 = (t * t) % p;
+        while (t2 !== 1n) {
+            t2 = (t2 * t2) % p;
+            ++i;
+        }
+        const b = power(c, power(2n, m - i - 1n, p), p);
+        r = (r * b) % p;
+        c = (b * b) % p;
+        t = (t * c) % p;
+        m = i;
+    }
+
+    return r;
+};
+
+export const deriveYCoordinate = (x: bigint, odd: boolean, curve: Curve): bigint => {
+
+    const y = modSqrt(x ** 3n + curve.a * x + curve.b, curve.p);
+    // eslint-disable-next-line no-bitwise
+    const isOdd = !!(y & 1n);
+
+    return isOdd === odd ? y : curve.p - y;
 };

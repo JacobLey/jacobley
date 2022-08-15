@@ -4,6 +4,7 @@ import { decrypt, encrypt } from '#encrypt';
 import { padBytes } from '../lib/bytes-length.js';
 import { derivePublicKey, p256, type Point } from '../lib/math.js';
 import { defaultEncryption, type InputText } from '../lib/types.js';
+import { decompressEccPublicKey } from './compression.js';
 import type * as Ecc from './types.js';
 
 export const generateEccPrivateKey: typeof Ecc['generateEccPrivateKey'] = async () => {
@@ -80,7 +81,7 @@ const eccSecret = async ({ privateKey, publicKey }: {
         ),
         crypto.subtle.importKey(
             'raw',
-            decode(publicKey),
+            decompressEccPublicKey(publicKey),
             {
                 name: 'ECDH',
                 namedCurve: 'P-256',
