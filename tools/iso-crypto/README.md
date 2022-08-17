@@ -47,6 +47,8 @@ Some lower level isomorphic utilities are also provided, such as text encoding a
 ### ECDH (Asymmetric)
 
 * ✅ prime256v1
+* ✅ secp384r1
+* ✅ secp521r1
 
 <a name="Install"></a>
 ## Install
@@ -218,6 +220,8 @@ await encrypt(
 
 Any method that performs symmetric encryption can take the encryption algorithm as an option. The default algorithm is `aes-256-ctr` (`{ cipher: 'AES', size: 256, mode: 'CTR' }`).
 
+Similarly the default ECC algorithm is `prime256v1` (`{ curve: 'p256' }`).
+
 Many algorithms required keys/buffers of fixed size. However there is no enforcement by this library that the provided values meet that size. The general approach is to hash the input, then adjust the bytes to fix. Buffers that are too small have `0` prepended, and similarly when too large are stripped from their beginning to match the desired size.
 
 It is important to note that encryption _IS NOT_ the same as compression. In fact encryption methods will generally be slightly larger than the original input.
@@ -257,17 +261,15 @@ Asymmetric encryption differs from Symmetric encryption in regards to the "secre
 
 Presently, the only form of asymmetric encryption implemented by this module is Elliptic Curve Diffie-Hellman (ECDH).
 
-Specifically the `prime256v1` curve, which is implied for every ECC method.
-
 ##### How ECC works
 
 Without going into extreme details of curve mathematics, the algorithm is based on points on curve. "Adding" (for simplicity, traditional mathematical terms/symbols are used, but the logic itself is _not_ as trivial as traditional addition) points on a curve is a straightforward equation. "Multiplying" a point can only be achieved by adding the original point N times, which can be simplified into binary logic (doubling + adding). These new points also lie on the curve (and are therefore verifiable).
 
-For example `P1 * 10` can be simplified as `P1 * ((8 * 1) + (4 * 0) + (2 * 1) + (1 * 0))` -> `P1 * 8 + P1 * 2`. Note that `P1 * 2` can be rewritten as `P1 + P1` (straightforward) and `P1 * 4` can be rewritten as `P2 = P1 * 2; P2 * 2` (re-use a cached value). As such, multiplying a Point can be solved in `O(log(n))` time (multiplying by 2^256 takes ~ 256 "steps") which is very acceptable.
+For example `P1 * 10` can be simplified as `P1 * ((8 * 1) + (4 * 0) + (2 * 1) + (1 * 0))` -> `P1 * 8 + P1 * 2`. Note that `P1 * 2` can be rewritten as `P1 + P1` (straightforward) and `P1 * 4` can be rewritten as `P2 = P1 * 2; P2 * 2` (re-using a cached value). As such, multiplying a Point can be solved in `O(log(n))` time (multiplying by 2^256 takes ~ 256 "steps") which is very acceptable.
 
-Given the complication of multiplication, there is no known "divide" operator in ECC. As such, an algorithm can agree on an original point on a curve. Then the "private key" is simply a random number between the curves "domain" (`prime256v1` domain is between 0 and 2^256). The "public key" is the resulting point on the curve after multiplication.
+Given the complication of multiplication, there is no known "division" operator in ECC. As such, an algorithm can agree on an original point on a curve. Then the "private key" is simply a random number between the curves "domain" (`prime256v1` domain is between 0 and 2^256). The "public key" is the resulting point on the curve after multiplication.
 
-A public key technically represents a point on a curve (both X and Y coordinates). However, since the equation for the curve is known, it is possible to provide _only_ the X coordinate, and a single byte indicating whether the associated Y coordinate is odd or even. This is known as the "compressed" form of a public key.
+A public key technically represents a point (both X and Y coordinates). However, since the equation for the curve is known, it is possible to provide _only_ the X coordinate, and a single byte indicating whether the associated Y coordinate is odd or even. This is known as the "compressed" form of a public key.
 
 Given one parties public key (a point), and another's private key (an integer), these can _again_ be multiplied to produce a "shared secret". Due to the communicative properties of addition/multiplication, both combinations of PublicA * PrivateB AND PrivateA * PublicB produces the _same_ shared secret.
 
@@ -302,11 +304,19 @@ Type used to represent a specific hash algorithm.
 
 To avoid hashing (as it is sometimes used internally by algorithms) provide the `'raw'` option to return the input unchanged.
 
+Generally defaults to `{ cipher: 'AES', size: 256, mode: 'CTR' }`.
+
 ### Encryption
 
 Type used to represent a specific symmetric encryption algorithm.
 
 `{ cipher: string; size: number; mode: string }`.
+
+### Curve
+
+Type used to represent a specific ECC curve. `string`.
+
+Generally defaults to `p256`.
 
 ### atob
 
@@ -370,15 +380,15 @@ Asynchronously decrypts the data using the provided algorithms. Make sure that t
 
 Both the `encrypted` + `iv` comes from the output of `encrypt`, alongside the original `secret`.
 
-### generateEccPrivateKey
+### generateEccPrivateKey(curve?: Curve)
 
 Asynchronously generates an ECC private key as a Uint8Array.
 
-### generateEccPublicKey(privateKey: InputText)
+### generateEccPublicKey(privateKey: InputText, curve?: Curve)
 
 Generates the corresponding public key for the provided private key.
 
-### compressEccPublicKey(publicKey: InputText)
+### compressEccPublicKey(publicKey: InputText, curve?: Curve)
 
 Calculates the corresponding compressed public key for the provided public key.
 
@@ -386,22 +396,24 @@ NOOP if public key is already compressed (idempotent).
 
 Generally available for convenience. All public keys outputted by ecc methods are compressed by default, and accept both forms as input.
 
-### decompressEccPublicKey(publicKey: InputText)
+### decompressEccPublicKey(publicKey: InputText, curve?: Curve)
 
 Calculate the corresponding uncompressed public key for the provided public key.
 
 NOOP if public key is already uncompressed (idempotent).
 
-### eccEncrypt(params: { data: InputText; privateKey: InputText; publicKey: InputText }, options?: { encryption?: Encryption })
+### eccEncrypt(params: { data: InputText; privateKey: InputText; publicKey: InputText }, options?: { curve?: Curve; encryption?: Encryption })
 
 Asynchronously determines the shared secret between public + private key, and encrypts the data using the specified encryption algorithm (defaults to `aes-256-ctr`).
+
+Ensure that the keys are generated using the same curve algorithm provided.
 
 Note that the `publicKey` should be the "_receiver's_" public key, not simply the public key for the provided `privateKey` ("_sender_").
 
 Returns both the `encrypted` + `iv` data (see `encrypt`) as well as the `publicKey` corresponding to the input `privateKey` for convenience.
 
-### eccDecrypt(params: { encrypted: InputText; iv: InputText; privateKey: InputText; publicKey: InputText }, options?: { encryption?: Encryption })
+### eccDecrypt(params: { encrypted: InputText; iv: InputText; privateKey: InputText; publicKey: InputText }, options?: { curve?: Curve; encryption?: Encryption })
 
 Asynchronously decrypts the data from `eccEncrypt` using the _receiver's_ `privateKey` and the _sender's_ `publicKey`.
 
-Ensure that the provided encryption algorithm is the same as used to encrypt.
+Ensure that the provided curve + encryption algorithm is the same as used to encrypt.
