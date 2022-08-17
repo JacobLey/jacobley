@@ -2,62 +2,77 @@ import crypto from '#crypto';
 import { decode, encode } from '#encode';
 import { decrypt, encrypt } from '#encrypt';
 import { padBytes } from '../lib/bytes-length.js';
-import { derivePublicKey, p256, type Point } from '../lib/math.js';
-import { defaultEncryption, type InputText } from '../lib/types.js';
+import { curves, derivePublicKey, type Point } from '../lib/math.js';
+import { eccMeta } from '../lib/size-meta.js';
+import { type Curve, defaultCurve, defaultEncryption, type InputText } from '../lib/types.js';
 import { decompressEccPublicKey } from './compression.js';
 import type * as Ecc from './types.js';
 
-export const generateEccPrivateKey: typeof Ecc['generateEccPrivateKey'] = async () => {
+const curveToKeyParams = (curve: Curve): crypto.EcKeyGenParams => ({
+    name: 'ECDH',
+    namedCurve: curve.replace('p', 'P-'),
+});
+
+export const generateEccPrivateKey: typeof Ecc['generateEccPrivateKey'] = async (
+    curve = defaultCurve
+) => {
     const ecdh = await crypto.subtle.generateKey(
-        {
-            name: 'ECDH',
-            namedCurve: 'P-256',
-        },
+        curveToKeyParams(curve),
         true,
         ['deriveKey']
     );
     const key = await crypto.subtle.exportKey('jwk', ecdh.privateKey);
-    return padBytes(decode({ text: key.d!, encoding: 'base64url' }), 32);
+    return padBytes(
+        decode({ text: key.d!, encoding: 'base64url' }),
+        eccMeta(curve).bytes
+    );
 };
 
-const deriveP256PublicKey = (privateKey: InputText): Point => {
+const getPublicKey = (privateKey: InputText, curve: Curve): Point => {
 
     const hex = encode(decode(privateKey), 'hex');
 
     return derivePublicKey(
         BigInt(`0x${hex}`),
-        p256
+        curves[curve]
     );
 };
-const bigIntToBase64Url = (x: bigint): string => encode(
+const bigIntToBase64Url = (x: bigint, bytes: number): string => encode(
     padBytes(
         decode({ text: x.toString(16), encoding: 'hex' }),
-        32
+        bytes
     ),
     'base64url'
 );
-const deriveP256PublicKeyBase64 = (privateKey: InputText): { x: string; y: string } => {
-    const { x, y } = deriveP256PublicKey(privateKey);
+const derivePublicKeyBase64 = (
+    privateKey: InputText,
+    curve: Curve
+): { x: string; y: string } => {
+    const { x, y } = getPublicKey(privateKey, curve);
+    const { bytes } = eccMeta(curve);
     return {
-        x: bigIntToBase64Url(x),
-        y: bigIntToBase64Url(y),
+        x: bigIntToBase64Url(x, bytes),
+        y: bigIntToBase64Url(y, bytes),
     };
 };
 
-export const generateEccPublicKey: typeof Ecc['generateEccPublicKey'] = privateKey => {
+export const generateEccPublicKey: typeof Ecc['generateEccPublicKey'] = (
+    privateKey,
+    curve = defaultCurve
+) => {
 
-    const { x, y } = deriveP256PublicKey(privateKey);
-
-    // eslint-disable-next-line no-bitwise
-    const odd = 2n + (y & 1n);
+    const { x, y } = getPublicKey(privateKey, curve);
+    const { bytes } = eccMeta(curve);
 
     return new Uint8Array([
-        Number(odd),
-        ...padBytes(decode({ text: x.toString(16), encoding: 'hex' }), 32),
+        // eslint-disable-next-line no-bitwise
+        2 + Number(y & 1n),
+        ...padBytes(decode({ text: x.toString(16), encoding: 'hex' }), bytes),
     ]);
 };
 
-const eccSecret = async ({ privateKey, publicKey }: {
+const eccSecret = async ({ curve, privateKey, publicKey }: {
+    curve: Curve;
     publicKey: InputText;
     privateKey: InputText;
 }): Promise<{
@@ -66,6 +81,7 @@ const eccSecret = async ({ privateKey, publicKey }: {
 }> => {
 
     const bufferPrivateKey = decode(privateKey);
+    const curveParams = curveToKeyParams(curve);
 
     const [
         privateEc,
@@ -74,30 +90,25 @@ const eccSecret = async ({ privateKey, publicKey }: {
         crypto.subtle.importKey(
             'jwk',
             {
-                crv: 'P-256',
+                crv: curveParams.namedCurve,
                 kty: 'EC',
                 d: encode(bufferPrivateKey, 'base64url'),
-                ...deriveP256PublicKeyBase64(bufferPrivateKey),
+                ...derivePublicKeyBase64(bufferPrivateKey, curve),
             },
-            {
-                name: 'ECDH',
-                namedCurve: 'P-256',
-            },
+            curveParams,
             true,
             ['deriveKey']
         ),
         crypto.subtle.importKey(
             'raw',
-            decompressEccPublicKey(publicKey),
-            {
-                name: 'ECDH',
-                namedCurve: 'P-256',
-            },
+            decompressEccPublicKey(publicKey, curve),
+            curveParams,
             true,
             ['deriveKey']
         ),
     ]);
 
+    const { bytes } = eccMeta(curve);
     const derivedSecret = await crypto.subtle.deriveKey(
         {
             name: 'ECDH',
@@ -107,7 +118,7 @@ const eccSecret = async ({ privateKey, publicKey }: {
         {
             name: 'HMAC',
             hash: 'SHA-256',
-            length: 256,
+            length: bytes * 8,
         },
         true,
         []
@@ -124,9 +135,9 @@ export const eccEncrypt: typeof Ecc['eccEncrypt'] = async ({
     data,
     publicKey,
     privateKey,
-}, { encryption = defaultEncryption } = {}) => {
+}, { curve = defaultCurve, encryption = defaultEncryption } = {}) => {
 
-    const secretKey = await eccSecret({ privateKey, publicKey });
+    const secretKey = await eccSecret({ curve, privateKey, publicKey });
 
     const [
         encrypted,
@@ -143,12 +154,13 @@ export const eccEncrypt: typeof Ecc['eccEncrypt'] = async ({
     const odd = decode({ text: jwk.y!, encoding: 'base64url' }).reverse()[0]! & 1;
 
     const publicX = decode({ text: jwk.x!, encoding: 'base64url' });
+    const { bytes } = eccMeta(curve);
 
     return {
         ...encrypted,
         publicKey: new Uint8Array([
             2 + odd,
-            ...padBytes(publicX, 32),
+            ...padBytes(publicX, bytes),
         ]),
     };
 };
@@ -157,9 +169,9 @@ export const eccDecrypt: typeof Ecc['eccDecrypt'] = async ({
     iv,
     publicKey,
     privateKey,
-}, { encryption = defaultEncryption } = {}) => {
+}, { curve = defaultCurve, encryption = defaultEncryption } = {}) => {
 
-    const { secret } = await eccSecret({ privateKey, publicKey });
+    const { secret } = await eccSecret({ curve, privateKey, publicKey });
 
     return decrypt({
         encrypted,

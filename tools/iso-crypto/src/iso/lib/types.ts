@@ -28,7 +28,10 @@ export const defaultHash: HashAlgorithm = {
 };
 
 export type Encoding = 'base64' | 'base64url' | 'hex' | 'utf8';
-export const defaultEncoding = 'utf8';
+export const defaultEncoding: Encoding = 'utf8';
+
+export type Curve = 'p256' | 'p384' | 'p521';
+export const defaultCurve: Curve = 'p256';
 
 export type InputText = string | Uint8Array | {
     text: string;

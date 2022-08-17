@@ -1,4 +1,4 @@
-import type { Encryption } from './types.js';
+import type { Curve, Encryption } from './types.js';
 
 /**
  * Get input/output sizes for encryption.
@@ -14,3 +14,10 @@ export const encryptionMeta = (encryption: Encryption): {
     secret: encryption.size / 8,
     iv: 16,
 });
+
+export const eccMeta = (curve: Curve): {
+    bytes: number;
+} => {
+    const bytePairs = Number.parseInt(curve.slice(1), 10) / 16;
+    return { bytes: Math.ceil(bytePairs) * 2 };
+};
