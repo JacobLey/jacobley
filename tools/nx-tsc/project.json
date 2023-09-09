@@ -1,0 +1,19 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "nx-tsc",
+  "targets": {
+    "build": {},
+    "build:js:tsc": {
+      "executor": "npm-nx-tsc:build",
+      "options": {
+        "tsConfig": "tools/nx-tsc/tsconfig.json"
+      }
+    },
+    "post-build:js:populate-files": {
+      "executor": "npm-nx-populate-files:populate-files",
+      "options": {
+        "filePath": "tools/nx-tsc/dist/file-content.js"
+      }
+    }
+  }
+}

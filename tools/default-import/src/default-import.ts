@@ -36,6 +36,7 @@ export const defaultImport = <T>(
         mod;
 
     if (
+        typeof defaultVal === 'object' &&
         '__esModule' in defaultVal &&
         // eslint-disable-next-line @typescript-eslint/naming-convention
         (defaultVal as unknown as { __esModule?: boolean }).__esModule &&

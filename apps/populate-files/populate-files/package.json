@@ -1,0 +1,46 @@
+{
+  "name": "populate-files",
+  "version": "0.0.1",
+  "description": "Dynamically populate file content",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/JacobLey/jacobley/tree/main/apps/populate-files/populate-files/nx-tsc#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "keywords": [
+    "content",
+    "write",
+    "build"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "ci-info": "^3.8.0",
+    "npm-parse-cwd": "npm:parse-cwd@^1.0.8"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.5.7",
+    "chai": "^4.3.8",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "typescript": "^5.2.2"
+  }
+}

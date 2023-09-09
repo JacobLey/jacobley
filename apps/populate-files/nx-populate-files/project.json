@@ -1,0 +1,10 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "nx-populate-files",
+  "implicitDependencies": ["nx-tsc"],
+  "targets": {
+    "build": {},
+    "build:js:tsc": {},
+    "post-build:js:populate-files": {}
+  }
+}

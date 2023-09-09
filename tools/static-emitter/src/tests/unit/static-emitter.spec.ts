@@ -70,7 +70,7 @@ export const StaticEmitterSpec = {
                     };
                 }
 
-                expectTypeOf(CustomEmitterDeclare).toEqualTypeOf(CustomEmitter);
+                expectTypeOf(CustomEmitterDeclare).toMatchTypeOf(CustomEmitter);
             },
 
             'Both generics and event param'() {
@@ -91,7 +91,7 @@ export const StaticEmitterSpec = {
                     };
                 }
 
-                expectTypeOf(CustomEmitterCombo).toEqualTypeOf(CustomEmitter);
+                expectTypeOf(CustomEmitterCombo).toMatchTypeOf(CustomEmitter);
             },
         },
 

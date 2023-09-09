@@ -1,0 +1,168 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "affected": {
+    "defaultBase": "main"
+  },
+  "installation": {
+    "version": "16.7.4"
+  },
+  "namedInputs": {
+    "ts-source": [
+      "{projectRoot}/src/**/*.{c,m,}ts{x,}",
+      "{projectRoot}/package.json",
+      "{projectRoot}/tsconfig.json",
+      "{workspaceRoot}/tsconfig.build.json"
+    ]
+  },
+  "targetDefaults": {
+    "build": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "pre-build:js",
+        "build:js:tsc",
+        "post-build:js:populate-files",
+        "^build"
+      ]
+    },
+    "pre-build:js:update-ts-references": {
+      "executor": "nx-update-ts-references:update-ts-references",
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "pre-build:js": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "pre-build:js:update-ts-references",
+        "^build"
+      ]
+    },
+    "build:js:tsc": {
+      "executor": "nx-tsc:build",
+      "options": {
+        "tsConfig": "{projectRoot}/tsconfig.json"
+      },
+      "inputs": [
+        "ts-source",
+        "^ts-source"
+      ],
+      "outputs": [
+        "{projectRoot}/dist"
+      ],
+      "dependsOn": [
+        "pre-build:js",
+        "^build"
+      ]
+    },
+    "post-build:js:populate-files": {
+      "executor": "nx-populate-files:populate-files",
+      "options": {
+        "filePath": "{projectRoot}/dist/file-content.js",
+        "cwd": "{projectRoot}"
+      },
+      "dependsOn": [
+        "pre-build:js",
+        "build:js:tsc",
+        "^build"
+      ]
+    },
+    "unit-test": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "build",
+        "pre-test:js:coverage",
+        "unit-test:js"
+      ]
+    },
+    "pre-test:js:coverage": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [],
+        "color": true,
+        "cwd": "{projectRoot}"
+      },
+      "configurations": {
+        "coverage": {
+          "commands": [
+            {
+              "command": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
+              "description": "Instrument ESM code for coverage"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "unit-test:js": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "mocha ./dist/tests/unit",
+            "description": "Run unit test suite"
+          }
+        ],
+        "color": true,
+        "cwd": "{projectRoot}"
+      },
+      "configurations": {
+        "coverage": {
+          "commands": [
+            {
+              "command": "nyc --silent mocha ./nyc/tests/unit",
+              "description": "Run tests suite while covered by nyc"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "pre-test:js:coverage",
+        "build"
+      ]
+    },
+    "test": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "build",
+        "unit-test",
+        "post-test:js"
+      ]
+    },
+    "post-test:js": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [],
+        "color": true,
+        "cwd": "{projectRoot}"
+      },
+      "configurations": {
+        "coverage": {
+          "commands": [
+            {
+              "command": "nyc report",
+              "description": "Report combined coverage"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "build",
+        "pre-test:js:coverage",
+        "unit-test:js"
+      ]
+    }
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build:js:tsc",
+          "lint"
+        ]
+      }
+    }
+  }
+}

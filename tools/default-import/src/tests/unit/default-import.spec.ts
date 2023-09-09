@@ -88,39 +88,47 @@ export const DefaultImportSpec = {
 
             'No default is found'() {
                 Chai.expect(DefaultImport.defaultImport(noDefault)).to.equal(noDefault);
-                expectTypeOf(DefaultImport.defaultImport(noDefault)).toEqualTypeOf<{ noDefault: true }>();
+                expectTypeOf(DefaultImport.defaultImport(noDefault)).toEqualTypeOf<{ readonly noDefault: true }>();
 
                 Chai.expect(
                     DefaultImport.defaultImport(noDefault)
                 ).to.eq(DefaultImport.defaultImport(dynamicNoDefault));
-                expectTypeOf(DefaultImport.defaultImport(dynamicNoDefault)).toEqualTypeOf<{ noDefault: true }>();
+                expectTypeOf(DefaultImport.defaultImport(dynamicNoDefault)).toEqualTypeOf<{ readonly noDefault: true }>();
 
                 Chai.expect(
                     DefaultImport.defaultImport(DefaultImport.defaultImport(noDefault))
                 ).to.eq(DefaultImport.defaultImport(noDefault));
                 expectTypeOf(
                     DefaultImport.defaultImport(DefaultImport.defaultImport(noDefault))
-                ).toEqualTypeOf<{ noDefault: true }>();
+                ).toEqualTypeOf<{ readonly noDefault: true }>();
 
-                Chai.expect(DefaultImport.defaultImport(noDefault)).to.deep.equal({
-                    [Symbol.toStringTag]: 'Module',
-                    noDefault: true,
-                });
+                Chai.expect(DefaultImport.defaultImport(noDefault)).to.deep.equal(
+                    Object.create(null, {
+                        noDefault: {
+                            value: true,
+                            enumerable: true,
+                        },
+                        [Symbol.toStringTag]: {
+                            value: 'Module',
+                            enumerable: false,
+                        },
+                    })
+                );
 
                 Chai.expect(DefaultImport.defaultImport(namedCjs)).to.equal(namedCjs);
-                expectTypeOf(DefaultImport.defaultImport(namedCjs)).toEqualTypeOf<{ named: '<named>' }>();
+                expectTypeOf(DefaultImport.defaultImport(namedCjs)).toEqualTypeOf<{ readonly named: '<named>' }>();
 
                 Chai.expect(
                     DefaultImport.defaultImport(namedCjs)
                 ).to.eq(DefaultImport.defaultImport(dynamicNamedCjs));
-                expectTypeOf(DefaultImport.defaultImport(dynamicNamedCjs)).toEqualTypeOf<{ named: '<named>' }>();
+                expectTypeOf(DefaultImport.defaultImport(dynamicNamedCjs)).toEqualTypeOf<{ readonly named: '<named>' }>();
 
                 Chai.expect(
                     DefaultImport.defaultImport(DefaultImport.defaultImport(namedCjs))
                 ).to.eq(DefaultImport.defaultImport(namedCjs));
                 expectTypeOf(
                     DefaultImport.defaultImport(DefaultImport.defaultImport(namedCjs))
-                ).toEqualTypeOf<{ named: '<named>' }>();
+                ).toEqualTypeOf<{ readonly named: '<named>' }>();
 
                 Chai.expect(DefaultImport.defaultImport(namedCjs)).to.deep.equal({ named: '<named>' });
             },

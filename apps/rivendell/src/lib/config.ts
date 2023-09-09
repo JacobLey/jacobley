@@ -10,7 +10,7 @@ import {
     type SchemaType,
     stringSchema,
 } from 'juniper';
-import minimatch from 'minimatch';
+import { Minimatch } from 'minimatch';
 import { gitRoot } from './git.js';
 
 const Ajv = defaultImport(DefaultAjv);
@@ -50,8 +50,8 @@ export interface Config {
     dependencies: {
         root: boolean;
         dev: boolean;
-        includePackage: minimatch.IMinimatch['match'];
-        includePath: minimatch.IMinimatch['match'];
+        includePackage: Minimatch['match'];
+        includePath: Minimatch['match'];
         patterns: {
             include: string[];
             exclude: string[];
@@ -106,11 +106,11 @@ const findAndLoadConfigs = async ({
 
 const arrayify = (str: string | string[] = []): string[] => (Array.isArray(str) ? str : [str]);
 
-const strArrayToMinimatch = (toMatch: string | string[] = []): minimatch.IMinimatch['match'] => {
+const strArrayToMinimatch = (toMatch: string | string[] = []): Minimatch['match'] => {
 
     const arr = arrayify(toMatch);
 
-    const miniMatches = arr.map(pattern => new minimatch.Minimatch(pattern));
+    const miniMatches = arr.map(pattern => new Minimatch(pattern));
 
     return name => miniMatches.some(m => m.match(name));
 };

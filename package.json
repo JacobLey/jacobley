@@ -1,0 +1,51 @@
+{
+  "name": "jacobley-root",
+  "version": "0.0.0",
+  "description": "Monorepo root.",
+  "engines": {
+    "node": ">=20"
+  },
+  "private": true,
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/jacobley/jacobley#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "eslint": "eslint ${LINT_GLOB:-.} --cache --cache-location=./.eslintcache --cache-strategy=content",
+    "eslint:fix": "pnpm run eslint -- --fix",
+    "lint": "pnpm run prettier && pnpm run eslint",
+    "lint:fix": "pnpm run prettier:fix && pnpm run eslint:fix",
+    "_prettier": "prettier ${LINT_GLOB:-.} --cache --cache-location=./.prettiercache --cache-strategy=content",
+    "prettier": "pnpm run prettier -- --check",
+    "prettier:fix": "pnpm run prettier -- --write"
+  },
+  "devDependencies": {
+    "@eslint/js": "^8.47.0",
+    "@next/eslint-plugin-next": "^13.4.13",
+    "@typescript-eslint/eslint-plugin": "^6.3.0",
+    "@typescript-eslint/parser": "^6.3.0",
+    "eslint": "^8.47.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.28.0",
+    "eslint-plugin-jsdoc": "^46.4.6",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-n": "^16.0.1",
+    "eslint-plugin-react": "^7.33.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-sonarjs": "^0.20.0",
+    "eslint-plugin-unicorn": "^48.0.1",
+    "jacobley": "workspace:^",
+    "npm-nx-tsc": "npm:nx-tsc@^0.0.2",
+    "npm-nx-populate-files": "npm:nx-populate-files@^0.0.2",
+    "nx": "16.7.4",
+    "nx-populate-files": "workspace:^",
+    "nx-update-ts-references": "workspace:^",
+    "nx-tsc": "workspace:^",
+    "typescript": "^5.2.2"
+  }
+}

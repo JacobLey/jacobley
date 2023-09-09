@@ -1,0 +1,70 @@
+{
+  "name": "ts-executable",
+  "version": "0.0.0",
+  "description": "Maintain executable bit on typescript output files.",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/JacobLey/jacobley/tree/main/apps/ts-executable#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "keywords": [
+    "typescript",
+    "executable",
+    "bit",
+    "bin env node"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "coverage": "rushx instrument && nyc mocha ./nyc/tests/unit",
+    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
+    "lint": "rush lint-package",
+    "test": "rushx coverage",
+    "unit-test": "mocha ./dist/tests/unit"
+  },
+  "types": "./dist/ts-executable.js",
+  "exports": {
+    ".": {
+      "types": "./src/ts-executable.ts",
+      "default": "./dist/ts-executable.js"
+    }
+  },
+  "bin": {
+    "ts-executable": "./cli.mjs"
+  },
+  "publishConfig": {
+    "bin": {
+      "ts-executable": "./dist/cli.js"
+    },
+    "exports": {
+      ".": "./dist/ts-executable.js"
+    }
+  },
+  "dependencies": {
+    "default-import": "workspace:^",
+    "entry-script": "workspace:^",
+    "find-import": "workspace:^",
+    "globby": "^13.2.2",
+    "named-patch": "workspace:^",
+    "parse-cwd": "workspace:^",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.5.7",
+    "@types/sinon": "^10.0.16",
+    "@types/yargs": "^17.0.24",
+    "chai": "^4.3.8",
+    "expect-type": "^0.16.0",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "sinon": "^15.2.0",
+    "typescript": "^5.2.2"
+  }
+}

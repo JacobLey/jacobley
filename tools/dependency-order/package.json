@@ -3,7 +3,7 @@
   "version": "1.1.6",
   "description": "List monorepo packages in dependency order.",
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "type": "module",
   "author": "jacobley",
@@ -22,7 +22,6 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "tsc",
     "coverage": "rushx instrument && nyc mocha ./nyc/tests/unit",
     "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
     "lint": "rush lint-package",
@@ -48,14 +47,14 @@
     "packages-list": "workspace:^"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.1",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "^18.0.0",
-    "@types/sinon": "^10.0.11",
-    "chai": "^4.3.6",
-    "mocha": "^10.0.0",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.5.7",
+    "@types/sinon": "^10.0.16",
+    "chai": "^4.3.8",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "sinon": "^14.0.0",
-    "typescript": "^4.7.2"
+    "sinon": "^15.2.0",
+    "typescript": "^5.2.2"
   }
 }

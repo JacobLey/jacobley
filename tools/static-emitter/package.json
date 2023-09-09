@@ -3,7 +3,7 @@
   "version": "2.0.1",
   "description": "Statically typed event emitter.",
   "engines": {
-    "node": ">=14.5"
+    "node": ">=18"
   },
   "type": "module",
   "author": "jacobley",
@@ -19,14 +19,6 @@
     "types"
   ],
   "sideEffects": false,
-  "scripts": {
-    "build": "tsc",
-    "coverage": "rushx instrument && nyc mocha ./nyc/tests/unit",
-    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
-    "lint": "rush lint-package",
-    "test": "rushx coverage",
-    "unit-test": "mocha ./dist/tests/unit"
-  },
   "types": "./dist/index.js",
   "exports": {
     ".": {
@@ -60,7 +52,7 @@
       }
     },
     "#typed-event": {
-      "types":  "./src/lib/typed-event/type.ts",
+      "types": "./src/lib/typed-event/type.ts",
       "nyc-static-emitter": "./nyc/lib/typed-event/typed-event.js",
       "default": "./dist/lib/typed-event/typed-event.js"
     },
@@ -84,7 +76,7 @@
         "default": "./dist/lib/custom-event/node.js"
       },
       "#typed-event": {
-        "types":  "./dist/lib/typed-event/type.js",
+        "types": "./dist/lib/typed-event/type.js",
         "default": "./dist/lib/typed-event/typed-event.js"
       },
       "#static-event-target": {
@@ -94,13 +86,13 @@
     }
   },
   "devDependencies": {
-    "@types/chai": "^4.3.1",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "^18.0.0",
-    "chai": "^4.3.6",
-    "expect-type": "^0.13.0",
-    "mocha": "^10.0.0",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.5.7",
+    "chai": "^4.3.8",
+    "expect-type": "^0.16.0",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "typescript": "^4.7.2"
+    "typescript": "^5.2.2"
   }
 }

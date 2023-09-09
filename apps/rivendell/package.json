@@ -3,7 +3,7 @@
   "version": "0.3.4",
   "description": "Preprocessor for monorepo CI configs.",
   "engines": {
-    "node": ">=16.15"
+    "node": ">=18"
   },
   "type": "module",
   "author": "jacobley",
@@ -21,14 +21,6 @@
     "build"
   ],
   "sideEffects": false,
-  "scripts": {
-    "build": "tsc",
-    "coverage": "rushx instrument && nyc mocha ./nyc/tests/unit",
-    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
-    "lint": "rush lint-package",
-    "test": "echo NO TESTS YET",
-    "unit-test": "mocha ./dist/tests/unit"
-  },
   "types": "./dist/rivendell.js",
   "exports": {
     ".": {
@@ -50,29 +42,29 @@
     }
   },
   "dependencies": {
-    "ajv": "^8.11.0",
+    "ajv": "^8.12.0",
     "default-import": "workspace:^",
     "dependency-order": "workspace:^",
     "entry-script": "workspace:^",
     "find-import": "workspace:^",
     "juniper": "workspace:^",
-    "minimatch": "^5.0.1",
+    "minimatch": "^9.0.3",
     "named-patch": "workspace:^",
     "parse-cwd": "workspace:^",
-    "yaml": "^2.1.0",
-    "yargs": "^17.4.1"
+    "yaml": "^2.3.1",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.1",
-    "@types/minimatch": "^3.0.5",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "^18.0.0",
-    "@types/sinon": "^10.0.11",
-    "@types/yargs": "^17.0.10",
-    "chai": "^4.3.6",
-    "mocha": "^10.0.0",
+    "@types/chai": "^4.3.5",
+    "@types/minimatch": "^5.1.2",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.5.7",
+    "@types/sinon": "^10.0.16",
+    "@types/yargs": "^17.0.24",
+    "chai": "^4.3.8",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "sinon": "^14.0.0",
-    "typescript": "^4.7.2"
+    "sinon": "^15.2.0",
+    "typescript": "^5.2.2"
   }
 }

@@ -1,0 +1,42 @@
+{
+  "name": "jacobley",
+  "version": "0.0.0",
+  "description": "Monorepo root.",
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true,
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/jacobley/jacobley#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "coverage": "rushx instrument && nyc mocha ./nyc/tests/unit",
+    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
+    "lint": "LINT_GLOB=$PNPM_SCRIPT_SRC_DIR pnpm run -w lint",
+    "lint:fix": "LINT_GLOB=$PNPM_SCRIPT_SRC_DIR pnpm run -w lint:fix",
+    "rivendell": "rivendell",
+    "unit-test": "mocha ./dist/tests/unit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.7",
+    "@types/yargs": "^17.0.24",
+    "default-import": "workspace:^",
+    "dependency-order": "workspace:^",
+    "entry-script": "workspace:^",
+    "named-patch": "workspace:^",
+    "packages-list": "workspace:^",
+    "prettier": "3.0.2",
+    "rivendell": "workspace:^",
+    "typescript": "^5.2.2",
+    "yargs": "^17.7.2"
+  },
+  "overrides": {
+    "typescript": "^5.2.2"
+  }
+}

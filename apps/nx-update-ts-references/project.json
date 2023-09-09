@@ -1,0 +1,12 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "nx-update-ts-references",
+  "implicitDependencies": ["nx-tsc"],
+  "targets": {
+    "build": {},
+    "pre-build:js": {},
+    "pre-build:js:update-ts-references": {},
+    "build:js:tsc": {},
+    "post-build:js:populate-files": {}
+  }
+}

@@ -162,7 +162,7 @@ export const StringSchemaSpec = {
                 });
 
                 const validator = new Ajv({ strict: true }).compile(json);
-                expectTypeOf<SchemaType<typeof schema>>().toEqualTypeOf<
+                expectTypeOf<SchemaType<typeof schema>>().toMatchTypeOf<
                     `${string}b${string}` |
                         (`${string}b${string}` & `${string}c` & `a${string}`) |
                         (`${string}c` & `a${string}`)

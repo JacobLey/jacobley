@@ -41,7 +41,7 @@ await Promise.all(configNames.map(async configName => {
 if (unknownError) {
     process.exitCode = 1;
     console.error(unknownError);
-// eslint-disable-next-line node/no-process-env
+// eslint-disable-next-line n/no-process-env
 } else if (process.env.CI && noError) {
     process.exitCode = 1;
     console.error('Symlink files not generated and checked into git');

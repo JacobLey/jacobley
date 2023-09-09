@@ -2,7 +2,7 @@
 
 const nodeOptions = ['conditions=patchable'];
 
-// eslint-disable-next-line node/no-process-env
+// eslint-disable-next-line n/no-process-env
 const nycCwd = process.env.NYC_CWD;
 
 if (nycCwd) {

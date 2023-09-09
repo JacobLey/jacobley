@@ -3,7 +3,7 @@
   "version": "1.1.8",
   "description": "Auto-generate TS barrel files.",
   "engines": {
-    "node": ">=14.5"
+    "node": ">=18"
   },
   "type": "module",
   "author": "jacobley",
@@ -18,14 +18,6 @@
     "index"
   ],
   "sideEffects": false,
-  "scripts": {
-    "build": "tsc",
-    "coverage": "rushx instrument && nyc mocha ./nyc/tests/unit",
-    "instrument": "nyc instrument --nycrc-path=nyc.instrument.cjs ./dist ./nyc",
-    "lint": "rush lint-package",
-    "test": "rushx coverage",
-    "unit-test": "mocha ./dist/tests/unit"
-  },
   "types": "./dist/barrelify.js",
   "exports": {
     ".": {
@@ -50,23 +42,23 @@
     "default-import": "workspace:^",
     "entry-script": "workspace:^",
     "find-import": "workspace:^",
-    "globby": "^13.1.1",
+    "globby": "^13.2.2",
     "named-patch": "workspace:^",
     "parse-cwd": "workspace:^",
-    "yargs": "^17.4.1"
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.1",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "^18.0.0",
-    "@types/sinon": "^10.0.11",
-    "@types/yargs": "^17.0.10",
-    "chai": "^4.3.6",
-    "expect-type": "^0.13.0",
-    "mocha": "^10.0.0",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.5.7",
+    "@types/sinon": "^10.0.16",
+    "@types/yargs": "^17.0.24",
+    "chai": "^4.3.8",
+    "expect-type": "^0.16.0",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "sinon": "^14.0.0",
+    "sinon": "^15.2.0",
     "ts-dedent": "^2.2.0",
-    "typescript": "^4.7.2"
+    "typescript": "^5.2.2"
   }
 }

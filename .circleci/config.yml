@@ -1,0 +1,151 @@
+version: 2.1
+
+## This file is not the source of truth for CI.
+## It is implemented purely as a Rivendell demo.
+## See ./github/workflows (Github Actions) for actual CI.
+
+orbs:
+  node: circleci/node@5.0.2
+
+jobs:
+
+  install:
+    resource_class: small
+    environment:
+      RUSH_GLOBAL_FOLDER: ${{ .Environment.CIRCLE_WORKING_DIRECTORY }}/.rush
+    steps:
+
+      - checkout
+
+      - node/install:
+          node-version: '16'
+
+      - restore_cache:
+          name: Restore install cache
+          key: node-16.15.0-{{ arch }}-rush-{{ checksum "rush.json" }}-lock-{{ checksum "common/config/rush/pnpm-lock.yaml" }}
+
+      - run:
+          name: Install if not already cached
+          command: |
+            if [[ ! -d .rush ]]
+              then
+                node ./common/scripts/install-run-rush.js install
+            fi
+
+      - run:
+          name: Verify integrity of this file
+          working_directory: ./apps/rivendell
+          command: |
+            node ../../common/scripts/install-run-rushx.js build --build
+
+            node ./cli.mjs --ci
+
+      - save_cache:
+          name: Save install cache
+          key: node-16.15.0-{{ arch }}-rush-{{ checksum "rush.json" }}-lock-{{ checksum "common/config/rush/pnpm-lock.yaml" }}
+          paths:
+            - .rush
+            - common/temp
+            - apps/*/node_modules
+            - root/*/node_modules
+            - tools/*/node_modules
+
+  lint:
+    parameters:
+      name:
+        type: string
+        description: name of package
+      safe-name:
+        type: string
+        description: encodeURIComponent(name)
+      path:
+        type: string
+        description: path to package
+    steps:
+
+      - run: |
+          echo This runs for every package in parallel!
+          echo package name: << parameters.name >>
+          echo safe name: << parameters.safe-name >>
+          echo path: << parameters.path >>
+
+  build:
+    parameters:
+      name:
+        type: string
+        description: name of package
+      safe-name:
+        type: string
+        description: encodeURIComponent(name)
+      path:
+        type: string
+        description: path to package
+    steps:
+
+      - run: |
+          echo This runs for every package in dependency order!
+          echo package name: << parameters.name >>
+          echo safe name: << parameters.safe-name >>
+          echo path: << parameters.path >>
+
+  test:
+    parameters:
+      name:
+        type: string
+        description: name of package
+      safe-name:
+        type: string
+        description: encodeURIComponent(name)
+      path:
+        type: string
+        description: path to package
+    steps:
+
+      - run: |
+          echo This runs for every package in parallel, once build is complete!
+          echo package name: << parameters.name >>
+          echo safe name: << parameters.safe-name >>
+          echo path: << parameters.path >>
+
+  deploy:
+    parameters:
+      name:
+        type: string
+        description: name of package
+      safe-name:
+        type: string
+        description: encodeURIComponent(name)
+      path:
+        type: string
+        description: path to package
+    steps:
+
+      - run: |
+          echo This runs for every publishable package in parallel!
+          echo package name: << parameters.name >>
+          echo safe name: << parameters.safe-name >>
+          echo path: << parameters.path >>
+
+workflows:
+  build-and-test:
+    jobs:
+      - install
+      - lint:
+          requires:
+            - install
+          matrix:
+            parameters:
+              "${{{ rivendell.all-packages }}}": true
+      - "build-${{{ rivendell.stage }}}":
+          requires:
+            - install
+      - "test-${{{ rivendell.stage?parallel=true }}}":
+          requires:
+            - build-${{{ rivendell.stage }}}
+            - lint
+      - push:
+          requires:
+            - test-${{{ rivendell.max-stage?parallel=true }}}
+          matrix:
+            parameters:
+              "${{{ rivendell.all-packages?private=false }}}": true

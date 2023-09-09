@@ -1,0 +1,47 @@
+{
+  "name": "nx-populate-files",
+  "version": "0.0.2",
+  "description": "Dynamically populate file content as an nx executor",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "author": "jacobley",
+  "license": "MIT",
+  "repository": "jacobley/jacobley",
+  "homepage": "https://github.com/JacobLey/jacobley/tree/main/apps/populate-files/nx-populate-files/nx-tsc#readme",
+  "bugs": {
+    "url": "https://github.com/jacobley/jacobley/issues"
+  },
+  "keywords": [
+    "nx",
+    "executor",
+    "content",
+    "write",
+    "build"
+  ],
+  "sideEffects": false,
+  "executors": "./executors.json",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    }
+  },
+  "dependencies": {
+    "ci-info": "^3.8.0",
+    "load-populate-files": "workspace:^"
+  },
+  "optionalDependencies": {
+    "@nx/devkit": "^16.7.4",
+    "juniper": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.5.7",
+    "chai": "^4.3.8",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "typescript": "^5.2.2"
+  }
+}

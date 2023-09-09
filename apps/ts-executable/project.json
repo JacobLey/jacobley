@@ -1,0 +1,9 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "ts-executable",
+  "implicitDependencies": ["nx-tsc"],
+  "targets": {
+    "build": {},
+    "build:js:tsc": {}
+  }
+}

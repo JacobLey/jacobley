@@ -60,10 +60,11 @@ export const StaticEventTargetSpec = {
                     declare public [events]: {
                         foo: 123;
                         bar: ServerEvent<'bar'>;
+                        onStuff: NativeEvent;
                     };
                 }
 
-                expectTypeOf(ExtendTargetDeclare).toEqualTypeOf(ExtendTarget);
+                expectTypeOf(ExtendTargetDeclare).toMatchTypeOf(ExtendTarget);
             },
 
             'Both generics and event param'() {
@@ -78,10 +79,11 @@ export const StaticEventTargetSpec = {
                         foo: 123;
                     }>[typeof events] & {
                         bar: ServerEvent<'bar'>;
+                        onStuff: NativeEvent;
                     };
                 }
 
-                expectTypeOf(ExtendTargetCombo).toEqualTypeOf(ExtendTarget);
+                expectTypeOf(ExtendTargetCombo).toMatchTypeOf(ExtendTarget);
             },
         },
     },

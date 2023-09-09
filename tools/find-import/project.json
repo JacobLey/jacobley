@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "find-import",
+  "implicitDependencies": ["nx-tsc"],
+  "targets": {
+    "build": {},
+    "build:js:tsc": {},
+    "test": {},
+    "post-test:js": {},
+    "unit-test": {},
+    "pre-test:js:coverage": {},
+    "unit-test:js": {}
+  }
+}
