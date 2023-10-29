@@ -1,0 +1,17 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "nx-lifecycle",
+  "targets": {
+    "build": {},
+    "pre-build:js": {},
+    "pre-build:js:update-ts-references": {},
+    "build:js:tsc": {},
+    "post-build:js:populate-files": {
+      "executor": "nx-populate-files:populate-files",
+      "options": {
+        "filePath": "{projectRoot}/dist/file-content.js"
+      }
+    }
+  }
+}
+

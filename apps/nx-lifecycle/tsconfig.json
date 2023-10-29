@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  },
+  "references": [
+    {
+      "path": "../juniper"
+    },
+    {
+      "path": "../populate-files/load-populate-files"
+    },
+    {
+      "path": "../populate-files/nx-populate-files"
+    },
+    {
+      "path": "../../tools/default-import"
+    },
+    {
+      "path": "../../tools/nx-tsc"
+    }
+  ]
+}
