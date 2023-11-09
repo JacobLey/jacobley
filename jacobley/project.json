@@ -1,0 +1,26 @@
+{
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "name": "jacobley",
+  "targets": {
+    "lifecycle": {
+      "executor": "nx-lifecycle:lifecycle",
+      "options": {
+        "stages": {
+          "build": {
+            "dependsOn": ["lint", "^build"],
+            "hooks": ["pre", "main", "post"]
+          },
+          "format": {},
+          "lint": {
+            "dependsOn": ["format", "^build"]
+          },
+          "test": {
+            "dependsOn": ["build", "^test"],
+            "hooks": ["pre", "main", "post"]
+          }
+        }
+      },
+      "dependsOn": ["^build"]
+    }
+  }
+}

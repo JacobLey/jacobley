@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json-schema.org/schema",
   "executors": {
     "populate-files": {
       "implementation": "dist/executors/populate-files/index.cjs",

@@ -392,7 +392,7 @@ export abstract class AbstractSchema<
      * @returns {object} schema
      */
     protected allOf(
-        schema: AbstractSchema<SchemaGenerics<any>>
+        schema: never
     ): unknown {
         return this.clone({
             [allOfSym]: [...this.#allOf, schema],
@@ -408,7 +408,7 @@ export abstract class AbstractSchema<
      * @returns {object} schema
      */
     protected anyOf(
-        schemas: AbstractSchema<SchemaGenerics<any>>[]
+        schemas: never[]
     ): unknown {
         return this.clone({
             [anyOfSym]: [...this.#anyOf, schemas],
@@ -425,8 +425,8 @@ export abstract class AbstractSchema<
      * @returns {AbstractSchema} schema.
      */
     protected if(
-        schema: AbstractSchema<SchemaGenerics<any>>,
-        conditionals: ConditionalResult<AbstractSchema<SchemaGenerics<any>>>
+        schema: never,
+        conditionals: ConditionalResult<never>
     ): unknown {
         return this.clone({
             [conditionalsSym]: [
@@ -460,7 +460,7 @@ export abstract class AbstractSchema<
      * @returns {AbstractSchema} schema
      */
     protected not(
-        schema: AbstractSchema<SchemaGenerics<any>>
+        schema: never
     ): unknown {
         return this.clone({
             [notSym]: [...this.#nots, schema],
@@ -487,7 +487,7 @@ export abstract class AbstractSchema<
      * @param {object[]} schemas - one of schema must be valid
      * @returns {object} schema
      */
-    protected oneOf(schemas: AbstractSchema<SchemaGenerics<any>>[]): unknown {
+    protected oneOf(schemas: never[]): unknown {
         return this.clone({
             [oneOfSym]: [...this.#oneOf, schemas],
         });

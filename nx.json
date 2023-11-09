@@ -4,7 +4,7 @@
     "defaultBase": "main"
   },
   "installation": {
-    "version": "16.7.4"
+    "version": "17.0.2"
   },
   "namedInputs": {
     "ts-source": [
@@ -22,7 +22,10 @@
         "build:js:tsc",
         "post-build:js:populate-files",
         "^build"
-      ]
+      ],
+      "configurations": {
+        "__lifecycle": {}
+      }
     },
     "pre-build:js:update-ts-references": {
       "executor": "nx-update-ts-references:update-ts-references",
@@ -35,7 +38,10 @@
       "dependsOn": [
         "pre-build:js:update-ts-references",
         "^build"
-      ]
+      ],
+      "configurations": {
+        "__lifecycle": {}
+      }
     },
     "build:js:tsc": {
       "executor": "nx-tsc:build",
@@ -72,7 +78,10 @@
         "build",
         "pre-test:js:coverage",
         "unit-test:js"
-      ]
+      ],
+      "configurations": {
+        "__lifecycle": {}
+      }
     },
     "pre-test:js:coverage": {
       "executor": "nx:run-commands",
@@ -128,7 +137,10 @@
         "build",
         "unit-test",
         "post-test:js"
-      ]
+      ],
+      "configurations": {
+        "__lifecycle": {}
+      }
     },
     "post-test:js": {
       "executor": "nx:run-commands",

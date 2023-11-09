@@ -1,4 +1,4 @@
-import type { PopulateFileParams } from 'load-populate-files';
+import type { PopulateFileParams } from 'npm-load-populate-files';
 import populateFilesOptionsSchema from './executors/update-ts-references/schema.js';
 
 export default [

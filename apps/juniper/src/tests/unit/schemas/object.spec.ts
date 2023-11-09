@@ -32,7 +32,7 @@ export const ObjectSchemaSpec = {
                     maxProperties: 3,
                     additionalProperties: true,
                     unevaluatedProperties: false,
-                }).toJSON();
+                });
 
                 expect(schema).to.deep.equal({
                     type: 'object',

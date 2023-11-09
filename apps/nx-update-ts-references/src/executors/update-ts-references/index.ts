@@ -1,9 +1,11 @@
 import { readFile, writeFile } from 'fs/promises';
-import { resolve } from 'node:path';
+import { join } from 'node:path';
 import type { ExecutorContext } from '@nx/devkit';
 import { isCI } from 'ci-info';
-import json5 from 'json5';
+import commentJson from 'comment-json';
 import type { UpdateTsReferencesOptions } from './schema.js';
+import { isTsConfig, type TsConfig } from './tsconfig-validator.js';
+import { relative } from 'path';
 
 interface NormalizedOptions {
     packageRoot: string;
@@ -16,7 +18,7 @@ interface NormalizedOptions {
 const normalizeOptions = (options: UpdateTsReferencesOptions, context: ExecutorContext): NormalizedOptions => {
 
     const projectName = context.projectName!;
-    const packageRoot = resolve(
+    const packageRoot = join(
         context.root,
         context.projectsConfigurations!.projects[projectName]!.root
     );
@@ -25,14 +27,14 @@ const normalizeOptions = (options: UpdateTsReferencesOptions, context: ExecutorC
         check: options.check ?? isCI,
         dryRun: options.dryRun ?? false,
         packageRoot,
-        tsConfig: resolve(
+        tsConfig: join(
             packageRoot,
             'tsconfig.json'
         ),
         dependencies: context.projectGraph!.dependencies[projectName]!.filter(
             dependency => context.projectsConfigurations!.projects[dependency.target]
         ).map(
-            dependency => resolve(
+            dependency => join(
                 context.root,
                 context.projectsConfigurations!.projects[dependency.target]!.root,
                 'tsconfig.json'
@@ -41,19 +43,30 @@ const normalizeOptions = (options: UpdateTsReferencesOptions, context: ExecutorC
     };
 };
 
-const safeReadFile = async (path: string): Promise<{
+interface TsConfigFile {
     path: string;
     rawData: string;
-    json: { references?: { path: string }[] }
-} | null> => {
-    try {
-        const rawData = await readFile(path, 'utf8');
+    json: TsConfig;
+}
 
+const readTsConfigFile = async (path: string): Promise<TsConfigFile> => {
+    const rawData = await readFile(path, 'utf8');
+
+    const json = commentJson.parse(rawData);
+
+    if (isTsConfig(json)) {
         return {
             path,
             rawData,
-            json: json5.parse(rawData),
+            json,
         };
+    }
+    throw new Error('tsconfig.json did not contain expected data');
+}
+
+const safeReadTsConfig = async (path: string): Promise<TsConfigFile | null> => {
+    try {
+        return await readTsConfigFile(path);
     } catch {
         return null;
     }
@@ -70,8 +83,8 @@ export default async (
         packageTsConfig,
         ...dependencyTsConfigs
     ] = await Promise.all([
-        safeReadFile(normalized.tsConfig),
-        ...normalized.dependencies.map(path => safeReadFile(path))
+        readTsConfigFile(normalized.tsConfig),
+        ...normalized.dependencies.map(path => safeReadTsConfig(path))
     ]);
 
     if (!packageTsConfig) {
@@ -85,11 +98,11 @@ export default async (
         (a, b) => a.path.localeCompare(b.path)
     ).map(
         ({ path }) => ({
-            path: resolve(normalized.packageRoot, path, '..'),
+            path: relative(normalized.packageRoot, join(path, '..')),
         })
     );
 
-    const dataToWrite = json5.stringify(packageTsConfig.json, null, 2);
+    const dataToWrite = commentJson.stringify(packageTsConfig.json, null, 2) + '\n';
 
     if (dataToWrite === packageTsConfig.rawData) {
         return { success: true };

@@ -24,14 +24,16 @@
     "unit-test": "mocha ./dist/tests/unit"
   },
   "devDependencies": {
-    "@types/node": "^20.5.7",
-    "@types/yargs": "^17.0.24",
+    "@types/node": "^20.8.10",
+    "@types/yargs": "^17.0.29",
     "default-import": "workspace:^",
     "dependency-order": "workspace:^",
     "entry-script": "workspace:^",
     "named-patch": "workspace:^",
+    "nx-lifecycle": "workspace:^",
+    "nx-tsc": "workspace:^",
     "packages-list": "workspace:^",
-    "prettier": "3.0.2",
+    "prettier": "3.0.3",
     "rivendell": "workspace:^",
     "typescript": "^5.2.2",
     "yargs": "^17.7.2"

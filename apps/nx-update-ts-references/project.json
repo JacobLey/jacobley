@@ -1,12 +1,16 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "nx-update-ts-references",
-  "implicitDependencies": ["nx-tsc"],
   "targets": {
     "build": {},
     "pre-build:js": {},
     "pre-build:js:update-ts-references": {},
     "build:js:tsc": {},
-    "post-build:js:populate-files": {}
+    "post-build:js:populate-files": {
+      "executor": "npm-nx-populate-files:populate-files",
+      "options": {
+        "filePath": "{projectRoot}/dist/file-content.js"
+      }
+    }
   }
 }

@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json-schema.org/schema",
   "executors": {
     "update-ts-references": {
       "implementation": "./dist/executors/update-ts-references/index.cjs",

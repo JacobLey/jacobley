@@ -20,6 +20,16 @@ const lifecycleOptionsSchema = objectSchema({
                 },
             }),
         }),
+        targets: objectSchema({
+            description: 'Targets that are registered to hooks',
+            additionalProperties: objectSchema({
+                properties: {
+                    hook: stringSchema({
+                        description: 'Name of hook in `stage:hook` format',
+                    }),
+                },
+            }),
+        }),
     },
 }).metadata({
     version: 1,

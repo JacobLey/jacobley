@@ -11,6 +11,17 @@
       "options": {
         "filePath": "{projectRoot}/dist/file-content.js"
       }
+    },
+    "mocha": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "mocha ./dist/tests/unit",
+        "color": true,
+        "cwd": "{projectRoot}"
+      },
+      "dependsOn": [
+        "build"
+      ]
     }
   }
 }

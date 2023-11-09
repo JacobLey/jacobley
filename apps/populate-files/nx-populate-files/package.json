@@ -28,19 +28,21 @@
     }
   },
   "dependencies": {
-    "ci-info": "^3.8.0",
+    "ci-info": "^4.0.0",
     "load-populate-files": "workspace:^"
   },
   "optionalDependencies": {
-    "@nx/devkit": "^16.7.4",
+    "@nx/devkit": "^17.0.2",
     "juniper": "workspace:^"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "^20.5.7",
-    "chai": "^4.3.8",
+    "@types/chai": "^4.3.9",
+    "@types/mocha": "^10.0.3",
+    "@types/node": "^20.8.10",
+    "chai": "^4.3.10",
     "mocha": "^10.2.0",
+    "npm-nx-update-ts-references": "npm:nx-update-ts-references@^0.0.1",
+    "nx-tsc": "workspace:^",
     "nyc": "^15.1.0",
     "typescript": "^5.2.2"
   }

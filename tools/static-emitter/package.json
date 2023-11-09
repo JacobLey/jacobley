@@ -86,12 +86,14 @@
     }
   },
   "devDependencies": {
-    "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "^20.5.7",
-    "chai": "^4.3.8",
-    "expect-type": "^0.16.0",
+    "@types/chai": "^4.3.9",
+    "@types/mocha": "^10.0.3",
+    "@types/node": "^20.8.10",
+    "chai": "^4.3.10",
+    "expect-type": "^0.17.3",
     "mocha": "^10.2.0",
+    "nx-tsc": "workspace:^",
+    "nx-update-ts-references": "workspace:^",
     "nyc": "^15.1.0",
     "typescript": "^5.2.2"
   }

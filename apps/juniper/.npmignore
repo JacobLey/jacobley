@@ -8,7 +8,7 @@ dist/tests/**
 src/**
 
 .nyc-cache/**
-.nyc_ouput/**
+.nyc_output/**
 coverage/**
 nyc/**
 

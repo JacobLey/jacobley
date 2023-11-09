@@ -12,7 +12,7 @@
     "post-build:js:populate-files": {
       "executor": "npm-nx-populate-files:populate-files",
       "options": {
-        "filePath": "tools/nx-tsc/dist/file-content.js"
+        "filePath": "{projectRoot}/dist/file-content.js"
       }
     }
   }

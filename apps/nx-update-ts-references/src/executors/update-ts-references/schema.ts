@@ -1,4 +1,4 @@
-import { booleanSchema, objectSchema, type SchemaType } from 'juniper';
+import { booleanSchema, objectSchema, type SchemaType } from 'npm-juniper';
 
 const updateTsReferencesOptionsSchema = objectSchema({
     title: 'update-ts-references',

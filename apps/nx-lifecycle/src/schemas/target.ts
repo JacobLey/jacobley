@@ -1,33 +1,21 @@
 import { objectSchema, type SchemaType, stringSchema } from 'juniper';
+import { ajv } from './lib/ajv.js';
+import { configurationsSchema } from './configurations.js';
 import { dependsOnSchema } from './depend-on.js';
 
-const targetSchema = objectSchema({
+const targetSchemaWithDependsOnOnly = objectSchema({
     properties: {
         dependsOn: dependsOnSchema,
-        executor: stringSchema(),
-        configurations: objectSchema().oneOf([
-            objectSchema({
-                properties: {
-                    lifecycle: objectSchema({
-                        properties: {
-                            hook: stringSchema(),
-                        },
-                        required: ['hook'],
-                        additionalProperties: false,
-                    }),
-                    __lifecycle: false,
-                },
-            }),
-            objectSchema({
-                properties: {
-                    __lifecycle: objectSchema({ additionalProperties: false }),
-                },
-                required: ['__lifecycle'],
-                additionalProperties: false,
-            }),
-        ]),
     },
+    additionalProperties: false,
 });
+export type TargetWithDependsOnOnly = SchemaType<typeof targetSchemaWithDependsOnOnly>;
+export const isTargetWithDependsOnOnly = ajv.compile<TargetWithDependsOnOnly>(targetSchemaWithDependsOnOnly.toJSON());
+
+const targetSchema = targetSchemaWithDependsOnOnly.properties({
+    executor: stringSchema(),
+    configurations: configurationsSchema,
+}).additionalProperties(true);
 
 export type Target = SchemaType<typeof targetSchema>;
 

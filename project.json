@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/nx/schemas/project-schema.json",
+  "name": "monorepo-root",
+  "targets": {
+    "do-stuff": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "echo DOES THIS RUN",
+            "description": "Run unit test suite"
+          }
+        ],
+        "color": true,
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
+}
