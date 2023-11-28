@@ -1,17 +1,11 @@
-import { objectSchema, type SchemaType, stringSchema } from 'juniper';
+import { objectSchema, type SchemaType } from 'juniper';
 
 export const configurationsSchema = objectSchema().oneOf([
     objectSchema({
         properties: {
-            lifecycle: objectSchema({
-                properties: {
-                    hook: stringSchema().nullable(),
-                },
-                required: ['hook'],
-                additionalProperties: false,
-            }),
             __lifecycle: false,
         },
+        additionalProperties: true,
     }),
     objectSchema({
         properties: {

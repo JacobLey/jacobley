@@ -1,14 +1,13 @@
-import type fs from 'node:fs/promises';
-import type { ExecutorContext } from '@nx/devkit';
 import { isNxJson, isProjectJson, type NxJson, type ProjectJson } from '#schemas';
 import { normalizeOptions, type NormalizedOptions } from './normalizer.js';
 import { processNxAndProjectJsons } from './processor.js';
+import type { LifecycleDI, SimpleExecutorContext } from './types.js';
 
 import type { LifecycleOptions } from './schema.js';
 
 interface LoadedJsonConfig<T> {
+    name: string;
     path: string;
-    rawData: string;
     data: T;
 };
 const loadJsonConfigs = async (
@@ -18,7 +17,7 @@ const loadJsonConfigs = async (
     }: NormalizedOptions,
     {
         readFile
-    }: Pick<typeof fs, 'readFile'>
+    }: Pick<LifecycleDI, 'readFile'>
 ): Promise<{
     nxJson: LoadedJsonConfig<NxJson>;
     projectJsons: LoadedJsonConfig<ProjectJson>[];
@@ -29,7 +28,8 @@ const loadJsonConfigs = async (
         ...rawProjectJsons
     ] = await Promise.all([
         readFile(nxJsonPath, 'utf8'),
-        ...packageJsonPaths.map(async path => ({
+        ...packageJsonPaths.map(async ({ name, path }) => ({
+            name,
             path,
             rawData: await readFile(path, 'utf8'),
         })),
@@ -42,11 +42,11 @@ const loadJsonConfigs = async (
 
     return {
         nxJson: {
+            name: 'nx.json',
             path: nxJsonPath,
-            rawData: rawNxJson,
             data: parsedNxJson,
         },
-        projectJsons: rawProjectJsons.map(({ path, rawData }) => {
+        projectJsons: rawProjectJsons.map(({ name, path, rawData }) => {
 
             const data = JSON.parse(rawData);
 
@@ -55,24 +55,35 @@ const loadJsonConfigs = async (
             }
 
             return {
+                name,
                 path,
-                rawData,
                 data,
             };
         }),
     };
 };
 
+interface ProcessedJsonConfig<T> extends LoadedJsonConfig<T> {
+    processed: T;
+};
+const saveJsonConfigs = async ({ jsons, options }: {
+    jsons: ProcessedJsonConfig<unknown>[];
+    options: NormalizedOptions;
+}, { writeFile }: Pick<LifecycleDI, 'writeFile'>): Promise<void> => {
+
+};
+
 export const lifecycle = async (
     options: LifecycleOptions,
-    context: ExecutorContext,
+    context: SimpleExecutorContext,
     {
+        isCI,
         readFile,
-        // writeFile,
-    }: Pick<typeof fs, 'readFile' | 'writeFile'>
+        writeFile,
+    }: LifecycleDI
 ): Promise<{ success: boolean }> => {
 
-    const normalized = normalizeOptions(options, context);
+    const normalized = normalizeOptions(options, context, { isCI });
 
     const { nxJson, projectJsons } = await loadJsonConfigs(normalized, { readFile });
 
@@ -85,8 +96,19 @@ export const lifecycle = async (
         options: normalized,
     });
 
-    console.log(JSON.stringify(processedNxJson, null, 2));
-    console.log(JSON.stringify(processedProjectJsons, null, 2));
+    await saveJsonConfigs({
+        jsons: [
+            {
+                ...nxJson,
+                processed: processedNxJson,
+            },
+            ...projectJsons.map((projectJson, i) => ({
+                ...projectJson,
+                processed: processedProjectJsons[i]!,
+            })),
+        ],
+        options: normalized,
+    }, { writeFile });
 
-    return { success: false };
+    return { success: true };
 };

@@ -15,13 +15,29 @@
     "mocha": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "mocha ./dist/tests/unit",
+        "command": "c8 --reporter=none mocha --recursive ./dist/**/*.test.*js",
+        "description": "Run unit test suite",
         "color": true,
         "cwd": "{projectRoot}"
       },
       "dependsOn": [
         "build"
-      ]
+      ],
+      "inputs": ["coverage-configs", "ts-source", "prod-data", "test-data", "^ts-source", "^prod-data"],
+      "outputs": ["{projectRoot}/coverage/tmp"]
+    },
+    "report": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "c8 report --all --check-coverage",
+        "description": "Create html report of coverage and report if failing threshold",
+        "color": true,
+        "cwd": "{projectRoot}"
+      },
+      "dependsOn": [
+        "mocha"
+      ],
+      "inputs": ["coverage-configs", "{projectRoot}/coverage"]
     }
   }
 }

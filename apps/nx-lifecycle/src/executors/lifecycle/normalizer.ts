@@ -1,25 +1,30 @@
 import { join } from 'node:path';
-import type { ExecutorContext } from '@nx/devkit';
-import { isCI } from 'ci-info';
 import type { LifecycleOptions } from './schema.js';
+import type { LifecycleDI, SimpleExecutorContext } from './types.js';
 
 export interface NormalizedOptions {
     check: boolean;
     dryRun: boolean;
     nxJsonPath: string;
-    packageJsonPaths: string[];
+    packageJsonPaths: { name: string; path: string }[];
     stages: NonNullable<LifecycleOptions['stages']>;
+    targets: NonNullable<LifecycleOptions['targets']>;
 }
 
 export const normalizeOptions = (
     options: LifecycleOptions,
-    context: ExecutorContext
+    context: SimpleExecutorContext,
+    { isCI }: Pick<LifecycleDI, 'isCI'>
 ): NormalizedOptions => ({
     check: options.check ?? isCI,
     dryRun: options.dryRun ?? false,
     nxJsonPath: join(context.root, 'nx.json'),
     packageJsonPaths: Object.values(context.projectsConfigurations!.projects).map(
-        (projectConfig) => join(context.root, projectConfig.root, 'project.json')
+        (projectConfig) => ({
+            name: projectConfig.name!,
+            path: join(context.root, projectConfig.root, 'project.json'),
+        })
     ),
     stages: options.stages ?? {},
+    targets: options.targets ?? {},
 });

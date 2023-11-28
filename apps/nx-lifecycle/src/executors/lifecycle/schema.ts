@@ -22,15 +22,12 @@ const lifecycleOptionsSchema = objectSchema({
         }),
         targets: objectSchema({
             description: 'Targets that are registered to hooks',
-            additionalProperties: objectSchema({
-                properties: {
-                    hook: stringSchema({
-                        description: 'Name of hook in `stage:hook` format',
-                    }),
-                },
+            additionalProperties: stringSchema({
+                description: 'Name of hook in `stage:hook` format',
             }),
         }),
     },
+    additionalProperties: false,
 }).metadata({
     version: 1,
     outputCapture: "direct-nodejs",

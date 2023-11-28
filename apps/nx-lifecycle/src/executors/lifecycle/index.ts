@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import type { ExecutorContext } from '@nx/devkit';
+import { isCI } from 'ci-info';
 import type { LifecycleOptions } from './schema.js';
 import { lifecycle } from './lifecycle.js';
 
@@ -10,6 +11,7 @@ export default async (
 
     try {
         return await lifecycle(options, context, {
+            isCI,
             readFile,
             writeFile,
         });

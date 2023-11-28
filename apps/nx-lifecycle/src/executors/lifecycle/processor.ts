@@ -1,9 +1,8 @@
-import { deepEqual } from 'fast-equals';
-import { type Configurations, type NxJson, type NxJsonWithTargets, type ProjectJson, type ProjectJsonWithTargets, type Target, DependsOn, AllTargets, isEmpty, isTargetWithDependsOnOnly } from '#schemas';
+import { type NxJson, type ProjectJson, type Target, type DependsOn, type AllTargets, isEmpty } from '#schemas';
 import { NOOP_EXECUTOR } from './constants.js';
 import type { NormalizedOptions } from './normalizer.js';
 
-type ProcessorOptions = Pick<NormalizedOptions, 'stages'>;
+type ProcessorOptions = Pick<NormalizedOptions, 'stages' | 'targets'>;
 
 type LifecycleTarget = {
     name: string;
@@ -24,10 +23,11 @@ type LifecycleTarget = {
         )
     )
 );
-type LifecycleTargetWithHooks = Extract<LifecycleTarget, { previousHook: string }>;
 
 type LifecycleTargets = Map<string, LifecycleTarget>;
-type RegisteredTargets = Map<string, LifecycleTargetWithHooks | null>;
+
+type LifecycleTargetWithHooks = Extract<LifecycleTarget, { previousHook: string }>;
+type RegisteredTargets = Map<string, LifecycleTargetWithHooks>;
 
 const calculateTargets = ({ stages }: ProcessorOptions): LifecycleTargets => {
 
@@ -67,6 +67,31 @@ const calculateTargets = ({ stages }: ProcessorOptions): LifecycleTargets => {
     return lifecycleTargets;
 };
 
+const registerTargets = ({ lifecycleTargets, options }: {
+    lifecycleTargets: LifecycleTargets;
+    options: ProcessorOptions,
+}): RegisteredTargets => {
+    const registeredTargets: RegisteredTargets = new Map();
+    for (const [targetName, hookName] of Object.entries(options.targets)) {
+        if (lifecycleTargets.has(targetName)) {
+            throw new Error(`Overlap in lifecycle hook and target: ${targetName}`);
+        }
+        const hook = lifecycleTargets.get(hookName);
+        if (!hook) {
+            throw new Error(`Hook for target ${targetName} not found: ${hookName}`);
+        }
+        if (hook.kind === 'anchor') {
+            throw new Error(`Target ${targetName} cannot be part of anchor hook ${hook.name}`);
+        }
+        if (hook.kind === 'base' && hook.hasHooks) {
+            throw new Error(`Target ${targetName} cannot be part of base hook ${hook.name}. Use format ${hook.name}:<hook>`);
+        }
+        registeredTargets.set(targetName, hook);
+    }
+
+    return registeredTargets;
+};
+
 const calculateTargetsToRemove = ({ lifecycleTargets, nxJson } : {
    lifecycleTargets: LifecycleTargets;
    nxJson: NxJson;
@@ -74,7 +99,7 @@ const calculateTargetsToRemove = ({ lifecycleTargets, nxJson } : {
 
     const targetsToRemove = new Set<string>();
 
-    for (const [targetName, target] of Object.entries(lifecycleTargets)) {
+    for (const [targetName, target] of lifecycleTargets.entries()) {
         if (target.kind !== 'base') {
             targetsToRemove.add(targetName);
         }
@@ -92,7 +117,7 @@ const calculateTargetsToRemove = ({ lifecycleTargets, nxJson } : {
     return targetsToRemove;
 };
 
-const removeDependencyTargets = ({ target, lifecycleTargets, targetsToRemove}: {
+const removeDependencyTargets = ({ target, lifecycleTargets, targetsToRemove }: {
     target: Target;
     lifecycleTargets: LifecycleTargets;
     targetsToRemove: Set<String>;
@@ -105,69 +130,61 @@ const removeDependencyTargets = ({ target, lifecycleTargets, targetsToRemove}: {
                     dependency.target;
 
                 const normalized = target.replace(/^\^/, '');
-                return !targetsToRemove.has(normalized) && !lifecycleTargets.has(normalized);
+                if (targetsToRemove.has(normalized)) {
+                    return false;
+                }
+                const lifecycleTarget = lifecycleTargets.get(normalized);
+                if (lifecycleTarget) {
+                    return lifecycleTarget.kind === 'base';
+                }
+                return true;
             }
         );
     }
     return [];
 };
 
-const getRegisteredTargets = ({ targets, lifecycleTargets }: {
-    targets: AllTargets;
+const validateLifecycleDependencies = ({
+    lifecycleTargets,
+    options,
+    targetsToRemove,
+}: {
     lifecycleTargets: LifecycleTargets;
-}): RegisteredTargets => {
-    const registeredTargets: RegisteredTargets = new Map();
+    options: ProcessorOptions;
+    targetsToRemove: Set<string>;
+}): void => {
+    for (const [stageName, { dependsOn }] of Object.entries(options.stages)) {
+        if (dependsOn) {
+            const filtered = removeDependencyTargets({
+                target: { dependsOn },
+                lifecycleTargets,
+                targetsToRemove,
+            });
 
-    for (const [targetName, { configurations = {} }] of Object.entries(targets)) {
-        if ('lifecycle' in configurations) {
-            if (configurations.lifecycle.hook) {
-                const hook = lifecycleTargets.get(configurations.lifecycle.hook);
-                if (hook) {
-                    if (hook.kind === 'anchor') {
-                        throw new Error(`Target ${targetName} cannot be part of anchor hook ${hook.name}`);
-                    } else if (hook.kind === 'base' && hook.hasHooks) {
-                        throw new Error(`Target ${targetName} must use hook of ${hook.name}:HOOK_NAME`);
-                    }
-                    registeredTargets.set(targetName, hook);
-                } else {
-                    throw new Error(`Lifecycle hook not found: ${configurations.lifecycle.hook}`);
-                }
-            } else {
-                registeredTargets.set(targetName, null);
+            if (filtered.length !== dependsOn.length) {
+                throw new Error(`Invalid dependency detected on lifecycle stage ${stageName}`);
             }
         }
     }
-
-    return registeredTargets;
 };
 
-const processTargets = ({
-    isProjectJson,
-    targets,
+const processNxJson = ({
+    nxJson,
     lifecycleTargets,
-    nxRegisteredTargets,
+    registeredTargets,
     targetsToRemove,
 }: {
-    isProjectJson: boolean;
-    targets: AllTargets;
+    nxJson: NxJson;
     lifecycleTargets: LifecycleTargets;
-    nxRegisteredTargets: RegisteredTargets;
+    registeredTargets: RegisteredTargets;
     targetsToRemove: Set<string>;
-}): AllTargets => {
+}): NxJson => {
 
-    const isNxJson = !isProjectJson;
-
-    const processedTargets = { ...targets };
-    const registeredTargets = new Map([
-        ...nxRegisteredTargets,
-        ...getRegisteredTargets({ targets, lifecycleTargets }),
-    ]);
-
+    const originalTargets = nxJson.targetDefaults ?? {};
+    const targetDefaults = { ...originalTargets };
     const lifecycles: AllTargets = {};
     for (const [targetName, target] of lifecycleTargets.entries()) {
-        lifecycles[targetName] = isProjectJson ? {
-            dependsOn: [...target.dependsOn],
-        } : {
+        lifecycles[targetName] = {
             executor: NOOP_EXECUTOR,
             dependsOn: [...target.dependsOn],
             configurations: {
@@ -176,303 +193,93 @@ const processTargets = ({
         };
     }
 
-    for (const [targetName, originalTarget] of Object.entries(processedTargets)) {
-        if ('__lifecycle' in (originalTarget.configurations ?? {})) {
-            // Clean up all existing lifecycle hooks.
-            // Some may be stale, others will be added back
-            delete processedTargets[targetName];
-        } else if (lifecycleTargets.has(targetName)) {
-            // If this hook was _not_ cleaned up previous conditional, but was flagged
-            // as a hook in the config:
-            // If nx.json and only `dependsOn`, it is probably a deduped version so clean it up now.
-            // Otherwise there is probably overlap between the hooks managed by this library and normal targets.
-            // No correct path forward, so error.
-            if (isProjectJson && isTargetWithDependsOnOnly(originalTarget)) {
-                delete processedTargets[targetName];
+    for (const [targetName, originalTarget] of Object.entries(targetDefaults)) {
+        if (targetsToRemove.has(targetName) || lifecycleTargets.has(targetName)) {
+            if ('__lifecycle' in (originalTarget.configurations ?? {})) {
+                delete targetDefaults[targetName];
             } else {
-                throw new Error(`Overlap between target and lifecycle detected: ${targetName}`);
+                throw new Error(`Overlap in lifecycle hook and target: ${targetName}`);
             }
-        } else if (targetsToRemove.has(targetName)) {
-            // Only really relevant in project.json, if there are hooks that were stale
-            // (but didn't have `__lifecycle` because it is deduped)
-            // clean those up now.
-            delete processedTargets[targetName];
         } else {
-            const target = { ...originalTarget };
-            // Everything beyond here should be more "normal" targets
-            const dependsOn = removeDependencyTargets({ target, lifecycleTargets, targetsToRemove });
-            const configurations = target.configurations ?
-                { ...target.configurations as Exclude<Configurations, { __lifecycle: {} }> } :
-                {};
-            if (registeredTargets.has(targetName)) {
-                const hook = registeredTargets.get(targetName);
-                if (hook) {
-                    dependsOn.push(hook.previousHook);
-                    lifecycles[hook.name]!.dependsOn!.push(targetName);
-                    if (isProjectJson) {
-                        configurations.lifecycle = { hook: hook.name };
-                    }
-                } else {
-                    configurations.lifecycle = { hook: null };
-                }
-            }
-
-            target.dependsOn = dependsOn;
-            target.configurations = configurations;
-
-            if (isNxJson) {
-
-                if (dependsOn.length === 0 && !originalTarget.dependsOn) {
-                    delete target.dependsOn;
-                }
-                if (isEmpty(configurations) && !originalTarget.configurations) {
-                    delete target.configurations;
-                }
-            }
-
-            processedTargets[targetName] = target;
+            targetDefaults[targetName] = {
+                ...originalTarget,
+                dependsOn: removeDependencyTargets({
+                    target: originalTarget,
+                    lifecycleTargets,
+                    targetsToRemove,
+                }),
+            };
         }
     }
 
-    if (isNxJson) {
-        for (const targetName of lifecycleTargets.keys()) {
-            const target = lifecycles[targetName]!;
-            if (target.dependsOn!.length === 0) {
+    for (const [targetName, lifecycleTarget] of registeredTargets.entries()) {
+        const registeredTarget = targetDefaults[targetName] ?? {};
+        registeredTarget.dependsOn ??= [];
+        registeredTarget.dependsOn.push(lifecycleTarget.previousHook);
+        lifecycles[lifecycleTarget.name]!.dependsOn?.push(targetName);
+
+        targetDefaults[targetName] = registeredTarget;
+    }
+
+    Object.assign(targetDefaults, lifecycles);
+
+    for (const [targetName, target] of Object.entries(targetDefaults)) {
+        if (target.dependsOn!.length === 0) {
+            const originalTarget = originalTargets[targetName] ?? {};
+            if (!originalTarget.dependsOn) {
                 delete target.dependsOn;
             }
         }
     }
 
     return {
-        ...processedTargets,
-        ...lifecycles,
-    };
-};
-
-const processNxJson = ({
-    nxJson,
-    lifecycleTargets,
-    targetsToRemove,
-}: {
-    nxJson: NxJson;
-    lifecycleTargets: Map<string, LifecycleTarget>;
-    targetsToRemove: Set<string>;
-}): NxJsonWithTargets => {
-
-    const targets = nxJson.targetDefaults ?? {};
-
-    return {
         ...nxJson,
-        targetDefaults: processTargets({
-            isProjectJson: false,
-            targets,
-            lifecycleTargets,
-            nxRegisteredTargets: new Map(),
-            targetsToRemove,
-        }),
-    }
-};
-
-const getHook = (configurations: Configurations): string | null =>
-    (configurations as Exclude<Configurations, { __lifecycle: {} }>).lifecycle?.hook ?? null;
-
-const stripOriginalConfigurations = (configurations: Configurations): Configurations => {
-    if ('lifecycle' in configurations) {
-        // Lifecycle was already declared, so maintain it
-        return configurations;
-    }
-
-    // Otherwise lifecycle can be removed, and will be inherited
-    const processedConfigurations = { ...configurations as Exclude<Configurations, { __lifecycle: {} }> };
-    delete processedConfigurations.lifecycle;
-    return processedConfigurations;
-};
-
-const mergeProjectConfigurationsFromNx = ({
-    configurations,
-    nxConfigurations,
-    originalConfigurations
-}: {
-    configurations: Configurations;
-    nxConfigurations: Configurations | null;
-    originalConfigurations: Configurations | null;
-}): Configurations | null => {
-    const hook = getHook(configurations);
-
-    if (nxConfigurations) {
-        // Original configuration exists, so need to ensure it is properly inherited
-        const nxHook = getHook(nxConfigurations);
-
-        if (hook === nxHook) {
-            // Registered hook is the same
-
-            if (originalConfigurations) {
-                // An original configuration existed, so defaults were not being inherited
-                return stripOriginalConfigurations(originalConfigurations);
-            }
-
-            // Else never existed and doesn't need to for sake of lifecycle
-            return null;
-        }
-
-        if (originalConfigurations) {
-            // Don't need to do any inheriting, and keeps the lifecycle
-            return stripOriginalConfigurations(originalConfigurations);
-        }
-
-        // Merge nx configuration with lifecycle
-        return {
-            ...nxConfigurations,
-            ...configurations,
-        };
-    }
-
-    if (hook) {
-        // There is a hook to declare, and it was attached to config
-        return configurations;
-    }
-
-    if (originalConfigurations) {
-        // There is a config, but a meaningless null hook
-        return stripOriginalConfigurations(originalConfigurations);
-    }
-
-    // No lifecycle to provide, so don't force a configurations object into settings
-    return null;
-};
-
-const isNxAcceptableReplacementForDependsOn = ({
-    dependsOn,
-    nxDependsOn,
-}: {
-    dependsOn: DependsOn;
-    nxDependsOn: DependsOn;
-}): boolean => {
-    // TODO more
-    return deepEqual(dependsOn, nxDependsOn);
-}
-
-const mergeProjectDependsOnFromNx = ({
-    dependsOn,
-    nxDependsOn,
-    originalDependsOn,
-}: {
-    dependsOn: DependsOn;
-    nxDependsOn: DependsOn | null;
-    originalDependsOn: DependsOn | null;
-}): DependsOn | null => {
-
-    if (nxDependsOn) {
-
-        if (originalDependsOn) {
-            return dependsOn;
-        }
-
-        if (isNxAcceptableReplacementForDependsOn({ dependsOn, nxDependsOn })) {
-            return null;
-        }
-
-        return dependsOn;
-    }
-
-    if (originalDependsOn) {
-        return dependsOn;
-    }
-
-    if (dependsOn.length > 0) {
-        return dependsOn;
-    }
-
-    return null;
-};
-
-const dedupeProjectJsonFromNx = ({ lifecycleTargets, nxJson, projectJson, originalProjectJson }: {
-    lifecycleTargets: LifecycleTargets;
-    nxJson: NxJsonWithTargets;
-    projectJson: ProjectJsonWithTargets;
-    originalProjectJson: ProjectJson;
-}): ProjectJsonWithTargets => {
-
-    const targets: AllTargets = {};
-
-    for (const [targetName, target] of Object.entries(projectJson.targets)) {
-        let processedTarget: Target;
-        const nxTarget = nxJson.targetDefaults[targetName] ?? {};
-        const nxConfigurations = nxTarget.configurations ?? null;
-        const nxDependsOn = nxTarget.dependsOn ?? null;
-
-        if (lifecycleTargets.has(targetName)) {
-            processedTarget = {};
-            const dependsOn = target.dependsOn!;
-
-            if (nxDependsOn) {
-                if (!isNxAcceptableReplacementForDependsOn({ dependsOn, nxDependsOn })) {
-                    processedTarget.dependsOn = dependsOn;
-                }
-            } else if (dependsOn.length > 0) {
-                processedTarget.dependsOn = dependsOn;
-            }
-
-        } else {
-
-            const originalTarget = originalProjectJson.targets?.[targetName] ?? {};
-            processedTarget = { ...target };
-
-            const mergedDependsOn = mergeProjectDependsOnFromNx({
-                dependsOn: target.dependsOn!,
-                nxDependsOn,
-                originalDependsOn: originalTarget.dependsOn ?? null,
-            });
-            if (mergedDependsOn) {
-                processedTarget.dependsOn = mergedDependsOn;
-            } else {
-                delete processedTarget.dependsOn;
-            }
-
-            const mergedConfigurations = mergeProjectConfigurationsFromNx({
-                configurations: target.configurations!,
-                nxConfigurations,
-                originalConfigurations: originalTarget.configurations ?? null,
-            });
-            if (mergedConfigurations) {
-                processedTarget.configurations = mergedConfigurations;
-            } else {
-                delete processedTarget.configurations;
-            }
-        }
-
-        targets[targetName] = processedTarget;
-    }
-
-    return {
-        ...projectJson,
-        targets,
+        targetDefaults,
     };
 };
 
 const processProjectJson = ({
-    nxJson,
-    nxRegisteredTargets,
     projectJson,
     lifecycleTargets,
+    registeredTargets,
     targetsToRemove,
 }: {
-    nxJson: NxJsonWithTargets;
-    nxRegisteredTargets: RegisteredTargets;
     projectJson: ProjectJson;
-    lifecycleTargets: Map<string, LifecycleTarget>;
+    lifecycleTargets: LifecycleTargets;
+    registeredTargets: RegisteredTargets;
     targetsToRemove: Set<string>;
 }): ProjectJson => {
 
-    const targets = projectJson.targets ?? {};
+    const originalTargets = projectJson.targets ?? {};
+    const targets = { ...originalTargets };
+    const lifecycles: AllTargets = {};
+    for (const targetName of lifecycleTargets.keys()) {
+        lifecycles[targetName] = {};
+    }
 
-    const processedTargets = processTargets({
-        isProjectJson: true,
-        targets,
-        lifecycleTargets,
-        nxRegisteredTargets,
-        targetsToRemove,
-    });
+    for (const [targetName, target] of Object.entries(targets)) {
+        if (targetsToRemove.has(targetName) || lifecycleTargets.has(targetName)) {
+            delete targets[targetName];
+        } else if (target.dependsOn) {
+            const processedTarget = { ...target };
+            targets[targetName] = processedTarget;
+            processedTarget.dependsOn = removeDependencyTargets({
+                target,
+                lifecycleTargets,
+                targetsToRemove,
+            });
+
+            const lifecycleTarget = registeredTargets.get(targetName);
+            if (lifecycleTarget) {
+                processedTarget.dependsOn.push(lifecycleTarget.previousHook);
+            }
+        }
+    }
+
+    const processedTargets = {
+        ...targets,
+        ...lifecycles,
+    };
 
     if (
         !('targets' in projectJson) &&
@@ -481,15 +288,10 @@ const processProjectJson = ({
         return projectJson;
     }
 
-    return dedupeProjectJsonFromNx({
-        lifecycleTargets,
-        nxJson,
-        projectJson: {
-            ...projectJson,
-            targets: processedTargets,
-        },
-        originalProjectJson: projectJson,
-    });
+    return {
+        ...projectJson,
+        targets: processedTargets,
+    };
 };
 
 export const processNxAndProjectJsons = ({
@@ -506,27 +308,27 @@ export const processNxAndProjectJsons = ({
 } => {
 
     const lifecycleTargets = calculateTargets(options);
-    const targetsToRemove = calculateTargetsToRemove({
+    const targetsToRemove = calculateTargetsToRemove({ lifecycleTargets, nxJson });
+    validateLifecycleDependencies({
         lifecycleTargets,
-        nxJson,
+        options,
+        targetsToRemove,
     });
+
+    const registeredTargets = registerTargets({ options, lifecycleTargets });
 
     const processedNxJson = processNxJson({
         nxJson,
         lifecycleTargets,
+        registeredTargets,
         targetsToRemove,
     });
 
-    const nxRegisteredTargets = getRegisteredTargets({
-        targets: processedNxJson.targetDefaults,
-        lifecycleTargets,
-    });
     const processedProjectJsons = projectJsons.map(projectJson => processProjectJson({
-        nxJson: processedNxJson,
         projectJson,
         lifecycleTargets,
         targetsToRemove,
-        nxRegisteredTargets,
+        registeredTargets,
     }));
 
     const response: ReturnType<typeof processNxAndProjectJsons> = {

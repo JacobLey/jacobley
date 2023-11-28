@@ -1,6 +1,6 @@
 import { objectSchema, type SchemaType } from 'juniper';
 import { ajv } from './lib/ajv.js';
-import { allTargetsSchema, type AllTargets } from './target.js';
+import { allTargetsSchema } from './target.js';
 
 const projectJsonSchema = objectSchema({
     properties: {
@@ -10,8 +10,5 @@ const projectJsonSchema = objectSchema({
 });
 
 export type ProjectJson = SchemaType<typeof projectJsonSchema>;
-export interface ProjectJsonWithTargets extends ProjectJson {
-    targets: AllTargets;
-}
 
 export const isProjectJson = ajv.compile<ProjectJson>(projectJsonSchema.toJSON());
