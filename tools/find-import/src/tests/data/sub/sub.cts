@@ -1,3 +1,0 @@
-export = {
-    kind: 'sub-cjs',
-};
